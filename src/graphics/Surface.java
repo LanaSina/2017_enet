@@ -6,13 +6,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 
-import javax.security.auth.Refreshable;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
-
-import com.sun.xml.internal.bind.v2.TODO;
 
 import communication.MyLog;
 
