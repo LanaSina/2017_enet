@@ -1,12 +1,11 @@
 package startup;
 
-import graphics.ExperimentThread;
+import models.CharCNet;
 
-public class Starter {
-	
+public class Starter {	
 
 	public static void main(String[] args) {		
-		new Thread(new ExperimentThread()).start();		
+		new CharCNet();	
 	}
 
 }

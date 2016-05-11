@@ -31,11 +31,11 @@ public class Surface extends JPanel{
 	JFrame frame;
 	/**the current letter beng shown*/
 	BufferedImage letter;
-	/** something (what?) */
+	/** the partial input to the eye */
 	BufferedImage focused;
-	/** something (what?) */
+	/** the partial input to the eye - with adjusted coarseness */
 	BufferedImage see;
-	/** something (what?) */
+	/** current center of focus in the image [x,y] (eye tracking) */
 	int[] track = {100,100};
 	
 	/** Size of the eye focus (a square surface) */
@@ -50,22 +50,11 @@ public class Surface extends JPanel{
 		focused = letter;
 		see = letter;
 		
-		//graphics creation
-		JPanel jp = this;//weird but hey
-		//refresh rate (ms)
-    	int delay = 50;
-        ActionListener taskPerformer = new ActionListener() {
-          public void actionPerformed(ActionEvent evt) {
-            jp.repaint();
-          }
-        };
-        new Timer(delay, taskPerformer).start();
-    	JFrame frame = buildFrame();
-    	frame.add(this);
+		//graphics
+    	JFrame frame = buildFrame(this);
 	}
 	
 	
-	//image_input, eye_input, eye_input_coarse, focus_center
 	/**
 	 * 
 	 * @param l the letter (character), complete input
@@ -107,11 +96,21 @@ public class Surface extends JPanel{
 		g.drawImage(focused, 10, y, null);
     }
 	
-	private JFrame buildFrame(){
+	private JFrame buildFrame(Surface s){
 		JFrame frame = new JFrame();
-	  frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-	  frame.setSize(700, 700);
-	  frame.setVisible(true);   
-	  return frame;
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		frame.setSize(700, 700);
+		frame.setVisible(true);   
+		
+		//graphics creation
+    	int delay = 50; //milliseconds 	
+        ActionListener taskPerformer = new ActionListener() {
+          public void actionPerformed(ActionEvent evt) {
+            s.repaint();
+          }
+        };
+        new Timer(delay, taskPerformer).start();
+    	frame.add(s);
+		return frame;
 	}
 }

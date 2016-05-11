@@ -14,20 +14,28 @@ public class CharCNet {
 	Surface panel;
 	
 	public CharCNet(){
-		//surface
-		
+		//graphics creation
+    	panel = new Surface();
+    	
 		//main thread
+    	new Thread(new ExperimentThread(this)).start();		
 	}
 
 	
 	//main thread
 	private class ExperimentThread implements Runnable {
+		/** frequency at which to snap the network */
 		int step = 0;
 		/** log */
 		MyLog mlog = new MyLog("FocusNet Thread", true);
+		/** network */
+		CharCNet net;
+		
+		public ExperimentThread(CharCNet net){
+			this.net = net;
+		}
 		
 	    public void run() {
-	    	CharCNet net = new CharCNet();
 	
 	    	while(true){
 	    		long before = 0;
@@ -49,7 +57,7 @@ public class CharCNet {
 	    		}
 	    		
 	    		try {
-					Thread.sleep(500);
+					Thread.sleep(2000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}    		
