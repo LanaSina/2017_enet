@@ -51,7 +51,8 @@ public class Surface extends JPanel{
 		see = letter;
 		
 		//graphics
-    	JFrame frame = buildFrame(this);
+    	//JFrame frame = 
+		buildFrame(this);
 	}
 	
 	

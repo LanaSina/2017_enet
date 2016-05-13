@@ -1,11 +1,11 @@
 package startup;
 
-import models.CharCNet;
+import models.CharSNet;
 
 public class Starter {	
 
 	public static void main(String[] args) {		
-		new CharCNet();	
+		new CharSNet();	
 	}
 
 }
