@@ -54,6 +54,14 @@ public class Eye {
 	/** maps actual values in world to sensors (square sensory field, can be overlapping) 
 	 * [sensor id][topmost sensor, leftmost sensor, size]*/
 	int[][] eye_interface;
+	
+	//muscles
+	/** eye motion: move right or move left (actually can happen at the same time, so should be separated)*/
+	int[] eyemuscle_h = {-1,0,1};//I have decided to add 0.. but the choice not to do something should be different
+	/** eye motion: move up or down*/
+	int[] eyemuscle_v = {-1,0,1};
+	/** resolution of eye  motion: how many pixels do we move at each motion?*/
+	int eye_motion_res = 10;
 
 	
 	//UI
@@ -77,6 +85,64 @@ public class Eye {
 		s_neurons = new int[gray_scales][n];
 		//sensory field mapping to real world
 		eye_interface = new int[n][3];		
+		
+		
+		//build interface
+		// total number of unit sensors (sites)
+		int nn = 0;
+		//width
+		int w = 0;
+		//height
+		int h = 0;
+		
+		//do in focus first,left to right
+		h = (vf_h-ef_s)/2;
+		w = (vf_w-ef_s)/2;
+		boolean next = true;
+		while(next){
+			eye_interface[nn][0] = h;//row
+			eye_interface[nn][1] = w;//col
+			eye_interface[nn][2] = eres_f;//size
+			w+=eres_f;//next column
+			if(w >= ((vf_w-ef_s)/2)+ef_s){
+				//next row
+				h+=eres_f;
+				w=(vf_w-ef_s)/2;
+			}		
+			if(h >= ((vf_h-ef_s)/2)+ef_s){
+				next = false;
+			}
+			nn++;
+		}
+	
+		//now do outfocus
+		h = 0;
+		w = 0;
+		//go down to next row
+		next = true;
+		while(next){
+			boolean infocus = ( h>=(vf_h-ef_s)/2 & h<((vf_h-ef_s)/2)+ef_s) & (w>=(vf_w-ef_s)/2 & w<((vf_w-ef_s)/2)+ef_s);
+			if(!infocus){
+				eye_interface[nn][0] = h;//row
+				eye_interface[nn][1] = w;
+				eye_interface[nn][2] = eres_nf;//size
+				w+=eres_nf;//next column
+				nn++;
+			} else{
+				w+=ef_s;
+			}
+			if(w >= vf_w){
+				//next row
+				h+=eres_nf;
+				w=0;
+			}				
+			if(h >= vf_h){
+				next = false;
+			}
+		}
+		
+		mlog.say("eye interface sites "+ nn);
+		
 	}
 
 	
@@ -138,6 +204,22 @@ public class Eye {
 	public void linkNeuron(int nid, int scale, int index) {
 		//this sensor position i in this grayscale s links to this neuron		
 		s_neurons[scale][index] = nid;
+	}
+	
+	/**
+	 * 
+	 * @return the number of possible motions.
+	 */
+	public int getVerticalMotionResolution(){
+		return eyemuscle_v.length;
+	}
+	
+	/**
+	 * 
+	 * @return the number of possible motions.
+	 */
+	public int getHorizontalMotionResolution(){
+		return eyemuscle_h.length;
 	}
 
 }

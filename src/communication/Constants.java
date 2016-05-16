@@ -16,4 +16,11 @@ public class Constants {
 	
 	/** sensitivity of the image sensor */
 	public static final int gray_scales = 4;
+
+
+	//weight types
+	/** this connection weight will always be max_weight (=1)*/
+	public static final int fixedConnection = 1;
+	/** this connection weight will change with time*/
+	public static final int defaultConnection = 2;
 }
