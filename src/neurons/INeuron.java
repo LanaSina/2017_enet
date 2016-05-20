@@ -1,7 +1,10 @@
 package neurons;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
+import communication.Constants;
 import communication.MyLog;
 
 /**
@@ -15,14 +18,15 @@ import communication.MyLog;
 public class INeuron extends Neuron {
 	MyLog mlog = new MyLog("INeuron", true);
 
-	/** fixed input weights from sensors */
-	//HashMap<Integer, ProbaWeight> sensorInWeights = new HashMap<Integer, ProbaWeight>();//was realInWeights
-	/** input weights */
 	HashMap<Integer, ProbaWeight> inWeights = new HashMap<Integer, ProbaWeight>();//was realInWeights
 	/** (id of out neuron, weight) probabilistic outweights*/
 	HashMap<Integer, ProbaWeight> outWeights = new HashMap<Integer, ProbaWeight>();
 	/** activation of this neuron (real or vitual)*/
 	double activation;
+	/** probabilistic activation */
+	double pro_activation;
+	/** has activation been calculated since the last reset or not*/
+	boolean activationCalculated = false;
 	
 	public INeuron(int id) {
 		super(id);
@@ -68,6 +72,127 @@ public class INeuron extends Neuron {
 	 */
 	public void  resetActivation(){
 		activation = 0;
+	}
+
+	
+	/**
+	 * increases neuron activation
+	 * should not be used outside of direct connection to sensors
+	 * @param i value to add
+	 */
+	public void increaseActivation(int i) {
+		activation = activation+i;
+	}
+
+	/**
+	 * increase the value of the in weights that were activated 
+	 * and young enough to still be learning
+	 * (not the age)
+	 */
+	public void increaseInWeights(){
+		Iterator it = inWeights.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry pair = (Map.Entry) it.next();
+			ProbaWeight w = (ProbaWeight) pair.getValue();
+			if(w.getActivation()>0 & w.canLearn){
+				w.addValue();
+			}
+		}
+	}
+
+	/**
+	 * checks probabilistic activation and direct activation alike.
+	 * @return true is activation is positive, false otherwise
+	 */
+	public boolean isActivated() {
+		//Calculate activation once before calling this
+		if(!activationCalculated){
+			calculateActivation();
+			activationCalculated = true;
+		}
+		
+		boolean b = false;
+		if((activation+pro_activation)>0){
+			b = true;
+		}
+		return b;
+	}
+
+
+	/**
+	 * calculates the probabilistic activation of this neuron
+	 * and compares it to its direct activation.
+	 * if there is not predicted activation but we are activated, the neuron should be "surprised"*/
+	private void calculateActivation() {
+		//calculate predicted activation a
+		double a = 0;
+		double confidence = Constants.confidence_threshold;
+		
+		Iterator it = inWeights.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry pair = (Map.Entry) it.next();
+			ProbaWeight pw = (ProbaWeight) pair.getValue();
+			double w  = pw.getProba();
+			if(w>confidence){
+				a+=1;
+			}
+		}
+
+		if(a==0 & activation>0){
+			//TODO be surprised
+		}	
+		
+		pro_activation = a;
+	}
+
+
+	/**
+	 * reset output weights activation to 0.
+	 */
+	public void resetOutWeights() {
+		Iterator  it = outWeights.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry pair = (Map.Entry) it.next();
+			ProbaWeight w = (ProbaWeight) pair.getValue();
+			w.resetActivation();
+		}		
+	}
+
+	
+	/**
+	 * set the activation values to all outside weights
+	 * based on the activation of this neuron
+	 */
+	public void activateOutWeights() {
+		sendActivations();
+	}
+	
+	
+	/**
+	 * sets activations of all outside probabilistic weights
+	 * to 1 if activated
+	 */
+	private void sendActivations(){
+		if(!isActivated()){
+			return;
+		}
+		Iterator it = outWeights.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry pair = (Map.Entry) it.next();
+			ProbaWeight pw = (ProbaWeight) pair.getValue();
+			pw.setActivation(1);
+		}			
+	}
+
+
+	/**
+	 * set all in weights activations to 0
+	 */
+	public void resetInWeights() {
+		for(int i =0;i<inWeights.size();i++){
+			ProbaWeight pw = inWeights.get(i);
+			pw.resetActivation();
+		}			
 	}
 
 }

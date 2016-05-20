@@ -13,6 +13,8 @@ public class Constants {
 
 	/** age at which probabilistic connections stop learning */
 	public static final int weight_max_age = 100;
+	/** confidence threshold for predictions */
+	public static final double confidence_threshold = 0.9;//90%
 	
 	/** sensitivity of the image sensor */
 	public static final int gray_scales = 4;
@@ -23,4 +25,6 @@ public class Constants {
 	public static final int fixedConnection = 1;
 	/** this connection weight will change with time*/
 	public static final int defaultConnection = 2;
+	
+	
 }

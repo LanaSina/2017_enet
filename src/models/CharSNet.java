@@ -11,7 +11,6 @@ import neurons.INeuron;
 import neurons.MotorNeuron;
 import neurons.ProbaWeight;
 import sensors.Eye;
-import testNets.CNeuron;
 
 
 /**
@@ -43,7 +42,7 @@ public class CharSNet {
 	/** image sensor*/
 	Eye eye;
 	/** sensory neurons */
-	HashMap<Integer, INeuron>[] eye_neurons = new HashMap[Constants.gray_scales];//eye_sensors
+	HashMap<Integer, INeuron>[] eye_neurons = new HashMap[Constants.gray_scales];//was eye_sensors
 	
 	//neurons
 	/**all neurons except eyes (sensory) so this is like "hidden layer"*/
@@ -131,7 +130,7 @@ public class CharSNet {
 	
 		//build hidden neurons with their weights
 		for(int i=0;i<eye_neurons.length;i++){
-			makeNeurons(eye_neurons[i],eyemotor_v);//TODO rename sensor into sensory neurons
+			makeNeurons(eye_neurons[i],eyemotor_v);
 			makeNeurons(eye_neurons[i],eyemotor_h);
 		}	
 		
@@ -203,7 +202,7 @@ public class CharSNet {
 		
 		if(nextImage){
 			//deactivate the previous inweights and "action activations"
-			resetActivation(allINeurons);
+			//resetActivation(allINeurons); //not conviced this is necessary.
 			
     		mlog.say("presentations "+presentations);
 			presentations = 0;
@@ -227,44 +226,108 @@ public class CharSNet {
 	 */
 	private void buildEyeInput(){	 
 		
-		//reset activations of eye neurons, but NOT their out/action weights		
+		//reset activations of eye neurons, but NOT their out weights		
 		for(int i=0;i<eye_neurons.length;i++){
 			resetNeuronsActivation(eye_neurons[i]);
 		}
 		
 		//apply blur to selected portion of image
-		int[] in = buildCoarse(v_m,h_m);//hm vm
-		panel.setComponents(image_input, eye_input, eye_input_coarse, focus_center);
+		int[] in = eye.buildCoarse(v_m,h_m);
 		
-		//go through sensors and activate
+		//go through sensory neurons and activate them.
 		int n = in.length;
+		int[][] n_interface = eye.getNeuralInterface();
 		for(int k = 0; k<n; k++){
-			//starts at 1, not 0
+			//values in "in" start at 1, not 0
 			int i = in[k]-1;
-			eye_neurons[i].get(eye_v[i][k]).increaseRealActivation(1);
+			eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);//actually, activation could just be binary
 		}
 				
+		//update prediction probabilities: inweight
 		for(int i=0;i<eye_neurons.length;i++){
-			//add +1 value to the previous inweights
-			//if they were activated & action activated 6 this is activated
+			//add +1 value to the inweights if they were activated at t-1 
+			//& if this is activated
 			increaseInWeights(eye_neurons[i]);
-			
 		}
-		
+		//reset activations of out weights
 		//must be separate from above
 		for(int i=0;i<eye_neurons.length;i++){
-			//reset activations of eye neurons out weights
-			resetOutWActivation(eye_neurons[i]);
+			resetOutWeights(eye_neurons[i]);
 		}
 
-		//now it's ok to deactivate the previous inweights and "action activations"
-		resetActivation(allCNeurons);
+		//now it's ok to deactivate all inweights (they're outweights from t-1)
+		//resetActivation(allINeurons);//mmh...
+		resetInWeights(allINeurons);
 		
-		for(int i=0;i<eye_sensors.length;i++){
+		//activate outweights for use at t+1
+		for(int i=0;i<eye_neurons.length;i++){
 			//activate weights from sensory neurons		
-			activateAllOutWeights(eye_sensors[i]);
+			activateOutWeights(eye_neurons[i]);
 		}			
 	}
+	
+	
+	/**
+	 * Reset in weights to 0 in this layer
+	 * @param layer
+	 */
+	private void resetInWeights(HashMap<Integer, INeuron> layer) {
+		Iterator it = layer.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry pair = (Map.Entry) it.next();
+			INeuron ne = (INeuron) pair.getValue();
+			ne.resetInWeights();
+		}
+	}
+
+	
+	/**
+	 * for all neurons in this layer calculate probabilistic activation
+	 * then activate all outside weights 
+	 * if the neuron activation is above a threshold 
+	 * @param layer
+	 */
+	private void activateOutWeights(HashMap<Integer, INeuron> layer){
+		Iterator it = layer.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry pair = (Map.Entry) it.next();
+			INeuron ne = (INeuron) pair.getValue();
+			if(ne.isActivated()){
+				ne.activateOutWeights();
+			}
+		}
+	}
+	
+	
+	/**
+	 * reset output weights activation to 0 in this layer
+	 * @param layer
+	 */
+	public void resetOutWeights(HashMap<Integer,INeuron> layer){
+		Iterator it = layer.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry pair = (Map.Entry) it.next();
+			INeuron ne = (INeuron) pair.getValue();
+			ne.resetOutWeights();
+		}
+	}
+	
+	
+	/**
+	 * increases the value of input weights in the layer
+	 * @param layer
+	 */
+	private void increaseInWeights(HashMap<Integer, INeuron> layer){
+		Iterator it = layer.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry pair = (Map.Entry) it.next();
+			INeuron ne = (INeuron) pair.getValue();
+			if(ne.isActivated()){
+				ne.increaseInWeights();
+			}
+		}
+	}
+	
 	
 	/**
 	 * resets neurons activation to 0
@@ -273,7 +336,7 @@ public class CharSNet {
 	public void resetNeuronsActivation(HashMap<Integer,INeuron> layer){
 		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
 		while(it.hasNext()){
-			Entry<Integer, INeuron> pair = it.next(); //this wat of writing supresses warning
+			Entry<Integer, INeuron> pair = it.next(); //this way of writing supresses warning
 			//Map.Entry pair = (Map.Entry) it.next();
 			INeuron ne = (INeuron) pair.getValue();
 			ne.resetActivation();
@@ -286,16 +349,16 @@ public class CharSNet {
 	 * of the layer, including actionweights
 	 * and actionActivation
 	 */
-	private void resetActivation(HashMap<Integer, INeuron> layer){
+	/*private void resetActivation(HashMap<Integer, INeuron> layer){
 		Iterator it = layer.entrySet().iterator();
 		while(it.hasNext()){
 			Map.Entry pair = (Map.Entry) it.next();
 			INeuron n = (INeuron) pair.getValue();
 			/*n.resetActivation();
 			n.resetOutWeightsActivation();
-			n.resetActionWeights();*///TODO
-		}
-	}
+			n.resetActionWeights();*///todo 
+	/*	}
+	}*/
 	
 	//main thread
 	private class ExperimentThread implements Runnable {

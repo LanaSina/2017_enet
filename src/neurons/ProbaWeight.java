@@ -18,7 +18,8 @@ public class ProbaWeight {
 	private int value = 0;
 	/** depends on age of this weight */
 	boolean canLearn = true;
-	//private int activation = 0;
+	/** value of the activation of this weight*/
+	private int activation = 0; //could be binary
 
 	
 	
@@ -34,6 +35,46 @@ public class ProbaWeight {
 		default:
 			break;
 		}
+	}
+
+
+	/**
+	 * 
+	 * @return the current activation of this weight
+	 */
+	public int getActivation() {
+		return activation;
+	}
+
+	/**
+	 * adds 1 to current value.
+	 */
+	public void addValue() {
+		value++;		
+	}
+
+
+	/**
+	 * resets the activation of this weight to 0
+	 */
+	public void resetActivation() {
+		activation = 0;		
+	}
+
+	/**
+	 * @param a activation value
+	 */
+	public void setActivation(int a) {
+		activation = a;
+	}
+
+
+	/**
+	 * @return the probabilistic value of this weight.
+	 */
+	public double getProba() {
+		double p = value;
+		return p/age;
 	}
 
 }

@@ -53,6 +53,21 @@ public class Surface extends JPanel{
 		//graphics
     	//JFrame frame = 
 		buildFrame(this);
+		
+		//frame.add(this);
+
+		//graphics creation
+    	/*int delay = 50; //milliseconds 	
+        ActionListener taskPerformer = new ActionListener() {
+          public ActionListener(){
+        	  super();
+          }
+        	
+          public void actionPerformed(ActionEvent evt) {
+            s.repaint();
+          }
+        };
+        new Timer(delay, taskPerformer).start();*/
 	}
 	
 	
@@ -103,6 +118,8 @@ public class Surface extends JPanel{
 		frame.setSize(700, 700);
 		frame.setVisible(true);   
 		
+		frame.add(s);
+
 		//graphics creation
     	int delay = 50; //milliseconds 	
         ActionListener taskPerformer = new ActionListener() {
@@ -111,7 +128,7 @@ public class Surface extends JPanel{
           }
         };
         new Timer(delay, taskPerformer).start();
-    	frame.add(s);
+        
 		return frame;
 	}
 }

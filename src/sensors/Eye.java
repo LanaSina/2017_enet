@@ -53,7 +53,7 @@ public class Eye {
 	/** sensitivity resolution; number of distinct groups of sensory neurons*/
 	int gray_scales = Constants.gray_scales;
 	/**interface for sensory neurons linked to this sensor. [discrete grayscale value][neuron id] */
-	int[][] s_neurons; //eye_v;
+	int[][] s_neurons; //was eye_v
 	/** matrix of exact black and white values for the image [row][col] = grayscale value */
 	double[][] bw;
 	/** maps actual values in world to sensors (square sensory field, can be overlapping) 
@@ -170,7 +170,7 @@ public class Eye {
 			
 			//black and white buffer for image
 			//[row][column] = blackness level
-			double[][] bw = new double[im_h][im_w];
+			bw = new double[im_h][im_w];
 			
 			//build the whole image
 			for(int i=0; i<im_h;i++){
@@ -277,6 +277,9 @@ public class Eye {
 			}
 		}
 		
+		//set ui
+		panel.setComponents(image_input, eye_input, eye_input_coarse, focus_center);
+		
 		return coarse;
 	}
 	
@@ -301,6 +304,9 @@ public class Eye {
 		s_neurons[scale][index] = nid;
 	}
 	
+	public int[][] getNeuralInterface(){
+		return s_neurons;
+	}
 	
 	/**
 	 * 
