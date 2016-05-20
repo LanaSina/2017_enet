@@ -8,9 +8,12 @@ import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
+import com.sun.org.apache.xml.internal.security.Init;
+
 import communication.Constants;
 import communication.MyLog;
 import graphics.Surface;
+import jdk.internal.org.objectweb.asm.tree.IntInsnNode;
 import neurons.INeuron;
 
 /**
@@ -25,6 +28,8 @@ public class Eye {
 	MyLog mlog = new MyLog("Eye", true);
 	/** graphics*/
 	Surface panel;
+	/** becomes true after eye has been 1st initialized with an image*/
+	boolean init = false;
 	
 	/** total number of neurons sensitive to one grayscale value*/
 	int n;
@@ -62,11 +67,15 @@ public class Eye {
 	int[] eyemuscle_v = {-1,0,1};
 	/** resolution of eye  motion: how many pixels do we move at each motion?*/
 	int eye_motion_res = 10;
-
+	//current center of focus in the image
+	int[] focus_center = new int[2];
 	
 	//UI
+	/** actual image from data folder*/
 	BufferedImage image_input;
+	/** limited area fitting eye size*/
 	BufferedImage eye_input;
+	/** actual eye input with coarse outfocus zone*/
 	BufferedImage eye_input_coarse;
 	
 	public Eye(String imagesPath){
@@ -141,8 +150,7 @@ public class Eye {
 			}
 		}
 		
-		mlog.say("eye interface sites "+ nn);
-		
+		mlog.say("eye interface sites "+ nn);		
 	}
 
 	
@@ -183,8 +191,95 @@ public class Eye {
 			e.printStackTrace();
 		}
 		
+		//reset focus point only when eye first created
+		if(init == false){
+			focus_center[0] =  im_w/2;
+			focus_center[1] = im_h/2; //{25,25}
+			init = true;
+		}	
 		return null;
 	}
+	
+	
+	/**
+	 * builds "image" of sensory input, a coarse version of the original image
+	 * from the motion of eye muscles. We use relative motion bc it takes less memory space (easier)
+	 * @param fph -1..1 (relative motion on y height)
+	 * @param fpw -1..1 (relative motion on x width)
+	 * @return activation values on sensors [gray scale id]*total resolusion
+	 */
+	public int[] buildCoarse(int fph, int fpw){
+		
+		eye_input = new BufferedImage(vf_w, vf_h, BufferedImage.TYPE_INT_RGB);
+		eye_input_coarse = new BufferedImage(vf_w, vf_h, BufferedImage.TYPE_INT_RGB);
+		
+		int n = s_neurons[0].length;
+		int[] coarse = new int[n];	
+		
+		//first, shift focus
+		focus_center[0] +=  fph*eye_motion_res;
+		focus_center[1] +=  fpw*eye_motion_res;
+		
+		//limit conditions (cannot look out of image)
+		int[] limits = {im_h,im_w};
+		for(int i = 0; i<2 ; i++){
+			if(focus_center[i]<0) focus_center[i] = 0;
+			if(focus_center[i]>limits[i]) focus_center[i] = limits[i];
+		}
+		
+		//top left corner
+		int of_i = focus_center[0]-(vf_w/2);
+		int of_j = focus_center[1]-(vf_h/2);
+
+		//go through sensors via interface
+		double[] sums = new double[n];
+		for(int i=0; i<n; i++){
+			sums[i] = 0;
+		}	
+		//calculate level of blackness of each sensory field
+		for(int k=0; k<n; k++){//cool stuff can work with overlap too
+			int sensor_i = eye_interface[k][0]+of_i;
+			int sensor_j = eye_interface[k][1]+of_j;
+			int size = eye_interface[k][2];//size of the zone for this sensor
+			if(sensor_i>=0 & sensor_i+size<im_h & sensor_j>=0 & sensor_j+size<im_w){
+				for(int i=sensor_i; i<sensor_i+size; i++){
+					for(int j=sensor_j; j<sensor_j+size; j++){
+						sums[k]+=bw[i][j];
+					}
+				}		
+			}
+			//average it
+			sums[k] = sums[k]/(size*size);
+			
+			//low sensitivity to darker shades
+			if(sums[k]==1){//very black
+				coarse[k] = gray_scales;
+			} else{
+				double d = sums[k]/(1.0/gray_scales);
+				coarse[k] = (int)(d)+ 1;//even "no stim" will be treated as white
+			}	
+				
+			//build visualisation for UI
+			int b = (int) (((1-sums[k])*255)+0.5);
+			Color color = new Color(b,b,b); 
+			//double div
+			double val = coarse[k]/(1.0*gray_scales);// div by:  net can see how many values of grey (including white)
+			val = 1 - val;
+			b = (int) ((val*255)+0.5);
+			Color color2 = new Color(b,b,b);
+			int rel_i = eye_interface[k][0];
+			int rel_j = eye_interface[k][1];
+			for(int i=rel_i; i<rel_i+size; i++){
+				for(int j=rel_j; j<rel_j+size; j++){		       
+					eye_input.setRGB(j, i, color.getRGB());//j and i
+					eye_input_coarse.setRGB(j, i, color2.getRGB());
+				}
+			}
+		}
+		
+		return coarse;
+	}
+	
 	
 	/** 
 	 * @return total number of neurons sensitive to one grayscale value
@@ -206,6 +301,7 @@ public class Eye {
 		s_neurons[scale][index] = nid;
 	}
 	
+	
 	/**
 	 * 
 	 * @return the number of possible motions.
@@ -213,6 +309,7 @@ public class Eye {
 	public int getVerticalMotionResolution(){
 		return eyemuscle_v.length;
 	}
+	
 	
 	/**
 	 * 

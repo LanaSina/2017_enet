@@ -21,6 +21,8 @@ public class INeuron extends Neuron {
 	HashMap<Integer, ProbaWeight> inWeights = new HashMap<Integer, ProbaWeight>();//was realInWeights
 	/** (id of out neuron, weight) probabilistic outweights*/
 	HashMap<Integer, ProbaWeight> outWeights = new HashMap<Integer, ProbaWeight>();
+	/** activation of this neuron (real or vitual)*/
+	double activation;
 	
 	public INeuron(int id) {
 		super(id);
@@ -57,6 +59,15 @@ public class INeuron extends Neuron {
 		}else{
 			outWeights.put(id, p);
 		}		
+	}
+	
+	
+	/**
+	 * sets activation of the neuron to 0
+	 * does not change activation of output weights.
+	 */
+	public void  resetActivation(){
+		activation = 0;
 	}
 
 }

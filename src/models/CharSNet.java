@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import communication.Constants;
 import communication.MyLog;
@@ -10,6 +11,7 @@ import neurons.INeuron;
 import neurons.MotorNeuron;
 import neurons.ProbaWeight;
 import sensors.Eye;
+import testNets.CNeuron;
 
 
 /**
@@ -62,7 +64,6 @@ public class CharSNet {
 	
 	
 	public CharSNet(){
- 	
     	//sensor init
     	eye = new Eye(imagesPath);
     	eye.readImage(images[img_id]);
@@ -150,7 +151,7 @@ public class CharSNet {
 	/**
 	 * make neurons taking input from each sensor, and of which activation depends on each motor neuron in the layer.
 	 * One hidden neuron per eye sensor, per motor neuron, with weights towards all actions
-	 * and all sensors in same layer (will change this when STMem)
+	 * and all sensors in same layer (will change this when we have STMem)
 	 * @param sensory layer
 	 * @param motor layer
 	 */
@@ -169,32 +170,21 @@ public class CharSNet {
 				//add weight from eye sensor to this neuron
 				ProbaWeight p = newn.addInWeight(Constants.defaultConnection, sn.getId());//was RealInWeight
 				sn.addOutWeight(p,newn.getId());					
-				//its activation depends on this action
-				newn.setAInput(mn.getId());
-				//put in action-neurons list to choose where to direct attention
-				if(!action_modules.containsKey(mn.getId())){
-					ArrayList<INeuron> module = new ArrayList<INeuron>();
-					action_modules.put(mn.getId(), module);
-					mlog.say("new action module");
-				}
-				ArrayList<INeuron> module = action_modules.get(mn.getId());//more like motor module
-				module.add(newn);
+				//its activation depends on this action (disappears when we have neuron grouping)
 				
-				//add outweights to all sensors in all layers
+				//add outweights to all sensors in all "layers"
 				for(int k=0;k<eye_neurons.length;k++){
 					HashMap<Integer, INeuron> layer = eye_neurons[k];
 					Iterator it2 = layer.entrySet().iterator();
 					while(it2.hasNext()){
 						Map.Entry pair2 = (Map.Entry) it2.next();
 						INeuron sn2 = (INeuron) pair2.getValue();
-						ProbaWeight pw = new ProbaWeight();
-						newn.addOutWeight(pw, sn2.id);
-						sn2.addInWeight(pw);
+						ProbaWeight pw = sn2.addInWeight(Constants.defaultConnection, sn2.getId());
+						newn.addOutWeight(pw, sn2.getId());
 					}
-				}
-							
+				}							
 				//add to reservoir
-				allINeurons.put(newn.id,newn);
+				allINeurons.put(newn.getId(),newn);
 			}
 		}	
 	}
@@ -226,7 +216,68 @@ public class CharSNet {
 			eye.readImage(images[img_id]);
 		}
 		//build
-		//TODO buildEyeInput();
+		buildEyeInput();
+	}
+	
+	
+	/**
+	 * builds the sensory input from the focused image,
+	 * set graphics, 
+	 * activates neurons in eye, activate corresponding weights
+	 */
+	private void buildEyeInput(){	 
+		
+		//reset activations of eye neurons, but NOT their out/action weights		
+		for(int i=0;i<eye_neurons.length;i++){
+			resetNeuronsActivation(eye_neurons[i]);
+		}
+		
+		//apply blur to selected portion of image
+		int[] in = buildCoarse(v_m,h_m);//hm vm
+		panel.setComponents(image_input, eye_input, eye_input_coarse, focus_center);
+		
+		//go through sensors and activate
+		int n = in.length;
+		for(int k = 0; k<n; k++){
+			//starts at 1, not 0
+			int i = in[k]-1;
+			eye_neurons[i].get(eye_v[i][k]).increaseRealActivation(1);
+		}
+				
+		for(int i=0;i<eye_neurons.length;i++){
+			//add +1 value to the previous inweights
+			//if they were activated & action activated 6 this is activated
+			increaseInWeights(eye_neurons[i]);
+			
+		}
+		
+		//must be separate from above
+		for(int i=0;i<eye_neurons.length;i++){
+			//reset activations of eye neurons out weights
+			resetOutWActivation(eye_neurons[i]);
+		}
+
+		//now it's ok to deactivate the previous inweights and "action activations"
+		resetActivation(allCNeurons);
+		
+		for(int i=0;i<eye_sensors.length;i++){
+			//activate weights from sensory neurons		
+			activateAllOutWeights(eye_sensors[i]);
+		}			
+	}
+	
+	/**
+	 * resets neurons activation to 0
+	 * @param layer map of neurons to be reset.
+	 */
+	public void resetNeuronsActivation(HashMap<Integer,INeuron> layer){
+		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
+		while(it.hasNext()){
+			Entry<Integer, INeuron> pair = it.next(); //this wat of writing supresses warning
+			//Map.Entry pair = (Map.Entry) it.next();
+			INeuron ne = (INeuron) pair.getValue();
+			ne.resetActivation();
+		}
 	}
 	
 	
@@ -269,7 +320,7 @@ public class CharSNet {
 	    		}
 	    		
 	    		net.buildInputs();
-	    		//net.updateCNet();
+	    		//TODO net.updateSNet();
 		
 	    		if(step%50==0){
 	    			long runtime = System.currentTimeMillis()-before;
