@@ -1,5 +1,7 @@
 package communication;
 
+import java.util.Random;
+
 /**
  * Global variables
  * @author lana
@@ -26,5 +28,31 @@ public class Constants {
 	/** this connection weight will change with time*/
 	public static final int defaultConnection = 2;
 	
+	
+	
+	//functions
+	
+	/**
+	 * from http://stackoverflow.com/questions/363681/generating-random-integers-in-a-range-with-java
+	 * and http://stackoverflow.com/questions/3680637/how-to-generate-a-random-double-in-a-given-range
+	 * Returns a pseudo-random number between min and max, inclusive.
+	 * Uniform distribution.
+	 * The difference between min and max can be at most
+	 * <code>Integer.MAX_VALUE - 1</code>.
+	 *
+	 * @param min Minimum value
+	 * @param max Maximum value.  Must be greater than min.
+	 * @return Integer between min and max, inclusive.
+	 * @see java.util.Random#nextInt(int)
+	 */
+	public static double uniformDouble(double min, double max) {
+	    // NOTE: Usually this should be a field rather than a method
+	    // variable so that it is not re-seeded every call.
+	    Random rand = new Random();
+	    // nextInt is normally exclusive of the top value,
+	    // so add 1 to make it inclusive
+	    double randomNum = min + (max - min) * rand.nextDouble();
+	    return randomNum;
+	}
 	
 }

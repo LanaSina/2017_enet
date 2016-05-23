@@ -3,6 +3,7 @@ package neurons;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import communication.Constants;
 import communication.MyLog;
@@ -90,9 +91,9 @@ public class INeuron extends Neuron {
 	 * (not the age)
 	 */
 	public void increaseInWeights(){
-		Iterator it = inWeights.entrySet().iterator();
+		Iterator<Entry<Integer, ProbaWeight>> it = inWeights.entrySet().iterator();
 		while(it.hasNext()){
-			Map.Entry pair = (Map.Entry) it.next();
+			Map.Entry<Integer, ProbaWeight> pair = it.next();
 			ProbaWeight w = (ProbaWeight) pair.getValue();
 			if(w.getActivation()>0 & w.canLearn){
 				w.addValue();
@@ -123,14 +124,14 @@ public class INeuron extends Neuron {
 	 * calculates the probabilistic activation of this neuron
 	 * and compares it to its direct activation.
 	 * if there is not predicted activation but we are activated, the neuron should be "surprised"*/
-	private void calculateActivation() {
+	public void calculateActivation() {
 		//calculate predicted activation a
 		double a = 0;
 		double confidence = Constants.confidence_threshold;
 		
-		Iterator it = inWeights.entrySet().iterator();
+		Iterator<Entry<Integer, ProbaWeight>> it = inWeights.entrySet().iterator();
 		while(it.hasNext()){
-			Map.Entry pair = (Map.Entry) it.next();
+			Map.Entry<Integer, ProbaWeight> pair = it.next();
 			ProbaWeight pw = (ProbaWeight) pair.getValue();
 			double w  = pw.getProba();
 			if(w>confidence){
@@ -140,6 +141,7 @@ public class INeuron extends Neuron {
 
 		if(a==0 & activation>0){
 			//TODO be surprised
+			//mlog.say("surprised");
 		}	
 		
 		pro_activation = a;
@@ -150,9 +152,9 @@ public class INeuron extends Neuron {
 	 * reset output weights activation to 0.
 	 */
 	public void resetOutWeights() {
-		Iterator  it = outWeights.entrySet().iterator();
+		Iterator<Entry<Integer, ProbaWeight>> it = inWeights.entrySet().iterator();
 		while(it.hasNext()){
-			Map.Entry pair = (Map.Entry) it.next();
+			Map.Entry<Integer, ProbaWeight> pair = it.next();
 			ProbaWeight w = (ProbaWeight) pair.getValue();
 			w.resetActivation();
 		}		
@@ -176,9 +178,9 @@ public class INeuron extends Neuron {
 		if(!isActivated()){
 			return;
 		}
-		Iterator it = outWeights.entrySet().iterator();
+		Iterator<Entry<Integer, ProbaWeight>> it = outWeights.entrySet().iterator();
 		while(it.hasNext()){
-			Map.Entry pair = (Map.Entry) it.next();
+			Map.Entry<Integer, ProbaWeight> pair = it.next();
 			ProbaWeight pw = (ProbaWeight) pair.getValue();
 			pw.setActivation(1);
 		}			
@@ -189,8 +191,10 @@ public class INeuron extends Neuron {
 	 * set all in weights activations to 0
 	 */
 	public void resetInWeights() {
-		for(int i =0;i<inWeights.size();i++){
-			ProbaWeight pw = inWeights.get(i);
+		Iterator<Entry<Integer, ProbaWeight>> it = inWeights.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<Integer, ProbaWeight> pair = it.next();
+			ProbaWeight pw = (ProbaWeight) pair.getValue();
 			pw.resetActivation();
 		}			
 	}
