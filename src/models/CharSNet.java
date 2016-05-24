@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import communication.Constants;
 import communication.MyLog;
+import javafx.scene.web.WebHistory;
 import neurons.INeuron;
 import neurons.MotorNeuron;
 import neurons.ProbaWeight;
@@ -475,12 +476,12 @@ public class CharSNet {
 			//eyes actions
 			int act =  (int) Constants.uniformDouble(0,3);//0..2
 			MotorNeuron n = eyemotor_v.get(act);
-			n.artificialActivation = 2000;
+			n.increaseActivation(1);//artificialActivation = 2000;//why the high numbers 
 			INeuron in = eyepro_v.get(act);
 			//in.increaseActivation(1);//do this at next step, not now?
 			act =  (int) Constants.uniformDouble(0,3);
 			n = eyemotor_h.get(act);
-			n.artificialActivation = 2000;
+			n.increaseActivation(1);//artificialActivation = 2000;
 			mlog.say("training "+ step);
 			//for info
 			for(int i=0; i<eyemotor_h.size();i++){
@@ -489,7 +490,7 @@ public class CharSNet {
 				mlog.say("cert "+cert);
 			}
 		} else{
-			//eye here
+			//h
 			//calculate certainty on inputs for each *pre-activated* action
 			//TODO: build a pool of  pre-activated actions
 			double minc = 1;
@@ -504,35 +505,35 @@ public class CharSNet {
 					action = i;
 				}
 			}
-			CMotorNeuron n = eyemotor_h.get(action);
-			n.artificialActivation = 2;
-			
+			MotorNeuron n = eyemotor_h.get(action);
+			//v
+			n.increaseActivation(1);//n.artificialActivation = 2;//why the high numbers
 			minc = 1;
 			action = 1;
 			for(int i=0; i<eyemotor_v.size();i++){
-				int id = eyemotor_v.get(i).id;
+				int id = eyemotor_v.get(i).getId();
 				double cert = calculateCertainty(id);
-				//mlog.say("cert v "+cert);
 				if(cert<=minc){
 					minc = cert;
 					action = i;
 				}
 			}
 			n = eyemotor_v.get(action);
-			n.artificialActivation = 2;
+			n.increaseActivation(1);//n.artificialActivation = 2;
 			mlog.say("step "+ step);
 		}
 		
 		//horizontal motion of eye first
 		h_m = 0;
 		for(int i=0; i<eyemotor_h.size();i++){
-			CMotorNeuron m = eyemotor_h.get(i);
-			if(m.artificialActivation>0){ 
-				h_m+= eyemuscle_h[i];
+			MotorNeuron m = eyemotor_h.get(i);
+			if(m.getActivation()>0){ 
+				the real action depends on all the involved muscles (this part should be done by Eye class)
+				h_m += eyemuscle_h[i];
 				actionsID.add(m.id);
 				m.ageInWeights();
 			}
-			m.resetArtificialActivation();
+			m.resetActivation();
 		}
 		
 		//vertical motion
@@ -570,24 +571,19 @@ public class CharSNet {
 		double d = 0;
 		int size = 0;
 		double u = 0;
-		//all the prediction neurons affiliated to this action (live build)
-		ArrayList<CNeuron> module = action_modules.get(id);
+		//all the prediction weights to this action (live build)
+		ArrayList<ProbaWeight> module = action_modules.get(id);
 		//now go through
 		for(int i = 0;i<module.size();i++){
-			//find those who are input-activated
-			CNeuron n = module.get(i);
-			if(n.isReallyActivated()){ 
-				//SME of the probas at t+1, with 0.5 = mean (highest uncertainty)
-				Iterator it = n.outWeights.entrySet().iterator();
-				while(it.hasNext()){
-					Map.Entry pair = (Map.Entry) it.next();
-					ProbaWeight p = (ProbaWeight) pair.getValue();
-					double v = p.getProba();
-					u+=v;
-					v = Math.pow(0.5-v, 2);
-					d+=v;
-					size++;
-				}				
+			//find those who are activated
+			ProbaWeight p = module.get(i);
+			if(p.isActivated()){ 
+				//MSE of the probas at t+1, with 0.5 = mean (highest uncertainty)		
+				double v = p.getProba();
+				u+=v;
+				v = Math.pow(0.5-v, 2);
+				d+=v;
+				size++;							
 			} else{
 				//mlog.say("not activated "+n.id);
 			}
@@ -600,8 +596,7 @@ public class CharSNet {
 		}
 		
 		u = u/size;
-		mlog.say("mean proba "+u);
-		
+		mlog.say("mean proba "+u);		
 		return d;
 	}
 

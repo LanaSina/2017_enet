@@ -77,4 +77,13 @@ public class ProbaWeight {
 		return p/age;
 	}
 
+
+	public boolean isActivated() {
+		boolean b = false;
+		if(activation>0){
+			b = true;
+		}
+		return b;
+	}
+
 }
