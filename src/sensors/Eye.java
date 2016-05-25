@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Vector;
 
 import javax.imageio.ImageIO;
 
@@ -15,6 +16,7 @@ import communication.MyLog;
 import graphics.Surface;
 import jdk.internal.org.objectweb.asm.tree.IntInsnNode;
 import neurons.INeuron;
+import neurons.MotorNeuron;
 
 /**
  * each sensor is just a list of values that are activated or not.
@@ -289,6 +291,31 @@ public class Eye {
 	 */
 	public int getPartialNeuronsNumber(){
 		return n;
+	}
+	
+	
+	/**
+	 * Embodiment: transform actions "intentions" into actual actions
+	 * depending on how muscles actually act on the body.
+	 * @param v_muscles index of muscles to activate (vertical eye motion)
+	 * @param h_muscles index of muscles to activate (horizontal eye motion)
+	 * @return index of muscles that were actually contracted (eq. to proprioception)
+	 * [vertical, horizontal]
+	 */
+	public int[] contactMuscles(Vector<Integer> v_muscles,Vector<Integer> h_muscles){	
+		int v_m = 0;//this could also not be reset each time (?)
+		for(int i=0; i<v_muscles.size();i++){
+			//the real action depends on the result of activating all involved muscles
+			v_m += eyemuscle_v[i];
+		}
+		int h_m = 0;//this could also not be reset each time (?)
+		for(int i=0; i<h_muscles.size();i++){
+			//the real action depends on the result of activating all involved muscles
+			h_m += eyemuscle_h[i];
+		}
+		
+		int[] r = {v_m,h_m};
+		return r;
 	}
 
 

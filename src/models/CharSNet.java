@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Vector;
 
 import communication.Constants;
 import communication.MyLog;
@@ -467,6 +468,7 @@ public class CharSNet {
 	 * decide of the next action to do
 	 */
 	private void findActions() {
+		//array of "intentions"
 		//in the end, actions will be "flavored" to allow choice
 		ArrayList<Integer> actionsID = new ArrayList<Integer>();//dirty	
 		step++;	
@@ -524,28 +526,34 @@ public class CharSNet {
 		}
 		
 		//horizontal motion of eye first
-		h_m = 0;
+		//h_m = 0;
+		//vector of ids of activated muscles (id must correspond to motion value in Eye)
+		Vector<Integer> h_muscles = new Vector<Integer>();
 		for(int i=0; i<eyemotor_h.size();i++){
 			MotorNeuron m = eyemotor_h.get(i);
 			if(m.getActivation()>0){ 
-				the real action depends on all the involved muscles (this part should be done by Eye class)
-				h_m += eyemuscle_h[i];
-				actionsID.add(m.id);
-				m.ageInWeights();
+				h_muscles.addElement(i);
+				//the real action depends on all the involved muscles (this part should be done by Eye class)
+				//h_m += eyemuscle_h[i];
+				actionsID.add(m.getId());
+				//TODO m.ageInWeights();//are in weights used?? Theyre not proba weights though
 			}
 			m.resetActivation();
 		}
 		
 		//vertical motion
-		v_m = 0;
+		//v_m = 0;
+		//vector of ids of activated muscles (id must correspond to motion value in Eye)
+		Vector<Integer> v_muscles = new Vector<Integer>();
 		for(int i=0; i<eyemotor_v.size();i++){
-			CMotorNeuron m = eyemotor_v.get(i);
-			if(m.artificialActivation>0){
-				v_m+= eyemuscle_v[i];
-				m.ageInWeights();
-				actionsID.add(m.id);
+			MotorNeuron m = eyemotor_v.get(i);
+			if(m.getActivation()>0){
+				v_muscles.addElement(i);
+				//v_m+= eyemuscle_v[i];
+				//m.ageInWeights();
+				actionsID.add(m.getId());
 			}
-			m.resetArtificialActivation();
+			m.resetActivation();
 		}
 				
 		
