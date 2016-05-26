@@ -199,4 +199,9 @@ public class INeuron extends Neuron {
 		}			
 	}
 
+
+	public HashMap<Integer, ProbaWeight>  getOutWeights() {
+		return (HashMap<Integer, ProbaWeight>) outWeights.clone();
+	}
+
 }

@@ -302,7 +302,7 @@ public class Eye {
 	 * @return index of muscles that were actually contracted (eq. to proprioception)
 	 * [vertical, horizontal]
 	 */
-	public int[] contactMuscles(Vector<Integer> v_muscles,Vector<Integer> h_muscles){	
+	public int[] contractMuscles(Vector<Integer> v_muscles,Vector<Integer> h_muscles){	
 		int v_m = 0;//this could also not be reset each time (?)
 		for(int i=0; i<v_muscles.size();i++){
 			//the real action depends on the result of activating all involved muscles
