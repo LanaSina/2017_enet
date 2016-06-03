@@ -35,6 +35,9 @@ public class Surface extends JPanel{
 	BufferedImage focused;
 	/** the partial input to the eye - with adjusted coarseness */
 	BufferedImage see;
+	/** the prediction */
+	/** the input + stong prediction image*/
+	
 	/** current center of focus in the image [x,y] (eye tracking) */
 	int[] track = {100,100};
 	
@@ -50,24 +53,7 @@ public class Surface extends JPanel{
 		focused = letter;
 		see = letter;
 		
-		//graphics
-    	//JFrame frame = 
 		buildFrame(this);
-		
-		//frame.add(this);
-
-		//graphics creation
-    	/*int delay = 50; //milliseconds 	
-        ActionListener taskPerformer = new ActionListener() {
-          public ActionListener(){
-        	  super();
-          }
-        	
-          public void actionPerformed(ActionEvent evt) {
-            s.repaint();
-          }
-        };
-        new Timer(delay, taskPerformer).start();*/
 	}
 	
 	
@@ -88,27 +74,37 @@ public class Surface extends JPanel{
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		int origin = 10;
+		int margin = 10;
+		int y = origin+margin;
+
 		
 		//complete environmental input
-		g.drawImage(letter, 10, 10, null);
+		g.drawString("Original Image", origin, y);
+		y = y+margin;
+		g.drawImage(letter, origin, y, null);
 		
 		//focus field outline
 		//complete visual field
 		g.setColor(Color.red);
 		int t = (eyeFocusSize)/2;
-		g.drawRect(10+track[1]-t, 10+track[0]-t, eyeFocusSize, eyeFocusSize);
+		g.drawRect(origin+track[1]-t, y+track[0]-t, eyeFocusSize, eyeFocusSize);
 		
 		//focus center
 		//offset to focused area top left corner
 		t = (visualField_w)/2;
-		g.drawRect(10+track[1]-t, 10+track[0]-t, visualField_w, visualFiedl_h);
+		g.drawRect(origin+track[1]-t, y+track[0]-t, visualField_w, visualFiedl_h);
 		   
 		//partial input
-		int y = letter.getHeight() + 100;
+		y = y+letter.getHeight()+margin*2;
+		g.drawString("Input", origin, y);
+		y = y+margin;
 		g.drawImage(see, 10, y, null);  
 		
 		//input to the eye (partial and blurry)
-		y = y+see.getHeight()+100;
+		y = y+see.getHeight()+margin*2;
+		g.drawString("What?", origin, y);
+		y = y+margin;
 		g.drawImage(focused, 10, y, null);
     }
 	
@@ -116,10 +112,12 @@ public class Surface extends JPanel{
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.setSize(700, 700);
-		frame.setVisible(true);   
 		
 		frame.add(s);
+		frame.setTitle("TITLE");
+		frame.setVisible(true);   
 
+		
 		//graphics creation
     	int delay = 50; //milliseconds 	
         ActionListener taskPerformer = new ActionListener() {
