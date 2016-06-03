@@ -1,25 +1,27 @@
 package models;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Vector;
+import java.util.Map.Entry;
 
 import communication.Constants;
 import communication.MyLog;
-import javafx.scene.web.WebHistory;
 import neurons.INeuron;
 import neurons.MotorNeuron;
 import neurons.ProbaWeight;
 import sensors.Eye;
 
 /**
- * Rebuilding the whole project in a cleaner way.
+ * 1st stage model: this network just predicts next input using probability weights.
+ * Focus cannot change, no action occurs. Has short term memo
  * @author lana
  *
  */
-public class CharSNet {
+public class SNetSnap {
+	
 	/** log */
 	MyLog mlog = new MyLog("CarCNet", true);
 	
@@ -81,7 +83,7 @@ public class CharSNet {
 	/** proprioceptive neurons (vertical eye muscle)*/
 	ArrayList<INeuron> eyepro_v = new ArrayList<INeuron>();
 	
-	public CharSNet(){
+	public SNetSnap(){
     	//sensor init
     	eye = new Eye(imagesPath);
     	eye.readImage(images[img_id]);
@@ -396,9 +398,9 @@ public class CharSNet {
 		/** log */
 		MyLog mlog = new MyLog("FocusNet Thread", true);
 		/** network */
-		CharSNet net;
+		SNetSnap net;
 		
-		public ExperimentThread(CharSNet net){
+		public ExperimentThread(SNetSnap net){
 			this.net = net;
 		}
 		
@@ -500,6 +502,7 @@ public class CharSNet {
 		//array of "intentions"
 		//in the end, actions will be "flavored" to allow choice
 		ArrayList<Integer> actionsID = new ArrayList<Integer>();//dirty	
+		step++;	
 		
 		//random while training 
 		if(step<training_phase){
@@ -726,4 +729,5 @@ public class CharSNet {
 		}	
 	}
 		
+
 }
