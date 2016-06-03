@@ -360,4 +360,20 @@ public class Eye {
 		return eyemuscle_h.length;
 	}
 
+	/**
+	 * 
+	 * @return height size of sensor
+	 */
+	public int getH() {
+		return vf_h;
+	}
+	
+	/**
+	 * 
+	 * @return width of sensor
+	 */
+	public int getW() {
+		return vf_w;
+	}
+
 }

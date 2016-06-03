@@ -34,9 +34,12 @@ public class Surface extends JPanel{
 	/** the partial input to the eye */
 	BufferedImage focused;
 	/** the partial input to the eye - with adjusted coarseness */
-	BufferedImage see;
+	BufferedImage seen;
 	/** the prediction */
+	BufferedImage predicted;
 	/** the input + stong prediction image*/
+	BufferedImage warped;
+
 	
 	/** current center of focus in the image [x,y] (eye tracking) */
 	int[] track = {100,100};
@@ -51,7 +54,10 @@ public class Surface extends JPanel{
 	public Surface(){
 		letter = new BufferedImage(50,50,BufferedImage.TYPE_INT_RGB);
 		focused = letter;
-		see = letter;
+		seen = letter;
+		
+		predicted = new BufferedImage(50,50,BufferedImage.TYPE_INT_RGB);
+		warped = new BufferedImage(50,50,BufferedImage.TYPE_INT_RGB);
 		
 		buildFrame(this);
 	}
@@ -67,7 +73,7 @@ public class Surface extends JPanel{
 	public void setComponents(BufferedImage l, BufferedImage f, BufferedImage s, int[] track){
 		letter = l;
 		focused = f;
-		see = s;
+		seen = s;
 		this.track = track.clone();
 	}
 	
@@ -95,17 +101,31 @@ public class Surface extends JPanel{
 		t = (visualField_w)/2;
 		g.drawRect(origin+track[1]-t, y+track[0]-t, visualField_w, visualFiedl_h);
 		   
+		g.setColor(Color.black);
+		
 		//partial input
 		y = y+letter.getHeight()+margin*2;
 		g.drawString("Input", origin, y);
 		y = y+margin;
-		g.drawImage(see, 10, y, null);  
+		g.drawImage(seen, 10, y, null);  
 		
 		//input to the eye (partial and blurry)
-		y = y+see.getHeight()+margin*2;
+		y = y+seen.getHeight()+margin*2;
 		g.drawString("What?", origin, y);
 		y = y+margin;
 		g.drawImage(focused, 10, y, null);
+		
+		//prediction
+		y = y+letter.getHeight()+margin*2;
+		g.drawString("Prediction", origin, y);
+		y = y+margin;
+		g.drawImage(predicted, 10, y, null);  
+		
+		//actually seen
+		y = y+letter.getHeight()+margin*2;
+		g.drawString("Warp", origin, y);
+		y = y+margin;
+		g.drawImage(warped, 10, y, null);  
     }
 	
 	private JFrame buildFrame(Surface s){
@@ -114,7 +134,7 @@ public class Surface extends JPanel{
 		frame.setSize(700, 700);
 		
 		frame.add(s);
-		frame.setTitle("TITLE");
+		frame.setTitle("SNET");
 		frame.setVisible(true);   
 
 		

@@ -1,5 +1,6 @@
 package models;
 
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -9,9 +10,6 @@ import communication.Constants;
 import communication.MyLog;
 import neurons.INeuron;
 import sensors.Eye;
-
-//TODO draw activation map (!= simple input map)
-//TODO draw prediction map
 
 /**
  * 1st stage model: this network just predicts next input using probability weights.
@@ -47,7 +45,7 @@ public class SNetSnap {
 	/** image sensor*/
 	Eye eye;
 	/** sensory neurons */
-	HashMap<Integer, INeuron>[] eye_neurons = new HashMap[Constants.gray_scales];//was eye_sensors
+	HashMap<Integer, INeuron>[] eye_neurons = new HashMap[Constants.gray_scales];
 	
 	//neurons
 	/**all neurons except eyes (sensory) so this is like "hidden layer"*/
@@ -144,7 +142,6 @@ public class SNetSnap {
 	 * activates neurons in eye, activate corresponding weights
 	 */
 	private void buildEyeInput(){	 
-		
 		//reset activations of eye neurons, but NOT their out weights		
 		for(int i=0;i<eye_neurons.length;i++){
 			resetNeuronsActivation(eye_neurons[i]);
@@ -315,16 +312,38 @@ public class SNetSnap {
 		//propagate activation of proba weights from hidden neurons
 		propagateHiddenActivation();
 			
-		//check for discrepancies
-		//TODO checkPredictions();
+		//age output weights of currently activated neurons		
+		ageHiddenWeights();
 		
-		//TODO ageHiddenWeights();
-		//do the surprise here?
-	
-		//inputs haven't been set to 0 yet so check who's brought up by 
-		//TODO updateConsciousList();	
+		//look at predictiobs
+		buildPredictionMap();
 		
 		//input activations are reset at the beginning of next step.
+	}
+	
+	private void buildPredictionMap() {
+		///image
+		BufferedImage predicted_input = new BufferedImage(eye.getW(), eye.getH(), BufferedImage.TYPE_INT_RGB);
+		//get values for each gray value and calculate average
+		for(int i=0; i< eye_neurons.length;i++){	
+			INeuron n = eye_neurons[i].get(i); //TODO  that won't work, use iterator
+			n.getPredictedActivation(); // will this be t prediciton or t+1 prediciton??
+		}	
+		
+		//then put into image (difficult?)
+		
+	}
+	
+	/**
+	 * age the outweights of neurons that are currently activated
+	 */
+	private void ageHiddenWeights() {
+		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<Integer, INeuron> pair = it.next();
+			INeuron n = pair.getValue();
+			n.ageOutWeights();
+		}
 	}
 
 	

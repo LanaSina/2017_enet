@@ -86,4 +86,11 @@ public class ProbaWeight {
 		return b;
 	}
 
+
+	public void increaseAge() {
+		if(age<Constants.weight_max_age){
+			age++;
+		}
+	}
+
 }

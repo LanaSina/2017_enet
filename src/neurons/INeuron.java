@@ -202,8 +202,22 @@ public class INeuron extends Neuron {
 	}
 
 
+	/**
+	 * 
+	 * @return output weights of this neuron
+	 */
 	public HashMap<Integer, ProbaWeight>  getOutWeights() {
 		return (HashMap<Integer, ProbaWeight>) outWeights.clone();
+	}
+
+
+	public void ageOutWeights() {
+		Iterator<Entry<Integer, ProbaWeight>> it = outWeights.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<Integer, ProbaWeight> pair = it.next();
+			ProbaWeight w = pair.getValue();
+			w.increaseAge();
+		}			
 	}
 
 }
