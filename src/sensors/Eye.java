@@ -87,6 +87,10 @@ public class Eye {
 		//graphics
     	panel = new Surface();
     	
+    	//center of image
+    	/*focus_center[0] = ;
+    	focus_center[1] = ;*/
+    	
     	//number of neurons in focused area
     	n = ef_s*ef_s/(eres_f*eres_f);
 		//number of neurons in non-focused area
@@ -164,6 +168,7 @@ public class Eye {
 	 * @return buffer of black and white values bw[??][??]
 	 */
 	public double[][] readImage(String name){
+		//mlog.say("called");
 		
 		try {
 			image_input = ImageIO.read(new File(imagesPath+name+"_very_small.png"));
@@ -188,18 +193,21 @@ public class Eye {
 			        bw[i][j] = b2;
 				}				
 			}			
-			return bw;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
+		//mlog.say("read "+ focus_center[0]);
+
 		//reset focus point only when eye first created
 		if(init == false){
 			focus_center[0] =  im_w/2;
 			focus_center[1] = im_h/2; //{25,25}
+			//mlog.say("center "+ focus_center[0]);
 			init = true;
 		}	
-		return null;
+		
+		return bw;
 	}
 	
 	

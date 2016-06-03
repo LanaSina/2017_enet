@@ -73,6 +73,7 @@ public class INeuron extends Neuron {
 	 */
 	public void  resetActivation(){
 		activation = 0;
+		activationCalculated = false;
 	}
 
 	
@@ -83,6 +84,7 @@ public class INeuron extends Neuron {
 	 */
 	public void increaseActivation(int i) {
 		activation = activation+i;
+		activationCalculated = false;
 	}
 
 	/**

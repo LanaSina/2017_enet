@@ -1,18 +1,17 @@
 package models;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Vector;
 import java.util.Map.Entry;
 
 import communication.Constants;
 import communication.MyLog;
 import neurons.INeuron;
-import neurons.MotorNeuron;
-import neurons.ProbaWeight;
 import sensors.Eye;
+
+//TODO draw activation map (!= simple input map)
+//TODO draw prediction map
 
 /**
  * 1st stage model: this network just predicts next input using probability weights.
@@ -28,7 +27,7 @@ public class SNetSnap {
 	/**number of presentations for current image*/
 	int presentations = 0;
 	/**number of timesteps we train on each image*/
-	int max_presentations = 10;
+	int max_presentations = 1;
 	/**Go to the next image*/
 	boolean nextImage = false;
 	/**current image*/
@@ -37,15 +36,12 @@ public class SNetSnap {
 	int step = 0;
 	/** number of timesteps to stay on each image*/
 	int max_timesteps = 10;
-	/** length of training phase*/
-	int training_phase = 200;
 	
 	//environment
 	/**images files*/
 	String imagesPath = "/Users/lana/Desktop/prgm/JAVANeuron/JAVANeuron/src/images/";
 	/** image description (chars)*/
-	String[] images = {"a","b","c"};	
-	
+	String[] images = {"a","b","c"};		
 	
 	//sensors w/ actuators
 	/** image sensor*/
@@ -59,33 +55,10 @@ public class SNetSnap {
 	/** total number of neuron ids*/
 	int n_id = 0;
 	
-	//actuators
-	//motion chosen by the network
-	int h_m;
-	int v_m;
-	//motor modules: (one per muscle, so here instead of human 4 muscles
-	//we have only 2 muscles that can be at rest (center), right, of left.
-	//these don't need to be neurons, TODO correct
-	/** horizontal motion muscle */
-	ArrayList<MotorNeuron> eyemotor_h = new ArrayList<MotorNeuron>();
-	/** vertical motion muscle */
-	ArrayList<MotorNeuron> eyemotor_v = new ArrayList<MotorNeuron>();
-	//these are the action modules, live-built at each iteration
-	/**collection of prediction weights which link to an action; [motorNeuron_id, weights] */
-	HashMap<Integer, ArrayList<ProbaWeight>> action_modules = new HashMap<Integer, ArrayList<ProbaWeight>>();
-	/** pool of actions to choose from at this iteration */
-	ArrayList<MotorNeuron> action_pool = new ArrayList<MotorNeuron>();
-
-	
-	//proprioception. Should we call this "intention neurons" and have proprio in addition? or are motor neurons equ to intention?
-	/** proprioceptive neurons (horizontal eye muscle)*/
-	ArrayList<INeuron> eyepro_h = new ArrayList<INeuron>();
-	/** proprioceptive neurons (vertical eye muscle)*/
-	ArrayList<INeuron> eyepro_v = new ArrayList<INeuron>();
-	
 	public SNetSnap(){
     	//sensor init
     	eye = new Eye(imagesPath);
+    	mlog.say("read image called");
     	eye.readImage(images[img_id]);
     	
     	//net creation
@@ -132,92 +105,9 @@ public class SNetSnap {
 			}
 		}	
 		
-		
-		//motor neurons
-		//move right or left 
-		for(int i=0; i< eye.getHorizontalMotionResolution();i++){	
-			//this neuron links to this action
-			MotorNeuron m = new MotorNeuron(n_id);
-			eyemotor_h.add(m);	
-			n_id++;
-			
-			INeuron n = new INeuron(n_id);
-			eyepro_h.add(n);	
-			n_id++;			
-		}	
-		//up or down
-		for(int i=0; i< eye.getVerticalMotionResolution();i++){	
-			//neuron links to this action
-			MotorNeuron m = new MotorNeuron(n_id);
-			eyemotor_v.add(m);	
-			n_id++;
-				
-			INeuron n = new INeuron(n_id);
-			eyepro_v.add(n);	
-			n_id++;
-		}	
-	
-		//build hidden neurons with their weights
-		//don't
-		/*for(int i=0;i<eye_neurons.length;i++){
-			makeNeurons(eye_neurons[i],eyemotor_v);
-			makeNeurons(eye_neurons[i],eyemotor_h);
-		}*/	
-		
-		//auditory neurons (a,b,c)
-		//have no pweights for now
-		/*for(int i = 0; i<images.length;i++){
-			CMotorNeuron mn = new CMotorNeuron(n_id);
-			n_id++;
-			hear.add(mn);
-		}*/
-		
 		mlog.say(n_id +" neurons");		
 	}
 	
-	
-	
-	/**
-	 * make neurons taking input from each sensor, and of which activation depends on each motor neuron in the layer.
-	 * One hidden neuron per eye sensor, per motor neuron, with weights towards all actions
-	 * and all sensors in same layer (will change this when we have STMem)
-	 * @param sensory layer
-	 * @param motor layer
-	 */
-	/*private void makeNeurons(HashMap<Integer, INeuron> sensory, ArrayList<MotorNeuron> motor){
-		//go through sensory
-		Iterator<Entry<Integer, INeuron>> it = sensory.entrySet().iterator();
-		while(it.hasNext()){
-			Map.Entry<Integer, INeuron> pair = it.next();
-			INeuron sn = (INeuron) pair.getValue();
-			//go through motor (which action will activate this neuron?)
-			for(int i=0; i<motor.size();i++){
-				//MotorNeuron mn = motor.get(i);
-				//create new neuron
-				INeuron newn = new INeuron(n_id);
-				n_id++;
-				//add weight from eye sensor to this neuron
-				ProbaWeight p = newn.addInWeight(Constants.defaultConnection, sn.getId());//was RealInWeight
-				sn.addOutWeight(p,newn.getId());					
-				//its activation depends on this action (disappears when we have neuron grouping)
-				
-				//add outweights to all sensors in all "layers"
-				for(int k=0;k<eye_neurons.length;k++){
-					HashMap<Integer, INeuron> layer = eye_neurons[k];
-					Iterator it2 = layer.entrySet().iterator();
-					while(it2.hasNext()){
-						Map.Entry pair2 = (Map.Entry) it2.next();
-						INeuron sn2 = (INeuron) pair2.getValue();
-						ProbaWeight pw = sn2.addInWeight(Constants.defaultConnection, sn2.getId());
-						newn.addOutWeight(pw, sn2.getId());
-					}
-				}							
-				//add to reservoir
-				allINeurons.put(newn.getId(),newn);
-			}
-		}	
-	}*/
-
 	
 	/**
 	 * resets all neurons activations,
@@ -231,8 +121,6 @@ public class SNetSnap {
 		}
 		
 		if(nextImage){
-			//deactivate the previous inweights and "action activations"
-			//resetActivation(allINeurons); //not conviced this is necessary.
 			
     		mlog.say("presentations "+presentations);
 			presentations = 0;
@@ -263,7 +151,7 @@ public class SNetSnap {
 		}
 		
 		//apply blur to selected portion of image
-		int[] in = eye.buildCoarse(v_m,h_m);
+		int[] in = eye.buildCoarse(0,0);
 		
 		//go through sensory neurons and activate them.
 		int n = in.length;
@@ -287,7 +175,6 @@ public class SNetSnap {
 		}
 
 		//now it's ok to deactivate all inweights (they're outweights from t-1)
-		//resetActivation(allINeurons);//mmh...
 		resetInWeights(allINeurons);
 		
 		//activate outweights for use at t+1
@@ -374,23 +261,6 @@ public class SNetSnap {
 		}
 	}
 	
-	
-	/**
-	 * reset activations of neurons and outweights
-	 * of the layer, including actionweights
-	 * and actionActivation
-	 */
-	/*private void resetActivation(HashMap<Integer, INeuron> layer){
-		Iterator it = layer.entrySet().iterator();
-		while(it.hasNext()){
-			Map.Entry pair = (Map.Entry) it.next();
-			INeuron n = (INeuron) pair.getValue();
-			/*n.resetActivation();
-			n.resetOutWeightsActivation();
-			n.resetActionWeights();*///todo 
-	/*	}
-	}*/
-	
 	//main thread
 	private class ExperimentThread implements Runnable {
 		/** frequency at which to snap the network */
@@ -440,294 +310,34 @@ public class SNetSnap {
 	/**
 	 * update states of all neurons by propagating activation
 	 */
-	public void updateSNet() {
-		//activate hidden neurons from eye output
-		calculateHiddenActivation();
-
-		//choose actions, act, activate proprioceptive neurons
-		findActions();
-			
+	public void updateSNet() {		
 		//activate hidden neurons	
 		//propagate activation of proba weights from hidden neurons
-		//TODO propagateHiddenActivation();
+		propagateHiddenActivation();
 			
 		//check for discrepancies
 		//TODO checkPredictions();
 		
-		//must be after the next action is chosen and the corresponding predictions are activated
 		//TODO ageHiddenWeights();
 		//do the surprise here?
-			
-		//reset actions 
-		resetActionActivations(eyemotor_h);
-		resetActionActivations(eyemotor_v);
-		
-		//inputs haven't been set to 0 yet (so what?)
+	
+		//inputs haven't been set to 0 yet so check who's brought up by 
 		//TODO updateConsciousList();	
-		
-		//TODO reset proprio 
-		resetProprioception(eyepro_h);
-		resetProprioception(eyepro_v);
 		
 		//input activations are reset at the beginning of next step.
 	}
 
 	
 	/**
-	 * Resets activation of motor neurons in this module to 0
-	 * @param layer
+	 * calculates in activation for everyone
+	 * and activates out weights.
 	 */
-	public void resetActionActivations(ArrayList<MotorNeuron> layer){
-		for(int i = 0; i<layer.size();i++){
-			MotorNeuron m = layer.get(i);
-			m.resetActivation();
-		}
-	}
-	
-	/**
-	 * TODO merge all these kind of function
-	 * @param layer
-	 */
-	public void resetProprioception(ArrayList<INeuron> layer){
-		for(int i = 0; i<layer.size();i++){
-			INeuron n = layer.get(i);
-			n.resetActivation();
-		}
-	}
-
-	/**
-	 * decide of the next action to do
-	 */
-	private void findActions() {
-		//array of "intentions"
-		//in the end, actions will be "flavored" to allow choice
-		ArrayList<Integer> actionsID = new ArrayList<Integer>();//dirty	
-		step++;	
-		
-		//random while training 
-		if(step<training_phase){
-			//eyes actions
-			int act =  (int) Constants.uniformDouble(0,3);//0..2
-			MotorNeuron n = eyemotor_v.get(act);
-			n.increaseActivation(1);//artificialActivation = 2000;//why the high numbers 
-			//in.increaseActivation(1);//do this at next step, not now?
-			act =  (int) Constants.uniformDouble(0,3);
-			n = eyemotor_h.get(act);
-			n.increaseActivation(1);//artificialActivation = 2000;
-			mlog.say("training "+ step);
-			//for info
-			Iterator<Entry<Integer, ArrayList<ProbaWeight>>> it = action_modules.entrySet().iterator();
-			while(it.hasNext()){
-				Map.Entry<Integer, ArrayList<ProbaWeight>> pair = it.next();
-				double c = calculateCertainty(pair.getValue());
-				mlog.say("action id "+ pair.getKey() +" certainty " + c);
-			}
-		} else{
-			//h
-			//calculate certainty on inputs for each *pre-activated* action
-			double minc = 1;
-			int action = 1;
-			Iterator<Entry<Integer, ArrayList<ProbaWeight>>> it = action_modules.entrySet().iterator();
-			while(it.hasNext()){
-				Map.Entry<Integer, ArrayList<ProbaWeight>> pair = it.next();
-				double c = calculateCertainty(pair.getValue());
-				mlog.say("action id "+ pair.getKey() +" certainty " + c);
-				//choose lower level of certainty
-				if(c <=minc){
-					minc = c;
-					action = pair.getKey();
-				}
-			}
-			/*for(int i=0; i<eyemotor_h.size();i++){
-				int id = eyemotor_h.get(i).getId();
-				double cert = calculateCertainty(id);
-				mlog.say("cert h "+cert);
-				//choose lower level of certainty
-				if(cert<=minc){
-					minc = cert;
-					action = i;
-				}
-			}*/
-			MotorNeuron n = eyemotor_h.get(action);
-			//v
-			//TODO error
-			n.increaseActivation(1);//n.artificialActivation = 2;//why the high numbers
-			minc = 1;
-			action = 1;
-			for(int i=0; i<eyemotor_v.size();i++){
-				int id = eyemotor_v.get(i).getId();
-				double cert = calculateCertainty(id);
-				if(cert<=minc){
-					minc = cert;
-					action = i;
-				}
-			}
-			n = eyemotor_v.get(action);
-			n.increaseActivation(1);//n.artificialActivation = 2;
-			mlog.say("step "+ step);
-		}
-		
-		//horizontal motion of eye first
-		//h_m = 0;
-		//vector of ids of activated muscles (id must correspond to motion value in Eye)
-		Vector<Integer> h_muscles = new Vector<Integer>();
-		for(int i=0; i<eyemotor_h.size();i++){
-			MotorNeuron m = eyemotor_h.get(i);
-			if(m.getActivation()>0){ 
-				h_muscles.addElement(i);
-				//the real action depends on all the involved muscles (this part should be done by Eye class)
-				//h_m += eyemuscle_h[i];
-				actionsID.add(m.getId());
-				//TODO m.ageInWeights();//are in weights used?? Theyre not proba weights though
-			}
-			m.resetActivation();
-		}
-		
-		//vertical motion
-		//v_m = 0;
-		//vector of ids of activated muscles (id must correspond to motion value in Eye)
-		Vector<Integer> v_muscles = new Vector<Integer>();
-		for(int i=0; i<eyemotor_v.size();i++){
-			MotorNeuron m = eyemotor_v.get(i);
-			if(m.getActivation()>0){
-				v_muscles.addElement(i);
-				//v_m+= eyemuscle_v[i];
-				//m.ageInWeights();
-				actionsID.add(m.getId());
-			}
-			m.resetActivation();
-		}
-		
-		//send order to eye
-		int[] proprio = eye.contractMuscles(v_muscles, h_muscles);
-		INeuron np = eyepro_v.get(proprio[0]);
-		np.increaseActivation(1);
-		np = eyepro_v.get(proprio[1]);
-		np.increaseActivation(1);
-		
-		//activate proprioception (this step? next step)
-		//TODO
-						
-		//now activate the corresponding cneurons (NOT needed? (we will use group-activation patterning)
-		/*Iterator it = allINeurons.entrySet().iterator();
-		while(it.hasNext()){
-			Map.Entry pair = (Map.Entry) it.next();
-			INeuron ne = (INeuron) pair.getValue();		
-			if(ne.a_input>=0){
-				if(actionsID.contains(ne.a_input)){
-					ne.actionActivated = true;
-				}
-			}
-		}	*/
-	}
-
-	/**
-	 * TODO delete this
-	 * Calculate how certain we are that we can predict the result of an action
-	 * @param id action id
-	 * @return
-	 */
-	private double calculateCertainty(int id) {
-		double d = 0;
-		int size = 0;
-		double u = 0;
-		//all the prediction weights to this action (live build)
-		ArrayList<ProbaWeight> module = action_modules.get(id);
-		//now go through
-		for(int i = 0;i<module.size();i++){
-			//find those who are activated
-			ProbaWeight p = module.get(i);
-			if(p.isActivated()){ 
-				//MSE of the probas at t+1, with 0.5 = mean (highest uncertainty)		
-				double v = p.getProba();
-				u+=v;
-				v = Math.pow(0.5-v, 2);
-				d+=v;
-				size++;							
-			} else{
-				//mlog.say("not activated "+n.id);
-			}
-		}
-		
-		if(size>0){
-			d = Math.sqrt(d)/size;
-		}else{
-			d = -1;
-		}
-		
-		u = u/size;
-		mlog.say("mean proba "+u);		
-		return d;
-	}
-	
-	private double calculateCertainty(ArrayList<ProbaWeight> module){
-		double d = 0;
-		int size = 0;
-		double u = 0;
-		//go through
-		for(int i = 0;i<module.size();i++){
-			//find those who are activated
-			ProbaWeight p = module.get(i);
-			if(p.isActivated()){ 
-				//MSE of the probas at t+1, with 0.5 = mean (highest uncertainty)		
-				double v = p.getProba();
-				u+=v;
-				v = Math.pow(0.5-v, 2);
-				d+=v;
-				size++;							
-			} else{
-				//mlog.say("not activated "+n.id);
-			}
-		}
-		
-		if(size>0){
-			d = Math.sqrt(d)/size;
-		}else{
-			d = -1;
-		}
-		
-		u = u/size;
-		mlog.say("mean proba "+u);		
-		return d;
-	}
-
-	/**
-	 * calculate activation in non-sensory neurons
-	 * builds "action modules" and actions pool.
-	 */
-	private void calculateHiddenActivation() {
-		//reset action pool
-		action_modules.clear();
-		
+	private void propagateHiddenActivation(){
 		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
-			INeuron n = (INeuron) pair.getValue();
-			n.calculateActivation();
-			if(n.isActivated()){
-				//go through all weights and prime corresponding actions
-				HashMap<Integer, ProbaWeight> outw = n.getOutWeights();
-				Iterator<Entry<Integer, ProbaWeight>> itw = outw.entrySet().iterator();
-				while(itw.hasNext()){
-					Map.Entry<Integer, ProbaWeight> pairw = itw.next();
-					int act = pairw.getKey();
-					//action not primed yet
-					if(!action_modules.containsKey(act)){
-						//create this module
-						ArrayList<ProbaWeight> module = new ArrayList<ProbaWeight>();
-						//add the weight
-						module.add(pairw.getValue());
-						action_modules.put(act, module);
-					}else{
-						//module exists, just add this weight to it
-						ArrayList<ProbaWeight> module = action_modules.get(act);
-						module.add(pairw.getValue());
-					}
-				}
-
-			}
-		}	
+			INeuron n = pair.getValue();
+			n.activateOutWeights();
+		}
 	}
-		
-
 }
