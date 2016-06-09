@@ -316,45 +316,40 @@ public class SNetSnap {
 		//age output weights of currently activated neurons		
 		ageHiddenWeights();
 		
-		//look at predictiobs
+		//look at predictions
 		buildPredictionMap();
 		
 		//input activations are reset at the beginning of next step.
 	}
 	
 	private void buildPredictionMap() {
-		//image
-		BufferedImage predicted_input = new BufferedImage(eye.getW(), eye.getH(), BufferedImage.TYPE_INT_RGB);
 		int n = Constants.gray_scales;
-		//black and white buffer for image
-		//[row][column] = blackness level
-		double[] coarse = new double[n];		
+		
 
 		//go through sensory neurons and build buffer
 		int[][] n_interface = eye.getNeuralInterface();
+		//black and white buffer for image
+		//[row][column] = blackness level
+		double[] coarse = new double[n_interface[0].length];		
 		//go through interface and build levels of gray
-		int total  = 0;
-		for(int i=0; i<n_interface.length; i++){
-			for (int j = 0; j < n_interface[0].length; j++) {
+		for(int i=0; i<n_interface.length; i++){// i = gray scale
+			for (int j = 0; j < n_interface[0].length; j++) {//j = position in image
 				int n_id = n_interface[i][j];
-				for(int k=0; k< eye_neurons.length;k++){
-					INeuron neuron = eye_neurons[k].get(n_id);
-					int sum = 0;
-					if(neuron.getPredictedActivation()>0){
-						//don't take contradictions into consideration for now (we don't have actions, so no contradictions will happen)
-						//if white, dont't add anything
-						//else
-						sum = sum + k*k;//trying to get stronger values for higher scales.
-					}
-					coarse[total] = 255*sum/(n*n);//gray scale
-					total++;
+				INeuron neuron = eye_neurons[i].get(n_id);
+				if(neuron.getPredictedActivation()>0){
+					//don't take contradictions into consideration for now (we don't have actions, so no contradictions will happen)
+					//if white, dont't add anything (TODO in this case no prediction also == white but we should change this)
+					//else
+					coarse[j] = coarse[j] + i*i;//trying to get stronger values for higher scales.
 				}
 			}
+		}		
+		for (int i = 0; i < coarse.length; i++) {
+			coarse[i] = 255*coarse[i]/(n*n);//blackness
 		}
-		
-		//then put into image (difficult?)
-		eye.setPredictedBuffer(coarse);
-		
+
+		//then put into image
+		eye.setPredictedBuffer(coarse);		
 	}
 	
 	/**

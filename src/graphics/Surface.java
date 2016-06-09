@@ -149,4 +149,9 @@ public class Surface extends JPanel{
         
 		return frame;
 	}
+
+
+	public void setPredicted(BufferedImage prediction) {
+		predicted = prediction;
+	}
 }

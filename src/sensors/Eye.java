@@ -342,6 +342,10 @@ public class Eye {
 		s_neurons[scale][index] = nid;
 	}
 	
+	/**
+	 * interface for sensory neurons linked to this sensor. 
+	 * @return [discrete grayscale value][neuron id]
+	 */
 	public int[][] getNeuralInterface(){
 		return s_neurons;
 	}
@@ -404,5 +408,8 @@ public class Eye {
 				}
 			}
 		}
+		panel.setPredicted(prediction);
 	}
+	
+	
 }
