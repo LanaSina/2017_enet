@@ -20,8 +20,6 @@ public class ProbaWeight {
 	boolean canLearn = true;
 	/** value of the activation of this weight*/
 	private int activation = 0; //could be binary
-	/** predicted activation: value is set at t, but integrated to activation at t+1*/
-	private int preActivation = 0;
 	
 	
 	/**
@@ -94,25 +92,5 @@ public class ProbaWeight {
 		}
 	}
 	
-	/**
-	 * adds 1 to the predicted activation
-	 */
-	public void addPredictedActivation(){
-		preActivation = preActivation+1;
-	}
-	
-	public int getPredictedActivation() {
-		return preActivation;
-	}
-	
-	/**
-	 * adds the prediction made at t-1 to the activation at t
-	 * resets predicted activation to 0
-	 */
-	//TODO all this should be done in neuron, not in weight
-	public void integratePrediction(){
-		activation = activation+preActivation;
-		preActivation = 0;
-	}
 
 }

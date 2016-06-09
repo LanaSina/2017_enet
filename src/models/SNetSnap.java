@@ -417,7 +417,6 @@ public class SNetSnap {
 				int n_id = n_interface[i][j];
 				INeuron neuron = eye_neurons[i].get(n_id);
 				if(neuron.getPredictedActivation()>0){
-					mlog.say("not 0");
 					//don't take contradictions into consideration for now (we don't have actions, so no contradictions will happen)
 					//if white, dont't add anything (TODO in this case no prediction also == white but we should change this)
 					//else
@@ -426,8 +425,13 @@ public class SNetSnap {
 			}
 		}		
 		for (int i = 0; i < coarse.length; i++) {
-			//i*i could have been added i times
-			coarse[i] = 255*coarse[i]/(n*n*n);//blackness
+			//normalize
+			//i*i could have been added i times		
+			coarse[i] = coarse[i]/(n*n*n);//blackness
+			if(coarse[i]>0){
+				coarse[i] = 1;
+				mlog.say(""+coarse[i]);
+			}
 		}
 
 		//then put into image

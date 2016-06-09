@@ -271,7 +271,6 @@ public class Eye {
 				coarse[k] = (int)(d)+ 1;//even "no stim" will be treated as white
 			}	
 				
-			//TODO make this a function
 			//build visualisation for UI
 			int b = (int) (((1-sums[k])*255)+0.5);
 			Color color = new Color(b,b,b); 
@@ -385,7 +384,7 @@ public class Eye {
 
 	/**
 	 * builds and displays the image corresponding to the image expected at t+1.
-	 * @param coarse
+	 * @param coarse array of length (n_eye_place_sensors), continuous values 0:1
 	 */
 	public void setPredictedBuffer(double[] coarse) {
 		/** predicted image */
@@ -396,9 +395,9 @@ public class Eye {
 			//build visualisation for UI
 			int b = (int) (((1-coarse[k])*255)+0.5);
 			//double div
-			double val = coarse[k]/(1.0*gray_scales);
+			/*double val = coarse[k]/(1.0*gray_scales);
 			val = 1 - val;
-			b = (int) ((val*255)+0.5);
+			b = (int) ((val*255)+0.5);*/
 			Color color2 = new Color(b,b,b);
 			int rel_i = eye_interface[k][0];
 			int rel_j = eye_interface[k][1];
