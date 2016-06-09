@@ -109,6 +109,7 @@ public class ProbaWeight {
 	 * adds the prediction made at t-1 to the activation at t
 	 * resets predicted activation to 0
 	 */
+	//TODO all this should be done in neuron, not in weight
 	public void integratePrediction(){
 		activation = activation+preActivation;
 		preActivation = 0;

@@ -28,6 +28,12 @@ public class INeuron extends Neuron {
 	double pro_activation;
 	/** has activation been calculated since the last reset or not*/
 	boolean activationCalculated = false;
+	/** predicted activation */
+	int predictedActivation;
+	/** has activation been calculated since the last reset or not*/
+	boolean predictedActCalculated = false;
+	/** does the prediction corresponds to any kind of input*/
+	boolean surprised = false;
 	
 	public INeuron(int id) {
 		super(id);
@@ -55,15 +61,20 @@ public class INeuron extends Neuron {
 
 	/**
 	 * takes the inweight of a neuron and makes this neuron as input.
+	 * does not add the connection if similar connection exists
 	 * @param p weight
 	 * @param id id of the output neuron
+	 * @return true if the weight was added, false if it already existed
 	 */
-	public void addOutWeight(ProbaWeight p, int id) {
+	public boolean addOutWeight(ProbaWeight p, int id) {
+		boolean b = false;
 		if(outWeights.containsValue(p)){
-			mlog.say("addOutWeight: already exists");
+			//mlog.say("addOutWeight: already exists");
 		}else{
 			outWeights.put(id, p);
+			b = true;
 		}		
+		return b;
 	}
 	
 	
@@ -108,11 +119,8 @@ public class INeuron extends Neuron {
 	 * @return true is activation is positive, false otherwise
 	 */
 	public boolean isActivated() {
-		//Calculate activation once before calling this
-		if(!activationCalculated){
-			calculateActivation();
-			activationCalculated = true;
-		}
+		//Calculate activation once only
+		calculateActivation();	
 		
 		boolean b = false;
 		if((activation+pro_activation)>0){
@@ -126,27 +134,33 @@ public class INeuron extends Neuron {
 	 * calculates the probabilistic activation of this neuron
 	 * and compares it to its direct activation.
 	 * if there is not predicted activation but we are activated, the neuron should be "surprised"*/
+	//TODO surprise: no input is not same as 0 input
 	public void calculateActivation() {
-		//calculate predicted activation a
-		double a = 0;
-		double confidence = Constants.confidence_threshold;
-		
-		Iterator<Entry<Integer, ProbaWeight>> it = inWeights.entrySet().iterator();
-		while(it.hasNext()){
-			Map.Entry<Integer, ProbaWeight> pair = it.next();
-			ProbaWeight pw = (ProbaWeight) pair.getValue();
-			double w  = pw.getProba();
-			if(w>confidence){
-				a+=1;
+		if(!activationCalculated){
+			surprised = false;
+			//calculate predicted activation a
+			double a = 0;
+			double confidence = Constants.confidence_threshold;
+			
+			Iterator<Entry<Integer, ProbaWeight>> it = inWeights.entrySet().iterator();
+			while(it.hasNext()){
+				Map.Entry<Integer, ProbaWeight> pair = it.next();
+				ProbaWeight pw = (ProbaWeight) pair.getValue();
+				double w  = pw.getProba();
+				if(w>confidence){
+					a+=1;
+				}
 			}
-		}
-
-		if(a==0 & activation>0){
-			//TODO be surprised
-			//mlog.say("surprised");
-		}	
+	
+			//mlog.say("predicted "+a+ " real "+ activation);
+			if(a==0 & activation>0){
+				surprised = true;
+				//mlog.say("surprised");
+			}	
 		
-		pro_activation = a;
+			pro_activation = a;
+			activationCalculated = true;
+		}
 	}
 
 
@@ -225,17 +239,25 @@ public class INeuron extends Neuron {
 	 * call this before integrating predictions!
 	 * (cpu intensive. call once or store value)
 	 */
-	public int getPredictedActivation() {
-		int predictedActivation = 0;
+	public double getPredictedActivation() {
+		/*int predictedActivation = 0;
+		//double confidence = Constants.confidence_threshold;
 		
 		Iterator<Entry<Integer, ProbaWeight>> it = inWeights.entrySet().iterator();
 		while(it.hasNext()){
 			Map.Entry<Integer, ProbaWeight> pair = it.next();
 			ProbaWeight pw = (ProbaWeight) pair.getValue();
-			predictedActivation += pw.getPredictedActivation();		
-		}	
+			//if(pw>confidence){
+				predictedActivation += pw.getPredictedActivation();	
+			//}
+		}	*/
 		
-		return predictedActivation;
+		return pro_activation;
+	}
+
+
+	public boolean isSurprised() {
+		return surprised;
 	}
 
 }

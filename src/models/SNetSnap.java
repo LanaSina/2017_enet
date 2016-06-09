@@ -1,14 +1,17 @@
 package models;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Vector;
 import java.util.Map.Entry;
 
 import communication.Constants;
 import communication.MyLog;
 import neurons.INeuron;
+import neurons.ProbaWeight;
 import sensors.Eye;
 
 /**
@@ -34,6 +37,9 @@ public class SNetSnap {
 	int step = 0;
 	/** number of timesteps to stay on each image*/
 	int max_timesteps = 10;
+	/** total number of connections in the network (between "hidden" neurons) */
+	int n_weights = 0;
+	
 	
 	//environment
 	/**images files*/
@@ -52,6 +58,9 @@ public class SNetSnap {
 	HashMap<Integer, INeuron> allINeurons = new HashMap<Integer, INeuron>();
 	/** total number of neuron ids*/
 	int n_id = 0;
+	/**short term memory, contains conscious neurons */
+	//HashMap<Integer, INeuron> 
+	Vector<INeuron> STM = new Vector<INeuron>();
 	
 	public SNetSnap(){
     	//sensor init
@@ -97,6 +106,8 @@ public class SNetSnap {
 				INeuron n = new INeuron(n_id);
 				//put it in list
 				eye_neurons[j].put(n_id, n);
+				//put it in global list
+				allINeurons.put(n_id, n);
 				//make it sensitive to an input
 				eye.linkNeuron(n_id,j, i);				
 				n_id++;				
@@ -285,6 +296,7 @@ public class SNetSnap {
 	    		net.updateSNet();
 		
 	    		if(step%50==0){
+	    			mlog.say("total connections "+n_weights);
 	    			long runtime = System.currentTimeMillis()-before;
 	    			//calculate snap time
 	    			before = System.currentTimeMillis();
@@ -308,8 +320,13 @@ public class SNetSnap {
 	/**
 	 * update states of all neurons by propagating activation
 	 */
-	public void updateSNet() {		
-		//activate hidden neurons	
+	public void updateSNet() {	
+		//create new weights based on (+) surprise
+		makeWeights();
+		
+		//activate hidden neurons from eye output
+		//calculateHiddenActivation(); useless
+		
 		//propagate activation of proba weights from hidden neurons
 		propagateHiddenActivation();
 			
@@ -319,9 +336,73 @@ public class SNetSnap {
 		//look at predictions
 		buildPredictionMap();
 		
+		//update short term memory
+		updateSTM();
+		
 		//input activations are reset at the beginning of next step.
 	}
 	
+	/**
+	 * empties old memories and put in conscious neurons.
+	 * For now the memory span is 1 timestep only.
+	 */
+	private void updateSTM() {
+		STM.clear();
+		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<Integer, INeuron> pair = it.next();
+			INeuron n = pair.getValue();
+			//no hierarchy: all activated neurons are remembered, including sensory neurons.
+			if(n.isActivated()){
+				//mlog.say("activated");
+				STM.add(n);
+			}
+		}
+		
+		/*for (int i = 0; i < eye_neurons.length; i++) {
+			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[i].entrySet().iterator(); 
+			while (iterator.hasNext()) {
+				Map.Entry<Integer, INeuron> pair = iterator.next();
+				INeuron n = pair.getValue();
+				if(n.isActivated()){
+					//mlog.say("activated");
+					STM.add(n);
+				}
+			}
+		}*/
+		
+		mlog.say("stm "+ STM.size());
+	}
+
+	/**
+	 * create weights from previously conscious neurons to current surprised neurons.
+	 * In this model there is no topological hierarchy yet, so all activated neurons are conscious.
+	 */
+	private void makeWeights() {
+		//sensory neurons
+		
+		//ineurons
+		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
+		int nw = 0;
+		while(it.hasNext()){
+			Map.Entry<Integer, INeuron> pair = it.next();
+			INeuron n = pair.getValue();
+			if(n.isSurprised()){
+				//go through STM
+				for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
+					INeuron preneuron = iterator.next();
+					//doubloons weights will not be added
+					ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron.getId());
+					if(preneuron.addOutWeight(probaWeight, n.getId())){
+						nw++;
+						n_weights++;
+					}
+				}
+			}
+		}
+		mlog.say("added " + nw + " weights");
+	}
+
 	private void buildPredictionMap() {
 		int n = Constants.gray_scales;
 		
@@ -363,6 +444,18 @@ public class SNetSnap {
 			n.ageOutWeights();
 		}
 	}
+	
+	/**
+	 * calculate activation in non-sensory neurons
+	 */
+	private void calculateHiddenActivation() {
+		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<Integer, INeuron> pair = it.next();
+			INeuron n = (INeuron) pair.getValue();
+			n.calculateActivation();
+		}	
+	}
 
 	
 	/**
@@ -374,7 +467,10 @@ public class SNetSnap {
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
-			n.activateOutWeights();
+			if(n.isActivated()){
+				//mlog.say("activated 2");
+				n.activateOutWeights();
+			}
 		}
 	}
 }
