@@ -406,7 +406,6 @@ public class SNetSnap {
 	private void buildPredictionMap() {
 		int n = Constants.gray_scales;
 		
-
 		//go through sensory neurons and build buffer
 		int[][] n_interface = eye.getNeuralInterface();
 		//black and white buffer for image
@@ -418,6 +417,7 @@ public class SNetSnap {
 				int n_id = n_interface[i][j];
 				INeuron neuron = eye_neurons[i].get(n_id);
 				if(neuron.getPredictedActivation()>0){
+					mlog.say("not 0");
 					//don't take contradictions into consideration for now (we don't have actions, so no contradictions will happen)
 					//if white, dont't add anything (TODO in this case no prediction also == white but we should change this)
 					//else
@@ -426,7 +426,8 @@ public class SNetSnap {
 			}
 		}		
 		for (int i = 0; i < coarse.length; i++) {
-			coarse[i] = 255*coarse[i]/(n*n);//blackness
+			//i*i could have been added i times
+			coarse[i] = 255*coarse[i]/(n*n*n);//blackness
 		}
 
 		//then put into image
