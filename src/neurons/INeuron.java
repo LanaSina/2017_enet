@@ -220,4 +220,22 @@ public class INeuron extends Neuron {
 		}			
 	}
 
+
+	/**
+	 * call this before integrating predictions!
+	 * (cpu intensive. call once or store value)
+	 */
+	public int getPredictedActivation() {
+		int predictedActivation = 0;
+		
+		Iterator<Entry<Integer, ProbaWeight>> it = inWeights.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<Integer, ProbaWeight> pair = it.next();
+			ProbaWeight pw = (ProbaWeight) pair.getValue();
+			predictedActivation += pw.getPredictedActivation();		
+		}	
+		
+		return predictedActivation;
+	}
+
 }

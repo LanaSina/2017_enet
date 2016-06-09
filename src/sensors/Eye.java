@@ -80,6 +80,7 @@ public class Eye {
 	/** actual eye input with coarse outfocus zone*/
 	BufferedImage eye_input_coarse;
 	
+	
 	public Eye(String imagesPath){
 		//init
 		this.imagesPath = imagesPath;
@@ -216,13 +217,14 @@ public class Eye {
 	 * from the motion of eye muscles. We use relative motion bc it takes less memory space (easier)
 	 * @param fph -1..1 (relative motion on y height)
 	 * @param fpw -1..1 (relative motion on x width)
-	 * @return activation values on sensors [gray scale id]*total resolusion
+	 * @return activation values on sensors [gray scale id]*total resolution. High values are black.
 	 */
 	public int[] buildCoarse(int fph, int fpw){
 		
 		eye_input = new BufferedImage(vf_w, vf_h, BufferedImage.TYPE_INT_RGB);
 		eye_input_coarse = new BufferedImage(vf_w, vf_h, BufferedImage.TYPE_INT_RGB);
 		
+		//size of one grayscale sensitive layer
 		int n = s_neurons[0].length;
 		int[] coarse = new int[n];	
 		
@@ -269,6 +271,7 @@ public class Eye {
 				coarse[k] = (int)(d)+ 1;//even "no stim" will be treated as white
 			}	
 				
+			//TODO make this a function
 			//build visualisation for UI
 			int b = (int) (((1-sums[k])*255)+0.5);
 			Color color = new Color(b,b,b); 
@@ -376,4 +379,30 @@ public class Eye {
 		return vf_w;
 	}
 
+	/**
+	 * builds and displays the image corresponding to the image expected at t+1.
+	 * @param coarse
+	 */
+	public void setPredictedBuffer(double[] coarse) {
+		/** predicted image */
+		BufferedImage prediction = new BufferedImage(vf_w, vf_h, BufferedImage.TYPE_INT_RGB);
+		
+		for(int k=0; k<n; k++){
+			int size = eye_interface[k][2];//size of the zone for this sensor
+			//build visualisation for UI
+			int b = (int) (((1-coarse[k])*255)+0.5);
+			//double div
+			double val = coarse[k]/(1.0*gray_scales);
+			val = 1 - val;
+			b = (int) ((val*255)+0.5);
+			Color color2 = new Color(b,b,b);
+			int rel_i = eye_interface[k][0];
+			int rel_j = eye_interface[k][1];
+			for(int i=rel_i; i<rel_i+size; i++){
+				for(int j=rel_j; j<rel_j+size; j++){		       
+					prediction.setRGB(j, i, color2.getRGB());
+				}
+			}
+		}
+	}
 }

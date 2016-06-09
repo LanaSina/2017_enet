@@ -44,7 +44,7 @@ public class SNetSnap {
 	//sensors w/ actuators
 	/** image sensor*/
 	Eye eye;
-	/** sensory neurons */
+	/** sensory neurons: [layer for this grayscale][id, neuron at different positions in the image] */
 	HashMap<Integer, INeuron>[] eye_neurons = new HashMap[Constants.gray_scales];
 	
 	//neurons
@@ -148,6 +148,7 @@ public class SNetSnap {
 		}
 		
 		//apply blur to selected portion of image
+		//get grayscale values of the image
 		int[] in = eye.buildCoarse(0,0);
 		
 		//go through sensory neurons and activate them.
@@ -322,15 +323,37 @@ public class SNetSnap {
 	}
 	
 	private void buildPredictionMap() {
-		///image
+		//image
 		BufferedImage predicted_input = new BufferedImage(eye.getW(), eye.getH(), BufferedImage.TYPE_INT_RGB);
-		//get values for each gray value and calculate average
-		for(int i=0; i< eye_neurons.length;i++){	
-			INeuron n = eye_neurons[i].get(i); //TODO  that won't work, use iterator
-			n.getPredictedActivation(); // will this be t prediciton or t+1 prediciton??
-		}	
+		int n = Constants.gray_scales;
+		//black and white buffer for image
+		//[row][column] = blackness level
+		double[] coarse = new double[n];		
+
+		//go through sensory neurons and build buffer
+		int[][] n_interface = eye.getNeuralInterface();
+		//go through interface and build levels of gray
+		int total  = 0;
+		for(int i=0; i<n_interface.length; i++){
+			for (int j = 0; j < n_interface[0].length; j++) {
+				int n_id = n_interface[i][j];
+				for(int k=0; k< eye_neurons.length;k++){
+					INeuron neuron = eye_neurons[k].get(n_id);
+					int sum = 0;
+					if(neuron.getPredictedActivation()>0){
+						//don't take contradictions into consideration for now (we don't have actions, so no contradictions will happen)
+						//if white, dont't add anything
+						//else
+						sum = sum + k*k;//trying to get stronger values for higher scales.
+					}
+					coarse[total] = 255*sum/(n*n);//gray scale
+					total++;
+				}
+			}
+		}
 		
 		//then put into image (difficult?)
+		eye.setPredictedBuffer(coarse);
 		
 	}
 	
