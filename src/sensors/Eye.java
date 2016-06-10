@@ -264,7 +264,7 @@ public class Eye {
 				coarse[k] = gray_scales;
 			} else{
 				double d = sums[k]/(1.0/gray_scales);
-				coarse[k] = (int)(d);//+1;// dont see white //even "no stim" will be treated as white
+				coarse[k] = (int)(d)+1;// dont see white //even "no stim" will be treated as white
 			}	
 				
 			//build visualisation for UI

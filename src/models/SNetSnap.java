@@ -45,7 +45,7 @@ public class SNetSnap {
 	/**images files*/
 	String imagesPath = "/Users/lana/Desktop/prgm/JAVANeuron/JAVANeuron/src/images/";
 	/** image description (chars)*/
-	String[] images = {"1","2","3"};		
+	String[] images = {"1","2","3"};	//{"a","b","c"};		
 	
 	//sensors w/ actuators
 	/** image sensor*/
@@ -169,7 +169,7 @@ public class SNetSnap {
 		int[][] n_interface = eye.getNeuralInterface();
 		for(int k = 0; k<n; k++){
 			//values in "in" start at 1, not 0
-			int i = in[k];//dont see white -1;
+			int i = in[k]-1;//dont see white -1;
 			if(i>0){//dont see white
 				eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
 			}
@@ -264,6 +264,11 @@ public class SNetSnap {
 		}
 		
 	    public void run() {
+	    	try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}  
 	
 	    	while(true){
 	    		long before = 0;
@@ -374,7 +379,7 @@ public class SNetSnap {
 					if(preneuron.addOutWeight(probaWeight, n.getId())){
 						nw++;
 						n_weights++;
-						mlog.say(preneuron.getId()+" to "+n.getId());
+						//mlog.say(preneuron.getId()+" to "+n.getId());
 					}
 				}
 			}
