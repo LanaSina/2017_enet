@@ -147,12 +147,9 @@ public class INeuron extends Neuron {
 				Map.Entry<Integer, ProbaWeight> pair = it.next();
 				ProbaWeight pw = (ProbaWeight) pair.getValue();
 				double w  = pw.getProba();
-				/*if(w>0){
-					mlog.say("w "+w);
-				}*/
 				if(w>confidence){
 					a+=1;
-					mlog.say("w "+w);
+					//mlog.say("w "+w);
 				}
 			}
 	
@@ -264,6 +261,11 @@ public class INeuron extends Neuron {
 
 	public boolean isSurprised() {
 		return surprised;
+	}
+
+
+	public double getActivation() {
+		return activation;
 	}
 
 }

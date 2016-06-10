@@ -1,12 +1,12 @@
 package models;
 
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 import java.util.Map.Entry;
+
 
 import communication.Constants;
 import communication.MyLog;
@@ -23,7 +23,7 @@ import sensors.Eye;
 public class SNetSnap {
 	
 	/** log */
-	MyLog mlog = new MyLog("CarCNet", true);
+	MyLog mlog = new MyLog("SNet", true);
 	
 	/**number of presentations for current image*/
 	int presentations = 0;
@@ -45,7 +45,7 @@ public class SNetSnap {
 	/**images files*/
 	String imagesPath = "/Users/lana/Desktop/prgm/JAVANeuron/JAVANeuron/src/images/";
 	/** image description (chars)*/
-	String[] images = {"a","b","c"};		
+	String[] images = {"1","2","3"};		
 	
 	//sensors w/ actuators
 	/** image sensor*/
@@ -403,6 +403,9 @@ public class SNetSnap {
 		mlog.say("added " + nw + " weights");
 	}
 
+	//TODO maybe we should use "certainty" as a predictor
+	//and be surprised when we predicted stim but there was none??? (and somehow the neuron was not muted)
+	//or just let it like this. We have 0.5 predictions that we don't know what will happen next.
 	private void buildPredictionMap() {
 		int n = Constants.gray_scales;
 		
@@ -410,16 +413,21 @@ public class SNetSnap {
 		int[][] n_interface = eye.getNeuralInterface();
 		//black and white buffer for image
 		//[row][column] = blackness level
-		double[] coarse = new double[n_interface[0].length];		
+		double[] coarse = new double[n_interface[0].length];
+		//minus : no prediction
+		/*for (int i = 0; i < coarse.length; i++) {
+			coarse[i] = -1;
+		}*/
 		//go through interface and build levels of gray
 		for(int i=0; i<n_interface.length; i++){// i = gray scale
 			for (int j = 0; j < n_interface[0].length; j++) {//j = position in image
 				int n_id = n_interface[i][j];
 				INeuron neuron = eye_neurons[i].get(n_id);
-				if(neuron.getPredictedActivation()>0){
+				if(neuron.getActivation()>0){
 					//don't take contradictions into consideration for now (we don't have actions, so no contradictions will happen)
-					//if white, dont't add anything (TODO in this case no prediction also == white but we should change this)
-					//else
+					//if white, dont't add anything
+					//if(coarse[i]<0) coarse[i] = 0;
+					//in gray
 					coarse[j] = coarse[j] + i*i;//trying to get stronger values for higher scales.
 				}
 			}
@@ -429,8 +437,8 @@ public class SNetSnap {
 			//i*i could have been added i times		
 			coarse[i] = coarse[i]/(n*n*n);//blackness
 			if(coarse[i]>0){
-				coarse[i] = 1;
-				mlog.say(""+coarse[i]);
+				//coarse[i] = 1;
+				//mlog.say(""+coarse[i]);
 			}
 		}
 

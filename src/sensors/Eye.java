@@ -88,10 +88,6 @@ public class Eye {
 		//graphics
     	panel = new Surface();
     	
-    	//center of image
-    	/*focus_center[0] = ;
-    	focus_center[1] = ;*/
-    	
     	//number of neurons in focused area
     	n = ef_s*ef_s/(eres_f*eres_f);
 		//number of neurons in non-focused area
@@ -166,13 +162,13 @@ public class Eye {
 	 * builds the black and white buffer bw
 	 * also initializes im_h, im_w and bw
 	 * @param name name of the image file (without path)
-	 * @return buffer of black and white values bw[??][??]
+	 * @return buffer of black and white values bw[h][w]
 	 */
 	public double[][] readImage(String name){
 		//mlog.say("called");
 		
 		try {
-			image_input = ImageIO.read(new File(imagesPath+name+"_very_small.png"));
+			image_input = ImageIO.read(new File(imagesPath+"ball_"+name+".png"));
 			im_h = image_input.getHeight();
 			im_w = image_input.getWidth();	
 			
@@ -384,7 +380,7 @@ public class Eye {
 
 	/**
 	 * builds and displays the image corresponding to the image expected at t+1.
-	 * @param coarse array of length (n_eye_place_sensors), continuous values 0:1
+	 * @param coarse array of length (n_eye_place_sensors), continuous values 0:1. -1 for no prediction.
 	 */
 	public void setPredictedBuffer(double[] coarse) {
 		/** predicted image */
@@ -394,11 +390,12 @@ public class Eye {
 			int size = eye_interface[k][2];//size of the zone for this sensor
 			//build visualisation for UI
 			int b = (int) (((1-coarse[k])*255)+0.5);
-			//double div
-			/*double val = coarse[k]/(1.0*gray_scales);
-			val = 1 - val;
-			b = (int) ((val*255)+0.5);*/
-			Color color2 = new Color(b,b,b);
+			Color color2;
+			if(coarse[k]<0){
+				color2 = new Color(0,0,200);//blue = no prediction
+			}else{
+				color2 = new Color(b,b,b);
+			}
 			int rel_i = eye_interface[k][0];
 			int rel_j = eye_interface[k][1];
 			for(int i=rel_i; i<rel_i+size; i++){
