@@ -1,6 +1,7 @@
 package models;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -129,9 +130,9 @@ public class SNetSnap {
     		nextImage = true;	
 		}
 		
-		if(nextImage){
+		if(nextImage && (step<20)){
 			
-    		mlog.say("presentations "+presentations);
+    		//mlog.say("presentations "+presentations + " step "+step);
 			presentations = 0;
 			nextImage = false;
     		//change char
@@ -160,49 +161,65 @@ public class SNetSnap {
 			resetNeuronsActivation(eye_neurons[i]);
 		}
 		
-		//apply blur to selected portion of image
-		//get grayscale values of the image
-		int[] in = eye.buildCoarse(0,0);
-		
-		//go through sensory neurons and activate them.
-		int n = in.length;
-		int[][] n_interface = eye.getNeuralInterface();
-		for(int k = 0; k<n; k++){
-			//values in "in" start at 1, not 0
-			int i = in[k]-1;//dont see white -1;
-			if(i>0){//dont see white
-				eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
-			}
-		}//*/
-		/*if(test){
-			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
-			INeuron n = iterator.next().getValue();
-			n.increaseActivation(1);
-			mlog.say(n.getId()+" is activated ");
-			test = false;
-		}else {
-			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
-			iterator.next();
-			INeuron n = iterator.next().getValue();
-			n.increaseActivation(1);
-			mlog.say(n.getId()+" is activated ");
-			test = true;
-		}//*/
+		if(step<20){
+			//apply blur to selected portion of image
+			//get grayscale values of the image
+			int[] in = eye.buildCoarse(0,0);
+			
+			//go through sensory neurons and activate them.
+			int n = in.length;
+			int[][] n_interface = eye.getNeuralInterface();
+			for(int k = 0; k<n; k++){
+				//values in "in" start at 1, not 0
+				int i = in[k]-1;//dont see white -1;
+				if(i>0){//dont see white
+					eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
+				}
+			}//*/
+			/*if(test){
+				Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
+				INeuron n = iterator.next().getValue();
+				n.increaseActivation(1);
+				mlog.say(n.getId()+" is activated ");
+				test = false;
+			}else {
+				Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
+				iterator.next();
+				INeuron n = iterator.next().getValue();
+				n.increaseActivation(1);
+				mlog.say(n.getId()+" is activated ");
+				test = true;
+			}//*/
+		}
+			
+		//integrate previously predicted activation to actual activation
+		integrateActivation();
 	}
 	
-	
+	/**
+	 * integrates previously predicted activation to actual activation
+	 */
+	private void integrateActivation() {
+		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<Integer, INeuron> pair = it.next();
+			INeuron n = pair.getValue();
+			n.integrateActivation();
+		}
+	}
+
 	/**
 	 * Reset in weights to 0 in this layer
 	 * @param layer
 	 */
-	private void resetInWeights(HashMap<Integer, INeuron> layer) {
+	/*private void resetInWeights(HashMap<Integer, INeuron> layer) {
 		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron ne = (INeuron) pair.getValue();
 			ne.resetInWeights();
 		}
-	}
+	}*/
 
 	
 	/**
@@ -252,10 +269,8 @@ public class SNetSnap {
 	
 	//main thread
 	private class ExperimentThread implements Runnable {
-		/** frequency at which to snap the network */
-		int step = 0;
 		/** log */
-		MyLog mlog = new MyLog("FocusNet Thread", true);
+		MyLog mlog = new MyLog("SNet Thread", true);
 		/** network */
 		SNetSnap net;
 		
@@ -279,13 +294,13 @@ public class SNetSnap {
 	    		
 	    		net.buildInputs();
 	    		net.updateSNet();
+	    		mlog.say("step " + step);
 		
 	    		if(step%50==0){
-	    			mlog.say("total connections "+n_weights);
 	    			long runtime = System.currentTimeMillis()-before;
 	    			//calculate snap time
 	    			before = System.currentTimeMillis();
-	    			//net.cSnap(); do this when there is a clean consciousness
+	    			//net.snap();
 	    			long snaptime = System.currentTimeMillis()-before;;
 	    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);
 	    		}
@@ -412,8 +427,7 @@ public class SNetSnap {
 					sum[j]=sum[j]+1;
 					//don't take contradictions into consideration for now (we don't have actions, so no contradictions will happen)
 					//if white, dont't add anything
-					//if(coarse[i]<0) coarse[i] = 0;
-					//in gray
+					// gray
 					coarse[j] = coarse[j] + i;//trying to get stronger values for higher scales.
 				}
 			}
@@ -425,8 +439,6 @@ public class SNetSnap {
 			//mlog.say(""+coarse[i]+" "+sum[i]);
 			if(sum[i]>0){
 				coarse[i] = coarse[i]/sum[i];
-				//coarse[i] = 1;
-				//mlog.say(""+coarse[i]);
 			}
 		}
 
@@ -473,9 +485,77 @@ public class SNetSnap {
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			if(n.isActivated()){
-				//mlog.say("activated 2");
 				n.activateOutWeights();
 			}
 		}
 	}
+	
+	/** fuses something
+	 * TODO before this: create a layer of hidden neurons linked to eye neurons;
+	 * remove eyes from allINeurons
+	 * add fixed weights from eye neurons to i neurons.
+	 * */
+	/*private void snap() {
+		mlog.say("snapping");
+		mlog.say("total connections "+n_weights);
+		ArrayList<Integer> remove = new ArrayList<Integer>();
+		//go through net
+		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<Integer, INeuron> pair = it.next();
+			INeuron n = pair.getValue();
+			if(!n.justSnapped){
+				//look for equivalent neurons (neurons with equivalent outweights)
+				Iterator it2 = nL1.entrySet().iterator();
+				while(it2.hasNext()){
+				//for(int i=0; i<nL1.size(); i++){
+					Map.Entry pair2 = (Map.Entry) it2.next();
+					Neuron n2 = (Neuron) pair2.getValue();
+					
+					if((n.id != n2.id) & !n2.calculateLearning() & !n2.justSnapped){
+						//compare all weights
+						double diff = 0;
+						int all = 0;
+						for(int k = 0; k<n_fpos; k++){
+							for(int l=0; l<n.n; l++){
+								diff+= Math.pow(n.pw[k][l] - n2.pw[k][l],2);
+								all++;
+							}
+						}
+						double dist = Math.sqrt(diff)/all;
+						if(dist==0){//severe?
+							n.justSnapped = true;
+							n2.justSnapped = true;
+							//report all n2 inputs to n
+							int k = 0;
+							while(k<n2.input.size()){
+								int i = n2.input.get(k);
+								int j = n2.input.get(k+1);//bc the input map is 2D
+								k+=2;
+								n.addInput(i, j);							
+								l1_activations[i][j] =  n.id;
+							}
+							//mlog.say("k "+k);
+							remove.add(n2.id);
+						}
+					}
+				}
+			}
+		}
+		
+		for(int i=0; i<remove.size();i++){
+			nL1.remove(remove.get(i));
+			//mlog.say("remove);
+		}
+		
+		Iterator it3 = nL1.entrySet().iterator();
+		while(it3.hasNext()){
+			Map.Entry pair = (Map.Entry) it3.next();
+			Neuron n = (Neuron) pair.getValue();
+			n.justSnapped = false;
+		}
+		
+		mlog.say("after "+ nL1.size());
+	}*/
 }
+

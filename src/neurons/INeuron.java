@@ -34,6 +34,8 @@ public class INeuron extends Neuron {
 	boolean predictedActCalculated = false;
 	/** does the prediction corresponds to any kind of input*/
 	boolean surprised = false;
+	/** used when pruning neurons*/
+	public boolean justSnapped = false;
 	
 	public INeuron(int id) {
 		super(id);
@@ -163,8 +165,6 @@ public class INeuron extends Neuron {
 				//mlog.say("prediction exists");
 			}
 		
-			//do if integrating
-			//activation += pro_activation;
 			pro_activation = a;
 			activationCalculated = true;
 		}
@@ -260,4 +260,10 @@ public class INeuron extends Neuron {
 		return activation;
 	}
 
+	/**
+	 * adds prediction to actual activation;
+	 */
+	public void integrateActivation() {
+		activation += pro_activation;
+	}
 }

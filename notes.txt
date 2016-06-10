@@ -1,0 +1,7 @@
+Stages
+1: prediction
+2: Snap
+3: Space Patterns
+4: Time Patterns
+
+Hierarchy, top down search, rely on predictions, mute, STM>1
