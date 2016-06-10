@@ -18,17 +18,24 @@ public class ProbaWeight {
 	private int value = 0;
 	/** depends on age of this weight */
 	boolean canLearn = true;
-	/** value of the activation of this weight*/
+	/** value of the activation of this weight at t*/
 	private int activation = 0; //could be binary
+	/** activation at t-1*/
+	private boolean wasActivated = false;
 	
 	
 	/**
+	 * Beware: the weight should be aged immediately after being created.
 	 * @param type the type of weight (defined in Constants.java)
 	 */
 	public ProbaWeight(int type){
 		switch (type) {
 		case Constants.fixedConnection:{
-			value = 1;//I think we never make fixed connections
+			value = 1;
+			break;
+		}
+		case Constants.defaultConnection:{
+			value=2;//they will be aged before the next activation
 			break;
 		}
 		default:
@@ -55,8 +62,14 @@ public class ProbaWeight {
 
 	/**
 	 * resets the activation of this weight to 0
+	 * set wasActivated to true or false
 	 */
 	public void resetActivation() {
+		if(activation>0){
+			wasActivated = true;
+		}else {
+			wasActivated = false;
+		}
 		activation = 0;		
 	}
 
@@ -90,6 +103,11 @@ public class ProbaWeight {
 		if(age<Constants.weight_max_age){
 			age++;
 		}
+	}
+
+
+	public boolean getWasActivated() {
+		return wasActivated;
 	}
 	
 

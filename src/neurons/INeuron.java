@@ -84,6 +84,7 @@ public class INeuron extends Neuron {
 	 */
 	public void  resetActivation(){
 		activation = 0;
+		pro_activation = 0;
 		activationCalculated = false;
 	}
 
@@ -108,7 +109,8 @@ public class INeuron extends Neuron {
 		while(it.hasNext()){
 			Map.Entry<Integer, ProbaWeight> pair = it.next();
 			ProbaWeight w = (ProbaWeight) pair.getValue();
-			if(w.getActivation()>0 & w.canLearn){
+			//value is increased if this weight was previously activated
+			if(w.getWasActivated() & w.canLearn){
 				w.addValue();
 			}
 		}
@@ -147,9 +149,9 @@ public class INeuron extends Neuron {
 				Map.Entry<Integer, ProbaWeight> pair = it.next();
 				ProbaWeight pw = (ProbaWeight) pair.getValue();
 				double w  = pw.getProba();
+				//mlog.say("w "+w);
 				if(w>confidence){
 					a+=1;
-					//mlog.say("w "+w);
 				}
 			}
 	
@@ -158,7 +160,7 @@ public class INeuron extends Neuron {
 				surprised = true;
 				//mlog.say("surprised");
 			} else if(a>0){
-				mlog.say("prediction exists");
+				//mlog.say("prediction exists");
 			}
 		
 			pro_activation = a;

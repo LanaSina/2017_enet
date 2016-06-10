@@ -45,7 +45,7 @@ public class SNetSnap {
 	/**images files*/
 	String imagesPath = "/Users/lana/Desktop/prgm/JAVANeuron/JAVANeuron/src/images/";
 	/** image description (chars)*/
-	String[] images = {"1","2","3"};		
+	String[] images = {"1","2","3","4"};		
 	
 	//sensors w/ actuators
 	/** image sensor*/
@@ -319,13 +319,11 @@ public class SNetSnap {
 
 	/**
 	 * update states of all neurons by propagating activation
+	 * flow: age output weights, up input weights
 	 */
-	public void updateSNet() {	
+	public void updateSNet() {			
 		//create new weights based on (+) surprise
 		makeWeights();
-		
-		//activate hidden neurons from eye output
-		//calculateHiddenActivation(); useless
 		
 		//propagate activation of proba weights from hidden neurons
 		propagateHiddenActivation();
@@ -339,7 +337,7 @@ public class SNetSnap {
 		//update short term memory
 		updateSTM();
 		
-		//input activations are reset at the beginning of next step.
+		//input activations are reset and updated at the beginning of next step.
 	}
 	
 	/**
@@ -358,18 +356,6 @@ public class SNetSnap {
 				STM.add(n);
 			}
 		}
-		
-		/*for (int i = 0; i < eye_neurons.length; i++) {
-			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[i].entrySet().iterator(); 
-			while (iterator.hasNext()) {
-				Map.Entry<Integer, INeuron> pair = iterator.next();
-				INeuron n = pair.getValue();
-				if(n.isActivated()){
-					//mlog.say("activated");
-					STM.add(n);
-				}
-			}
-		}*/
 		
 		mlog.say("stm "+ STM.size());
 	}
@@ -414,6 +400,9 @@ public class SNetSnap {
 		//black and white buffer for image
 		//[row][column] = blackness level
 		double[] coarse = new double[n_interface[0].length];
+		//to calculate mean prediction
+		int[] sum = new int[n_interface[0].length];
+
 		//minus : no prediction
 		/*for (int i = 0; i < coarse.length; i++) {
 			coarse[i] = -1;
@@ -423,20 +412,23 @@ public class SNetSnap {
 			for (int j = 0; j < n_interface[0].length; j++) {//j = position in image
 				int n_id = n_interface[i][j];
 				INeuron neuron = eye_neurons[i].get(n_id);
-				if(neuron.getActivation()>0){
+				if(neuron.getPredictedActivation()>0){
+					sum[j]=sum[j]+1;
 					//don't take contradictions into consideration for now (we don't have actions, so no contradictions will happen)
 					//if white, dont't add anything
 					//if(coarse[i]<0) coarse[i] = 0;
 					//in gray
-					coarse[j] = coarse[j] + i*i;//trying to get stronger values for higher scales.
+					coarse[j] = coarse[j] + i;//trying to get stronger values for higher scales.
 				}
 			}
 		}		
 		for (int i = 0; i < coarse.length; i++) {
 			//normalize
 			//i*i could have been added i times		
-			coarse[i] = coarse[i]/(n*n*n);//blackness
-			if(coarse[i]>0){
+			coarse[i] = (coarse[i]+1)/(n);//+1 bc grayscales start at 1 in eye
+			//mlog.say(""+coarse[i]+" "+sum[i]);
+			if(sum[i]>0){
+				coarse[i] = coarse[i]/sum[i];
 				//coarse[i] = 1;
 				//mlog.say(""+coarse[i]);
 			}
@@ -454,20 +446,10 @@ public class SNetSnap {
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
-			n.ageOutWeights();
+			if(n.isActivated()){
+				n.ageOutWeights();
+			}
 		}
-	}
-	
-	/**
-	 * calculate activation in non-sensory neurons
-	 */
-	private void calculateHiddenActivation() {
-		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
-		while(it.hasNext()){
-			Map.Entry<Integer, INeuron> pair = it.next();
-			INeuron n = (INeuron) pair.getValue();
-			n.calculateActivation();
-		}	
 	}
 
 	
