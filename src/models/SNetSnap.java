@@ -45,7 +45,7 @@ public class SNetSnap {
 	/**images files*/
 	String imagesPath = "/Users/lana/Desktop/prgm/JAVANeuron/JAVANeuron/src/images/";
 	/** image description (chars)*/
-	String[] images = {"1","2","3"};		
+	String[] images = {"1","2"};		
 	
 	//sensors w/ actuators
 	/** image sensor*/
@@ -169,7 +169,7 @@ public class SNetSnap {
 		int[][] n_interface = eye.getNeuralInterface();
 		for(int k = 0; k<n; k++){
 			//values in "in" start at 1, not 0
-			int i = in[k]-1;//dont see white -1;
+			int i = in[k];//dont see white -1;
 			if(i>0){//dont see white
 				eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
 			}
@@ -185,11 +185,7 @@ public class SNetSnap {
 			INeuron n = iterator.next().getValue();
 			n.increaseActivation(1);
 			test = true;
-		}
-		//add activation from predictions 
-		/*for(int i=0;i<eye_neurons.length;i++){
-			integrateActivation(eye_neurons[i]);
-		}*/
+		}//*/
 	}
 	
 	
@@ -439,7 +435,6 @@ public class SNetSnap {
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			if(n.isActivated()){
-				mlog.say("ageing "+n.getId());
 				n.ageOutWeights();
 			}
 		}
@@ -454,7 +449,6 @@ public class SNetSnap {
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			if(n.isActivated()){
-				mlog.say("increasing "+n.getId());
 				n.increaseInWeights();
 			}
 		}

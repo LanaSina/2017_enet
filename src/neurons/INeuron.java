@@ -148,8 +148,8 @@ public class INeuron extends Neuron {
 				Map.Entry<Integer, ProbaWeight> pair = it.next();
 				ProbaWeight pw = (ProbaWeight) pair.getValue();
 				double w  = pw.getProba();
-				//mlog.say(id+ " w "+w);
-				if(w>confidence){
+				mlog.say(id+ " w "+w);
+				if(w>confidence & pw.isActivated()){
 					a+=1;
 					//mlog.say("w "+w);
 				}
