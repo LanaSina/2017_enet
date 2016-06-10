@@ -45,7 +45,7 @@ public class SNetSnap {
 	/**images files*/
 	String imagesPath = "/Users/lana/Desktop/prgm/JAVANeuron/JAVANeuron/src/images/";
 	/** image description (chars)*/
-	String[] images = {"1","2"};		
+	String[] images = {"1","2","3"};		
 	
 	//sensors w/ actuators
 	/** image sensor*/
@@ -165,7 +165,7 @@ public class SNetSnap {
 		int[] in = eye.buildCoarse(0,0);
 		
 		//go through sensory neurons and activate them.
-		/*int n = in.length;
+		int n = in.length;
 		int[][] n_interface = eye.getNeuralInterface();
 		for(int k = 0; k<n; k++){
 			//values in "in" start at 1, not 0
@@ -173,17 +173,19 @@ public class SNetSnap {
 			if(i>0){//dont see white
 				eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
 			}
-		}*/
-		if(test){
+		}//*/
+		/*if(test){
 			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
 			INeuron n = iterator.next().getValue();
 			n.increaseActivation(1);
+			mlog.say(n.getId()+" is activated ");
 			test = false;
 		}else {
 			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
 			iterator.next();
 			INeuron n = iterator.next().getValue();
 			n.increaseActivation(1);
+			mlog.say(n.getId()+" is activated ");
 			test = true;
 		}//*/
 	}
@@ -304,7 +306,7 @@ public class SNetSnap {
 		//update prediction probabilities		
 		//add +1 value to the inweights if they were activated at t-1 & neuron is activated
 		increaseInWeights();
-		//reset activation of w
+		//reset activation of all w
 		for(int i=0;i<eye_neurons.length;i++){
 			resetOutWeights(eye_neurons[i]);
 		}		
@@ -315,19 +317,17 @@ public class SNetSnap {
 		for(int i=0;i<eye_neurons.length;i++){
 			//activate weights from sensory neurons		
 			activateOutWeights(eye_neurons[i]);
+
 		}	
+		//recalculate predicted activations and
+		//look at predictions
+		buildPredictionMap();
 		
 		//create new weights based on (+) surprise
 		makeWeights();
 				
 		//update short term memory
 		updateSTM();
-		
-		//propagate activation to proba weights from hidden neurons
-		propagateHiddenActivation();
-		
-		//look at predictions
-		buildPredictionMap();
 		
 		//input activations are reset and updated at the beginning of next step.
 	}
@@ -374,6 +374,7 @@ public class SNetSnap {
 					if(preneuron.addOutWeight(probaWeight, n.getId())){
 						nw++;
 						n_weights++;
+						mlog.say(preneuron.getId()+" to "+n.getId());
 					}
 				}
 			}
@@ -400,7 +401,9 @@ public class SNetSnap {
 			for (int j = 0; j < n_interface[0].length; j++) {//j = position in image
 				int n_id = n_interface[i][j];
 				INeuron neuron = eye_neurons[i].get(n_id);
+				neuron.calculateActivation();
 				if(neuron.getPredictedActivation()>0){
+					//mlog.say(neuron.getId()+" inweight was activated ");
 					sum[j]=sum[j]+1;
 					//don't take contradictions into consideration for now (we don't have actions, so no contradictions will happen)
 					//if white, dont't add anything
@@ -434,7 +437,7 @@ public class SNetSnap {
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
-			if(n.isActivated()){
+			if(n.getActivation()>0){
 				n.ageOutWeights();
 			}
 		}
@@ -448,7 +451,7 @@ public class SNetSnap {
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
-			if(n.isActivated()){
+			if(n.getActivation()>0){
 				n.increaseInWeights();
 			}
 		}

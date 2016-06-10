@@ -109,19 +109,19 @@ public class INeuron extends Neuron {
 			Map.Entry<Integer, ProbaWeight> pair = it.next();
 			ProbaWeight w = (ProbaWeight) pair.getValue();
 			//value is increased if this weight was previously activated
-			if(w.canLearn){//w.getWasActivated() & 
+			if(w.canLearn & w.isActivated()){//w.getWasActivated() & 
 				w.addValue();
 			}
 		}
 	}
 
 	/**
-	 * checks activation.
+	 * recalculates activation
 	 * @return true is activation is positive, false otherwise
 	 */
 	public boolean isActivated() {
 		//Calculate activation once only
-		calculateActivation();	
+		//calculateActivation();	
 		
 		boolean b = false;
 		if(activation>0){
@@ -146,12 +146,12 @@ public class INeuron extends Neuron {
 			Iterator<Entry<Integer, ProbaWeight>> it = inWeights.entrySet().iterator();
 			while(it.hasNext()){
 				Map.Entry<Integer, ProbaWeight> pair = it.next();
-				ProbaWeight pw = (ProbaWeight) pair.getValue();
+				ProbaWeight pw = pair.getValue();
 				double w  = pw.getProba();
 				mlog.say(id+ " w "+w);
 				if(w>confidence & pw.isActivated()){
 					a+=1;
-					//mlog.say("w "+w);
+					//mlog.say(" was activated from "+pair.getKey()+" to "+id);
 				}
 			}
 	

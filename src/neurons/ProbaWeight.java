@@ -21,7 +21,7 @@ public class ProbaWeight {
 	/** value of the activation of this weight at t*/
 	private int activation = 0; //could be binary
 	/** activation at t-1*/
-	private boolean wasActivated = false;
+	//private boolean wasActivated = false;
 	
 	
 	/**
@@ -34,7 +34,7 @@ public class ProbaWeight {
 			break;
 		}
 		case Constants.defaultConnection:{
-			value=1;
+			value=2;
 			break;
 		}
 		default:
@@ -64,11 +64,11 @@ public class ProbaWeight {
 	 * set wasActivated to true or false
 	 */
 	public void resetActivation() {
-		if(activation>0){
+		/*if(activation>0){
 			wasActivated = true;
 		}else {
 			wasActivated = false;
-		}
+		}*/
 		activation = 0;		
 	}
 
@@ -105,9 +105,9 @@ public class ProbaWeight {
 	}
 
 
-	public boolean getWasActivated() {
+	/*public boolean getWasActivated() {
 		return wasActivated;
-	}
+	}*/
 
 
 	public int getValue() {
