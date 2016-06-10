@@ -266,4 +266,28 @@ public class INeuron extends Neuron {
 	public void integrateActivation() {
 		activation += pro_activation;
 	}
+
+	
+	/**
+	 * @return input weights of this neuron
+	 */
+	public HashMap<Integer, ProbaWeight> getInWeights() {
+		return (HashMap<Integer, ProbaWeight>) inWeights.clone();
+	}
+
+
+	/**
+	 * add a fully formed input weight if it does not already exists
+	 * @param pair (key=input neuron id, value = ProbaWeight
+	 * @return whether the weight was added or not
+	 */
+	public boolean addInWeight(Entry<Integer, ProbaWeight> pair) {
+		boolean b = false;
+		if(!inWeights.containsKey(pair.getKey())){
+			inWeights.put(pair.getKey(), pair.getValue());
+			b = true;
+		}
+		return b;
+	}
+	
 }

@@ -130,7 +130,7 @@ public class SNetSnap {
     		nextImage = true;	
 		}
 		
-		if(nextImage && (step<20)){
+		if(nextImage){// && (step<20)
 			
     		//mlog.say("presentations "+presentations + " step "+step);
 			presentations = 0;
@@ -161,39 +161,37 @@ public class SNetSnap {
 			resetNeuronsActivation(eye_neurons[i]);
 		}
 		
-		if(step<20){
-			//apply blur to selected portion of image
-			//get grayscale values of the image
-			int[] in = eye.buildCoarse(0,0);
-			
-			//go through sensory neurons and activate them.
-			int n = in.length;
-			int[][] n_interface = eye.getNeuralInterface();
-			for(int k = 0; k<n; k++){
-				//values in "in" start at 1, not 0
-				int i = in[k]-1;//dont see white -1;
-				if(i>0){//dont see white
-					eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
-				}
-			}//*/
-			/*if(test){
-				Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
-				INeuron n = iterator.next().getValue();
-				n.increaseActivation(1);
-				mlog.say(n.getId()+" is activated ");
-				test = false;
-			}else {
-				Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
-				iterator.next();
-				INeuron n = iterator.next().getValue();
-				n.increaseActivation(1);
-				mlog.say(n.getId()+" is activated ");
-				test = true;
-			}//*/
-		}
+		//apply blur to selected portion of image
+		//get grayscale values of the image
+		int[] in = eye.buildCoarse(0,0);
+		
+		//go through sensory neurons and activate them.
+		int n = in.length;
+		int[][] n_interface = eye.getNeuralInterface();
+		for(int k = 0; k<n; k++){
+			//values in "in" start at 1, not 0
+			int i = in[k]-1;//dont see white -1;
+			if(i>0){//dont see white
+				eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
+			}
+		}//*/
+		/*if(test){
+			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
+			INeuron n = iterator.next().getValue();
+			n.increaseActivation(1);
+			mlog.say(n.getId()+" is activated ");
+			test = false;
+		}else {
+			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
+			iterator.next();
+			INeuron n = iterator.next().getValue();
+			n.increaseActivation(1);
+			mlog.say(n.getId()+" is activated ");
+			test = true;
+		}//*/
 			
 		//integrate previously predicted activation to actual activation
-		integrateActivation();
+		//integrateActivation();
 	}
 	
 	/**
@@ -479,7 +477,7 @@ public class SNetSnap {
 	 * calculates in activation for everyone
 	 * and activates out weights.
 	 */
-	private void propagateHiddenActivation(){
+	/*private void propagateHiddenActivation(){
 		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
@@ -488,14 +486,14 @@ public class SNetSnap {
 				n.activateOutWeights();
 			}
 		}
-	}
+	}*/
 	
 	/** fuses something
 	 * TODO before this: create a layer of hidden neurons linked to eye neurons;
 	 * remove eyes from allINeurons
 	 * add fixed weights from eye neurons to i neurons.
 	 * */
-	/*private void snap() {
+	private void snap() {
 		mlog.say("snapping");
 		mlog.say("total connections "+n_weights);
 		ArrayList<Integer> remove = new ArrayList<Integer>();
@@ -506,56 +504,91 @@ public class SNetSnap {
 			INeuron n = pair.getValue();
 			if(!n.justSnapped){
 				//look for equivalent neurons (neurons with equivalent outweights)
-				Iterator it2 = nL1.entrySet().iterator();
+				Iterator<Entry<Integer, INeuron>> it2 = allINeurons.entrySet().iterator();
 				while(it2.hasNext()){
-				//for(int i=0; i<nL1.size(); i++){
-					Map.Entry pair2 = (Map.Entry) it2.next();
-					Neuron n2 = (Neuron) pair2.getValue();
+					Map.Entry<Integer, INeuron> pair2 = it2.next();
+					INeuron n2 = pair2.getValue();
 					
-					if((n.id != n2.id) & !n2.calculateLearning() & !n2.justSnapped){
-						//compare all weights
+					if((n.getId()!= n2.getId()) && !n2.justSnapped){
+						//compare all out weights
+						//& !n2.canLearn() & 
 						double diff = 0;
 						int all = 0;
-						for(int k = 0; k<n_fpos; k++){
-							for(int l=0; l<n.n; l++){
-								diff+= Math.pow(n.pw[k][l] - n2.pw[k][l],2);
+						HashMap<Integer,ProbaWeight> out1 = n.getOutWeights();
+						HashMap<Integer,ProbaWeight> out2 = n2.getOutWeights();
+						Iterator<Entry<Integer, ProbaWeight>> out1it = out1.entrySet().iterator();
+						while(out1it.hasNext()){
+							Map.Entry<Integer, ProbaWeight> out1pair = out1it.next();
+							ProbaWeight w = out1pair.getValue();	
+							//does n2 have all the same outweights?
+							Iterator<Entry<Integer, ProbaWeight>> out2it = out2.entrySet().iterator();
+							if(!out2.containsKey(out1pair.getKey())){
+								//give up on this n2
+								break;//TODO labeled break might be necessary
+							} else {
+								//contains weight to same neuron; check value
+								ProbaWeight w2 = out2.get(out1pair.getKey());
+								diff += Math.pow(w.getProba() - w2.getProba(),2);
 								all++;
 							}
-						}
-						double dist = Math.sqrt(diff)/all;
-						if(dist==0){//severe?
-							n.justSnapped = true;
-							n2.justSnapped = true;
-							//report all n2 inputs to n
-							int k = 0;
-							while(k<n2.input.size()){
-								int i = n2.input.get(k);
-								int j = n2.input.get(k+1);//bc the input map is 2D
-								k+=2;
-								n.addInput(i, j);							
-								l1_activations[i][j] =  n.id;
+							
+							double dist = Math.sqrt(diff)/all;
+							if(dist==0){//exact same outweights
+								boolean dosnap = true;
+								//check if no direct contradiction in inweights
+								HashMap<Integer,ProbaWeight> in = n.getInWeights();
+								HashMap<Integer,ProbaWeight> in2 = n2.getInWeights();
+								Iterator<Entry<Integer, ProbaWeight>> in1it = out1.entrySet().iterator();
+								while(in1it.hasNext()){
+									Map.Entry<Integer, ProbaWeight> in1pair = in1it.next();
+									ProbaWeight inw = in1pair.getValue();	
+									Iterator<Entry<Integer, ProbaWeight>> in2it = in2.entrySet().iterator();
+									if(in2.containsKey(in1pair.getKey())){
+										//check that they do not individually contradict
+										ProbaWeight inw2 = in2.get(in1pair.getKey());
+										double indiff = Math.pow(inw.getProba() - inw2.getProba(),2);
+										if(indiff>0.01){
+											dosnap = false;//give up
+										}
+									}
+								}
+								if(dosnap){
+									n.justSnapped = true;
+									n2.justSnapped = true;
+									//report n2 inputs to n if they did not exist
+									Iterator<Entry<Integer, ProbaWeight>> in2it = in2.entrySet().iterator();
+									//number of inweights not deleted
+									int nin = 0;
+									while(in2it.hasNext()){
+										Map.Entry<Integer, ProbaWeight> in2pair = in2it.next();
+										if(n.addInWeight(in2pair)){
+											nin++;
+										}
+									}
+									//n2 will be deleted after this
+									remove.add(n2.getId());
+									n_weights-=out2.size();//all the outweights of n2
+									n_weights = n_weights-in2.size()+nin;
+								}
 							}
-							//mlog.say("k "+k);
-							remove.add(n2.id);
 						}
 					}
 				}
 			}
 		}
-		
 		for(int i=0; i<remove.size();i++){
-			nL1.remove(remove.get(i));
-			//mlog.say("remove);
+			allINeurons.remove(remove.get(i));
 		}
 		
-		Iterator it3 = nL1.entrySet().iterator();
-		while(it3.hasNext()){
-			Map.Entry pair = (Map.Entry) it3.next();
-			Neuron n = (Neuron) pair.getValue();
+		//reset "just snapped" values
+		it = allINeurons.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<Integer, INeuron> pair = it.next();
+			INeuron n = pair.getValue();
 			n.justSnapped = false;
 		}
 		
-		mlog.say("after "+ nL1.size());
-	}*/
+		mlog.say("after "+ allINeurons.size());
+	}
 }
 
