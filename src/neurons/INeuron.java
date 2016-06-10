@@ -84,7 +84,6 @@ public class INeuron extends Neuron {
 	 */
 	public void  resetActivation(){
 		activation = 0;
-		pro_activation = 0;
 		activationCalculated = false;
 	}
 
@@ -110,14 +109,14 @@ public class INeuron extends Neuron {
 			Map.Entry<Integer, ProbaWeight> pair = it.next();
 			ProbaWeight w = (ProbaWeight) pair.getValue();
 			//value is increased if this weight was previously activated
-			if(w.getWasActivated() & w.canLearn){
+			if(w.canLearn){//w.getWasActivated() & 
 				w.addValue();
 			}
 		}
 	}
 
 	/**
-	 * checks probabilistic activation and direct activation alike.
+	 * checks activation.
 	 * @return true is activation is positive, false otherwise
 	 */
 	public boolean isActivated() {
@@ -125,7 +124,7 @@ public class INeuron extends Neuron {
 		calculateActivation();	
 		
 		boolean b = false;
-		if((activation+pro_activation)>0){
+		if(activation>0){
 			b = true;
 		}
 		return b;
@@ -149,20 +148,23 @@ public class INeuron extends Neuron {
 				Map.Entry<Integer, ProbaWeight> pair = it.next();
 				ProbaWeight pw = (ProbaWeight) pair.getValue();
 				double w  = pw.getProba();
-				//mlog.say("w "+w);
+				//mlog.say(id+ " w "+w);
 				if(w>confidence){
 					a+=1;
+					//mlog.say("w "+w);
 				}
 			}
 	
 			//mlog.say("predicted "+a+ " real "+ activation);
-			if(a==0 & activation>0){
+			if(pro_activation==0 & activation>0){//(a==0 & activation>0){
 				surprised = true;
 				//mlog.say("surprised");
 			} else if(a>0){
 				//mlog.say("prediction exists");
 			}
 		
+			//do if integrating
+			//activation += pro_activation;
 			pro_activation = a;
 			activationCalculated = true;
 		}
@@ -244,19 +246,7 @@ public class INeuron extends Neuron {
 	 * call this before integrating predictions!
 	 * (cpu intensive. call once or store value)
 	 */
-	public double getPredictedActivation() {
-		/*int predictedActivation = 0;
-		//double confidence = Constants.confidence_threshold;
-		
-		Iterator<Entry<Integer, ProbaWeight>> it = inWeights.entrySet().iterator();
-		while(it.hasNext()){
-			Map.Entry<Integer, ProbaWeight> pair = it.next();
-			ProbaWeight pw = (ProbaWeight) pair.getValue();
-			//if(pw>confidence){
-				predictedActivation += pw.getPredictedActivation();	
-			//}
-		}	*/
-		
+	public double getPredictedActivation() {		
 		return pro_activation;
 	}
 

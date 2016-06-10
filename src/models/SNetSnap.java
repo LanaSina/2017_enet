@@ -45,7 +45,7 @@ public class SNetSnap {
 	/**images files*/
 	String imagesPath = "/Users/lana/Desktop/prgm/JAVANeuron/JAVANeuron/src/images/";
 	/** image description (chars)*/
-	String[] images = {"1","2","3","4"};		
+	String[] images = {"1","2","3"};		
 	
 	//sensors w/ actuators
 	/** image sensor*/
@@ -152,8 +152,10 @@ public class SNetSnap {
 	 * set graphics, 
 	 * activates neurons in eye, activate corresponding weights
 	 */
+	boolean test = false;
 	private void buildEyeInput(){	 
-		//reset activations of eye neurons, but NOT their out weights		
+		
+		//reset activations of eye neurons not their outweights		
 		for(int i=0;i<eye_neurons.length;i++){
 			resetNeuronsActivation(eye_neurons[i]);
 		}
@@ -163,34 +165,31 @@ public class SNetSnap {
 		int[] in = eye.buildCoarse(0,0);
 		
 		//go through sensory neurons and activate them.
-		int n = in.length;
+		/*int n = in.length;
 		int[][] n_interface = eye.getNeuralInterface();
 		for(int k = 0; k<n; k++){
 			//values in "in" start at 1, not 0
-			int i = in[k]-1;
-			eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);//actually, activation could just be binary
+			int i = in[k]-1;//dont see white -1;
+			if(i>0){//dont see white
+				eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
+			}
+		}*/
+		if(test){
+			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
+			INeuron n = iterator.next().getValue();
+			n.increaseActivation(1);
+			test = false;
+		}else {
+			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
+			iterator.next();
+			INeuron n = iterator.next().getValue();
+			n.increaseActivation(1);
+			test = true;
 		}
-				
-		//update prediction probabilities: inweight
-		for(int i=0;i<eye_neurons.length;i++){
-			//add +1 value to the inweights if they were activated at t-1 
-			//& if this is activated
-			increaseInWeights(eye_neurons[i]);
-		}
-		//reset activations of out weights
-		//must be separate from above
-		for(int i=0;i<eye_neurons.length;i++){
-			resetOutWeights(eye_neurons[i]);
-		}
-
-		//now it's ok to deactivate all inweights (they're outweights from t-1)
-		resetInWeights(allINeurons);
-		
-		//activate outweights for use at t+1
-		for(int i=0;i<eye_neurons.length;i++){
-			//activate weights from sensory neurons		
-			activateOutWeights(eye_neurons[i]);
-		}			
+		//add activation from predictions 
+		/*for(int i=0;i<eye_neurons.length;i++){
+			integrateActivation(eye_neurons[i]);
+		}*/
 	}
 	
 	
@@ -241,30 +240,13 @@ public class SNetSnap {
 	
 	
 	/**
-	 * increases the value of input weights in the layer
-	 * @param layer
-	 */
-	private void increaseInWeights(HashMap<Integer, INeuron> layer){
-		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
-		while(it.hasNext()){
-			Map.Entry<Integer, INeuron> pair = it.next();
-			INeuron ne = (INeuron) pair.getValue();
-			if(ne.isActivated()){
-				ne.increaseInWeights();
-			}
-		}
-	}
-	
-	
-	/**
 	 * resets neurons activation to 0
 	 * @param layer map of neurons to be reset.
 	 */
 	public void resetNeuronsActivation(HashMap<Integer,INeuron> layer){
 		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
 		while(it.hasNext()){
-			Entry<Integer, INeuron> pair = it.next(); //this way of writing supresses warning
-			//Map.Entry pair = (Map.Entry) it.next();
+			Entry<Integer, INeuron> pair = it.next();
 			INeuron ne = (INeuron) pair.getValue();
 			ne.resetActivation();
 		}
@@ -322,20 +304,34 @@ public class SNetSnap {
 	 * flow: age output weights, up input weights
 	 */
 	public void updateSNet() {			
+
+		//update prediction probabilities		
+		//add +1 value to the inweights if they were activated at t-1 & neuron is activated
+		increaseInWeights();
+		//reset activation of w
+		for(int i=0;i<eye_neurons.length;i++){
+			resetOutWeights(eye_neurons[i]);
+		}		
+		//age output weights of currently activated neurons		
+		ageOutWeights();	
+		
+		//activate outweights
+		for(int i=0;i<eye_neurons.length;i++){
+			//activate weights from sensory neurons		
+			activateOutWeights(eye_neurons[i]);
+		}	
+		
 		//create new weights based on (+) surprise
 		makeWeights();
+				
+		//update short term memory
+		updateSTM();
 		
-		//propagate activation of proba weights from hidden neurons
+		//propagate activation to proba weights from hidden neurons
 		propagateHiddenActivation();
-			
-		//age output weights of currently activated neurons		
-		ageHiddenWeights();
 		
 		//look at predictions
 		buildPredictionMap();
-		
-		//update short term memory
-		updateSTM();
 		
 		//input activations are reset and updated at the beginning of next step.
 	}
@@ -403,10 +399,6 @@ public class SNetSnap {
 		//to calculate mean prediction
 		int[] sum = new int[n_interface[0].length];
 
-		//minus : no prediction
-		/*for (int i = 0; i < coarse.length; i++) {
-			coarse[i] = -1;
-		}*/
 		//go through interface and build levels of gray
 		for(int i=0; i<n_interface.length; i++){// i = gray scale
 			for (int j = 0; j < n_interface[0].length; j++) {//j = position in image
@@ -425,7 +417,7 @@ public class SNetSnap {
 		for (int i = 0; i < coarse.length; i++) {
 			//normalize
 			//i*i could have been added i times		
-			coarse[i] = (coarse[i]+1)/(n);//+1 bc grayscales start at 1 in eye
+			coarse[i] = (coarse[i])/(n);//+1 bc grayscales start at 1 in eye
 			//mlog.say(""+coarse[i]+" "+sum[i]);
 			if(sum[i]>0){
 				coarse[i] = coarse[i]/sum[i];
@@ -441,13 +433,29 @@ public class SNetSnap {
 	/**
 	 * age the outweights of neurons that are currently activated
 	 */
-	private void ageHiddenWeights() {
+	private void ageOutWeights() {
 		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			if(n.isActivated()){
+				mlog.say("ageing "+n.getId());
 				n.ageOutWeights();
+			}
+		}
+	}
+	
+	/**
+	 * age the outweights of neurons that are currently activated
+	 */
+	private void increaseInWeights() {
+		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<Integer, INeuron> pair = it.next();
+			INeuron n = pair.getValue();
+			if(n.isActivated()){
+				mlog.say("increasing "+n.getId());
+				n.increaseInWeights();
 			}
 		}
 	}

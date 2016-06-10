@@ -25,7 +25,6 @@ public class ProbaWeight {
 	
 	
 	/**
-	 * Beware: the weight should be aged immediately after being created.
 	 * @param type the type of weight (defined in Constants.java)
 	 */
 	public ProbaWeight(int type){
@@ -35,7 +34,7 @@ public class ProbaWeight {
 			break;
 		}
 		case Constants.defaultConnection:{
-			value=2;//they will be aged before the next activation
+			value=1;
 			break;
 		}
 		default:
@@ -108,6 +107,16 @@ public class ProbaWeight {
 
 	public boolean getWasActivated() {
 		return wasActivated;
+	}
+
+
+	public int getValue() {
+		return value;
+	}
+
+
+	public int getAge() {
+		return age;
 	}
 	
 
