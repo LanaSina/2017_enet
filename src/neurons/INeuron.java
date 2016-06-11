@@ -349,7 +349,8 @@ public class INeuron extends Neuron {
 
 	public boolean addDirectOutWeight(ProbaWeight p, INeuron n2) {
 		boolean b = false;
-		if(directOutWeights.containsValue(p)){
+		if(directOutWeights.containsKey(n2)){
+			
 		}else{
 			directOutWeights.put(n2, p);
 			b = true;
@@ -357,6 +358,15 @@ public class INeuron extends Neuron {
 		return b;
 	}
 
+	/**
+	 * 
+	 * @param n key: output neuron
+	 * @param p value: weight
+	 */
+	public void setDirectOutWeight(INeuron n, ProbaWeight p){
+		directOutWeights.clear();
+		directOutWeights.put(n, p);
+	}
 
 	public void activateDirectOutWeights() {
 		Iterator<Entry<INeuron, ProbaWeight>> it = directOutWeights.entrySet().iterator();
