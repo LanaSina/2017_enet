@@ -113,7 +113,7 @@ public class SNetSnap {
 				INeuron n2 = new INeuron(n_id);
 				ProbaWeight p = n2.addInWeight(Constants.fixedConnection, n);
 				n.addDirectOutWeight(p, n2);
-				n_weights++;
+				//n_weights++;
 				allINeurons.put(n_id, n2);
 				n_id++;				
 			}
@@ -312,7 +312,7 @@ public class SNetSnap {
 		
 	    public void run() {
 	    	try {
-				Thread.sleep(10000);
+				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}  
@@ -596,8 +596,6 @@ public class SNetSnap {
 									dosnap = false;
 									break;//give up
 								}
-								diff += Math.pow(w1.getProba() - w2.getProba(),2);
-								all++;
 							}
 						}
 							
@@ -657,24 +655,27 @@ public class SNetSnap {
 									}
 								}
 								//remove "ghost" outweights
+								int g = 0;
 								out2it = out2.entrySet().iterator();
 								while(out2it.hasNext()){
 									Map.Entry<INeuron, ProbaWeight> out2pair = out2it.next();
 									INeuron neuron = out2pair.getKey();
 									neuron.removeInWeight(n2);
+									g++;
 								}
 								
 								
 								//n2 will be deleted after this
 								remove.add(n2.getId());
-								n_weights = n_weights - in2.size() + nin;
-								//mlog.say("size of in2 "+ in2.size() + " nin "+nin);
+								n_weights = n_weights - g;//in2.size() + nin;
+								mlog.say("g "+ g);
 							}
 						}
 					}
 				}
 			}
 		}
+		
 		for(int i=0; i<remove.size();i++){
 			allINeurons.remove(remove.get(i));
 		}
