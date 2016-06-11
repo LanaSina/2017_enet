@@ -386,5 +386,12 @@ public class INeuron extends Neuron {
 			w.resetActivation();
 		}		
 	}
+
+
+	/** removes this weight from the list of inweights 
+	 * @param key the input neuron */
+	public void removeInWeight(INeuron key) {
+		inWeights.remove(key);		
+	}
 	
 }

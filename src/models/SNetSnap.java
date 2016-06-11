@@ -521,6 +521,10 @@ public class SNetSnap {
 	private void snap() {
 		mlog.say("snapping");
 		mlog.say("total connections "+n_weights + " neurons "+ allINeurons.size());
+		//not certain if this is necessary
+		deactivateAll();
+		
+		
 		ArrayList<Integer> remove = new ArrayList<Integer>();
 		//go through net
 		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
@@ -554,10 +558,10 @@ public class SNetSnap {
 							}
 							
 							//does n2 have all the same outweights?
-							//Iterator<Entry<INeuron, ProbaWeight>> out2it = out2.entrySet().iterator();
 							if(!out1.containsKey(out2pair.getKey())){
 								//don't have same outweights: give up on this n2
-								break;//TODO labeled break might be necessary
+								dosnap = false;
+								break;
 							} else {
 								//contains weight to same neuron; check value
 								ProbaWeight w1 = out1.get(out2pair.getKey());
@@ -581,10 +585,10 @@ public class SNetSnap {
 							}
 							
 							//does n2 have all the same outweights?
-							//Iterator<Entry<INeuron, ProbaWeight>> out2it = out2.entrySet().iterator();
 							if(!out2.containsKey(out1pair.getKey())){
 								//don't have same outweights: give up on this n2
-								break;//TODO labeled break might be necessary
+								dosnap = false;
+								break;
 							} else {
 								//contains weight to same neuron; check value
 								ProbaWeight w2 = out2.get(out1pair.getKey());
@@ -652,6 +656,14 @@ public class SNetSnap {
 										down.setDirectOutWeight(n,in2pair.getValue());
 									}
 								}
+								//remove "ghost" outweights
+								out2it = out2.entrySet().iterator();
+								while(out2it.hasNext()){
+									Map.Entry<INeuron, ProbaWeight> out2pair = out2it.next();
+									INeuron neuron = out2pair.getKey();
+									neuron.removeInWeight(n2);
+								}
+								
 								
 								//n2 will be deleted after this
 								remove.add(n2.getId());
@@ -676,6 +688,11 @@ public class SNetSnap {
 		}
 		
 		mlog.say("after: weights "+ n_weights + " neurons " + allINeurons.size());
+	}
+
+	private void deactivateAll() {
+		//rese
+		
 	}
 }
 
