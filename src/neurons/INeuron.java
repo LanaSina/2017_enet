@@ -3,7 +3,10 @@ package neurons;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Vector;
 import java.util.Map.Entry;
+
+import com.sun.org.apache.xml.internal.resolver.helpers.PublicId;
 
 import communication.Constants;
 import communication.MyLog;
@@ -22,6 +25,10 @@ public class INeuron extends Neuron {
 	HashMap<Integer, ProbaWeight> inWeights = new HashMap<Integer, ProbaWeight>();
 	/**direct instantaneous weights*/
 	HashMap<Integer, ProbaWeight> directInWeights = new HashMap<Integer, ProbaWeight>();
+	//HashMap<Integer, ProbaWeight> directOutWeights = new HashMap<Integer, ProbaWeight>();
+	//hidden neuron that "covers" this neuron (same that we give direct inweight to)
+	INeuron[] upn = null;
+
 	/** (id of out neuron, weight) probabilistic outweights*/
 	HashMap<Integer, ProbaWeight> outWeights = new HashMap<Integer, ProbaWeight>();
 	/** activation of this neuron (real or vitual)*/
@@ -65,7 +72,11 @@ public class INeuron extends Neuron {
 		}
 		return p;
 	}
-
+	
+	public void setUpperNeuron(INeuron n) {
+		upn = new INeuron[1];
+		upn[0] = n;
+	}
 
 	/**
 	 * takes the inweight of a neuron and makes this neuron as input.
@@ -306,7 +317,7 @@ public class INeuron extends Neuron {
 			Map.Entry<Integer, ProbaWeight> pair = it.next();
 			ProbaWeight w = pair.getValue();
 			if(w.isActivated()){
-				activation+=1;
+				this.increaseActivation(1);
 			}
 		}				
 	}
@@ -324,6 +335,12 @@ public class INeuron extends Neuron {
 			b = true;
 		}
 		return b;
+	}
+
+
+	public double getUpperPredictedActivation() {
+		//should never be null	
+		return upn[0].getPredictedActivation();
 	}
 	
 }

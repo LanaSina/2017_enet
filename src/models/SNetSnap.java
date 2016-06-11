@@ -115,6 +115,7 @@ public class SNetSnap {
 				INeuron n2 = new INeuron(n_id);
 				ProbaWeight p = n2.addInWeight(Constants.fixedConnection, n.getId());
 				n.addOutWeight(p, n_id);
+				n.setUpperNeuron(n2);
 				n_weights++;
 				allINeurons.put(n_id, n2);
 				n_id++;				
@@ -166,6 +167,8 @@ public class SNetSnap {
 		for(int i=0;i<eye_neurons.length;i++){
 			resetNeuronsActivation(eye_neurons[i]);
 		}
+		//reset activations of ineurons
+		resetNeuronsActivation(allINeurons);
 		
 		//apply blur to selected portion of image
 		//get grayscale values of the image
@@ -205,6 +208,7 @@ public class SNetSnap {
 		
 	}
 	
+
 	private void propagateFromEyeNeurons() {
 		for (int i = 0; i < eye_neurons.length; i++) {
 			Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
@@ -347,21 +351,27 @@ public class SNetSnap {
 		for(int i=0;i<eye_neurons.length;i++){
 			resetOutWeights(eye_neurons[i]);
 		}		
-		//age output weights of currently activated neurons		
-		ageOutWeights();	
+		resetOutWeights(allINeurons);
 		
-		//activate outweights
-		for(int i=0;i<eye_neurons.length;i++){
-			//activate weights from sensory neurons		
+		//age output weights of currently activated neurons	in INeurons
+		ageOutWeights(allINeurons);	
+		
+		//activate weights from sensory neurons		
+		/*for(int i=0;i<eye_neurons.length;i++){
 			activateOutWeights(eye_neurons[i]);
-
-		}	
+		}*/
+		//for ineurons
+		activateOutWeights(allINeurons);
+		
 		//recalculate predicted activations and
 		//look at predictions
-		buildPredictionMap();
+		//buildPredictionMap();
 		
 		//create new weights based on (+) surprise
 		makeWeights();
+		
+		//look at predictions
+		buildPredictionMap();
 				
 		//update short term memory
 		updateSTM();
@@ -394,15 +404,16 @@ public class SNetSnap {
 	 * In this model there is no topological hierarchy yet, so all activated neurons are conscious.
 	 */
 	private void makeWeights() {
-		//sensory neurons
 		
-		//ineurons
+		//ineurons 
 		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
 		int nw = 0;
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
+			n.calculateActivation();
 			if(n.isSurprised()){
+				mlog.say("is surprised");
 				//go through STM
 				for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
 					INeuron preneuron = iterator.next();
@@ -438,8 +449,8 @@ public class SNetSnap {
 			for (int j = 0; j < n_interface[0].length; j++) {//j = position in image
 				int n_id = n_interface[i][j];
 				INeuron neuron = eye_neurons[i].get(n_id);
-				neuron.calculateActivation();
-				if(neuron.getPredictedActivation()>0){
+				//neuron.receiveUpperPredictedActivation();
+				if(neuron.getUpperPredictedActivation()>0){
 					//mlog.say(neuron.getId()+" inweight was activated ");
 					sum[j]=sum[j]+1;
 					//don't take contradictions into consideration for now (we don't have actions, so no contradictions will happen)
@@ -466,8 +477,8 @@ public class SNetSnap {
 	/**
 	 * age the outweights of neurons that are currently activated
 	 */
-	private void ageOutWeights() {
-		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
+	private void ageOutWeights(HashMap<Integer, INeuron> layer) {
+		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
@@ -491,21 +502,6 @@ public class SNetSnap {
 		}
 	}
 
-	
-	/**
-	 * calculates in activation for everyone
-	 * and activates out weights.
-	 */
-	/*private void propagateHiddenActivation(){
-		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
-		while(it.hasNext()){
-			Map.Entry<Integer, INeuron> pair = it.next();
-			INeuron n = pair.getValue();
-			if(n.isActivated()){
-				n.activateOutWeights();
-			}
-		}
-	}*/
 	
 	/** fuses something
 	 * TODO before this: create a layer of hidden neurons linked to eye neurons;
