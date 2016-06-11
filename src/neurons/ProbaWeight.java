@@ -119,6 +119,15 @@ public class ProbaWeight {
 	public int getAge() {
 		return age;
 	}
+
+
+	public boolean canLearn() {
+		if(age>=Constants.weight_max_age){
+			return false;
+		}else {
+			return true;
+		}
+	}
 	
 
 }

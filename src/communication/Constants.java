@@ -14,7 +14,7 @@ public class Constants {
 
 
 	/** age at which probabilistic connections stop learning */
-	public static final int weight_max_age = 100;
+	public static final int weight_max_age = 20;
 	/** confidence threshold for predictions */
 	public static final double confidence_threshold = 0.9;//90%
 	

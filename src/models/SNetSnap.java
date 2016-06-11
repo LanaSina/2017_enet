@@ -319,20 +319,20 @@ public class SNetSnap {
 	
 	    	while(true){
 	    		long before = 0;
-	    		if(step%50==0){
+	    		if(step%20==0){
 	    			//calculate runtime
 	    			before = System.currentTimeMillis();
 	    		}
 	    		
 	    		net.buildInputs();
 	    		net.updateSNet();
-	    		mlog.say("step " + step);
+	    		mlog.say("step " + step +" weights "+n_weights);
 		
-	    		if(step%50==0){
+	    		if(step%20==0){
 	    			long runtime = System.currentTimeMillis()-before;
 	    			//calculate snap time
 	    			before = System.currentTimeMillis();
-	    			//net.snap();
+	    			net.snap();
 	    			long snaptime = System.currentTimeMillis()-before;;
 	    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);
 	    		}
@@ -520,7 +520,7 @@ public class SNetSnap {
 	 * */
 	private void snap() {
 		mlog.say("snapping");
-		mlog.say("total connections "+n_weights);
+		mlog.say("total connections "+n_weights + " neurons "+ allINeurons.size());
 		ArrayList<Integer> remove = new ArrayList<Integer>();
 		//go through net
 		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
@@ -536,7 +536,6 @@ public class SNetSnap {
 					
 					if((n.getId()!= n2.getId()) && !n2.justSnapped){
 						//compare all out weights
-						//& !n2.canLearn() & 
 						double diff = 0;
 						int all = 0;
 						HashMap<INeuron,ProbaWeight> out1 = n.getOutWeights();
@@ -544,15 +543,19 @@ public class SNetSnap {
 						Iterator<Entry<INeuron, ProbaWeight>> out1it = out1.entrySet().iterator();
 						while(out1it.hasNext()){
 							Map.Entry<INeuron, ProbaWeight> out1pair = out1it.next();
-							ProbaWeight w = out1pair.getValue();	
+							ProbaWeight w = out1pair.getValue();
+							//can still learn: give up
+							if(w.canLearn()) break;
+							
 							//does n2 have all the same outweights?
 							Iterator<Entry<INeuron, ProbaWeight>> out2it = out2.entrySet().iterator();
 							if(!out2.containsKey(out1pair.getKey())){
-								//give up on this n2
+								//don't have same outweights: give up on this n2
 								break;//TODO labeled break might be necessary
 							} else {
 								//contains weight to same neuron; check value
 								ProbaWeight w2 = out2.get(out1pair.getKey());
+								if(w2.canLearn()) break;//give up
 								diff += Math.pow(w.getProba() - w2.getProba(),2);
 								all++;
 							}
@@ -596,14 +599,15 @@ public class SNetSnap {
 									while(in2it.hasNext()){
 										Map.Entry<INeuron, ProbaWeight> in2pair = in2it.next();
 										if(n.addDirectInWeight(in2pair)){
-											nin++;
+											//nin++;
 										}
 									}
 									
 									//n2 will be deleted after this
 									remove.add(n2.getId());
-									n_weights-=out2.size();//all the outweights of n2
+									//n_weights-=out2.size();//all the outweights of n2
 									n_weights = n_weights-in2.size()+nin;
+									mlog.say("size of in2 "+ in2.size());
 								}
 							}
 						}
@@ -623,7 +627,7 @@ public class SNetSnap {
 			n.justSnapped = false;
 		}
 		
-		mlog.say("after "+ allINeurons.size());
+		mlog.say("after: weights "+ n_weights + " neurons " + allINeurons.size());
 	}
 }
 
