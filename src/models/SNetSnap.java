@@ -100,7 +100,7 @@ public class SNetSnap {
 		int n_n = eye.getPartialNeuronsNumber();
 		int gray_scales = Constants.gray_scales;
 		
-		//eye sensory neurons. all neurons must have different ids
+		//eye sensory neurons
 		for(int i=0; i< n_n;i++){				
 			for(int j=0;j<gray_scales;j++){
 				//create neuron
@@ -108,9 +108,15 @@ public class SNetSnap {
 				//put it in list
 				eye_neurons[j].put(n_id, n);
 				//put it in global list
-				allINeurons.put(n_id, n);
+				//allINeurons.put(n_id, n);
 				//make it sensitive to an input
-				eye.linkNeuron(n_id,j, i);				
+				eye.linkNeuron(n_id,j, i);
+				n_id++;				
+				INeuron n2 = new INeuron(n_id);
+				ProbaWeight p = n2.addInWeight(Constants.fixedConnection, n.getId());
+				n.addOutWeight(p, n_id);
+				n_weights++;
+				allINeurons.put(n_id, n2);
 				n_id++;				
 			}
 		}	
@@ -189,11 +195,36 @@ public class SNetSnap {
 			mlog.say(n.getId()+" is activated ");
 			test = true;
 		}//*/
-			
+		
+		//propagate instantly from eye to 1st INeurons
+		propagateFromEyeNeurons();
+		
+		
 		//integrate previously predicted activation to actual activation
 		//integrateActivation();
+		
 	}
 	
+	private void propagateFromEyeNeurons() {
+		for (int i = 0; i < eye_neurons.length; i++) {
+			Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
+			while(it.hasNext()){
+				Map.Entry<Integer, INeuron> pair = it.next();
+				INeuron n = pair.getValue();
+				if(n.getActivation()>0){
+					n.activateOutWeights();
+				}
+			}	
+		}
+		//activate corresponding neurons
+		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<Integer, INeuron> pair = it.next();
+			INeuron n = pair.getValue();
+			n.makeDirectActivation();
+		}
+	}
+
 	/**
 	 * integrates previously predicted activation to actual activation
 	 */
@@ -206,18 +237,6 @@ public class SNetSnap {
 		}
 	}
 
-	/**
-	 * Reset in weights to 0 in this layer
-	 * @param layer
-	 */
-	/*private void resetInWeights(HashMap<Integer, INeuron> layer) {
-		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
-		while(it.hasNext()){
-			Map.Entry<Integer, INeuron> pair = it.next();
-			INeuron ne = (INeuron) pair.getValue();
-			ne.resetInWeights();
-		}
-	}*/
 
 	
 	/**
@@ -298,7 +317,7 @@ public class SNetSnap {
 	    			long runtime = System.currentTimeMillis()-before;
 	    			//calculate snap time
 	    			before = System.currentTimeMillis();
-	    			//net.snap();
+	    			net.snap();
 	    			long snaptime = System.currentTimeMillis()-before;;
 	    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);
 	    		}
@@ -565,6 +584,16 @@ public class SNetSnap {
 											nin++;
 										}
 									}
+									//do the same for direct inweights
+									HashMap<Integer,ProbaWeight> din = n2.getDirectInWeights();
+									in2it = din.entrySet().iterator();
+									while(in2it.hasNext()){
+										Map.Entry<Integer, ProbaWeight> in2pair = in2it.next();
+										if(n.addDirectInWeight(in2pair)){
+											nin++;
+										}
+									}
+									
 									//n2 will be deleted after this
 									remove.add(n2.getId());
 									n_weights-=out2.size();//all the outweights of n2

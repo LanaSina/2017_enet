@@ -19,7 +19,9 @@ import communication.MyLog;
 public class INeuron extends Neuron {
 	MyLog mlog = new MyLog("INeuron", true);
 
-	HashMap<Integer, ProbaWeight> inWeights = new HashMap<Integer, ProbaWeight>();//was realInWeights
+	HashMap<Integer, ProbaWeight> inWeights = new HashMap<Integer, ProbaWeight>();
+	/**direct instantaneous weights*/
+	HashMap<Integer, ProbaWeight> directInWeights = new HashMap<Integer, ProbaWeight>();
 	/** (id of out neuron, weight) probabilistic outweights*/
 	HashMap<Integer, ProbaWeight> outWeights = new HashMap<Integer, ProbaWeight>();
 	/** activation of this neuron (real or vitual)*/
@@ -55,7 +57,11 @@ public class INeuron extends Neuron {
 			p = inWeights.get(id);
 		}else{
 			p = new ProbaWeight(wtype);
-			inWeights.put(id, p);
+			if(wtype==Constants.fixedConnection){
+				directInWeights.put(id, p);
+			}else{
+				inWeights.put(id, p);
+			}
 		}
 		return p;
 	}
@@ -195,12 +201,12 @@ public class INeuron extends Neuron {
 	
 	/**
 	 * sets activations of all outside probabilistic weights
-	 * to 1 if activated
+	 * to 1 (must check independently if neuron is activated)
 	 */
 	private void sendActivations(){
-		if(!isActivated()){
+		/*if(!isActivated()){
 			return;
-		}
+		}*/
 		Iterator<Entry<Integer, ProbaWeight>> it = outWeights.entrySet().iterator();
 		while(it.hasNext()){
 			Map.Entry<Integer, ProbaWeight> pair = it.next();
@@ -285,6 +291,36 @@ public class INeuron extends Neuron {
 		boolean b = false;
 		if(!inWeights.containsKey(pair.getKey())){
 			inWeights.put(pair.getKey(), pair.getValue());
+			b = true;
+		}
+		return b;
+	}
+
+
+	/**
+	 * checks direct instantaneous inweights and changes activation accordingly
+	 */
+	public void makeDirectActivation() {
+		Iterator<Entry<Integer, ProbaWeight>> it = directInWeights.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<Integer, ProbaWeight> pair = it.next();
+			ProbaWeight w = pair.getValue();
+			if(w.isActivated()){
+				activation+=1;
+			}
+		}				
+	}
+
+
+	public HashMap<Integer, ProbaWeight> getDirectInWeights() {		
+		return (HashMap<Integer, ProbaWeight>) directInWeights.clone();
+	}
+
+
+	public boolean addDirectInWeight(Entry<Integer, ProbaWeight> pair) {
+		boolean b = false;
+		if(!directInWeights.containsKey(pair.getKey())){
+			directInWeights.put(pair.getKey(), pair.getValue());
 			b = true;
 		}
 		return b;

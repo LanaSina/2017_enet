@@ -31,6 +31,7 @@ public class ProbaWeight {
 		switch (type) {
 		case Constants.fixedConnection:{
 			value = 1;
+			canLearn = false;
 			break;
 		}
 		case Constants.defaultConnection:{
