@@ -107,15 +107,12 @@ public class SNetSnap {
 				INeuron n = new INeuron(n_id);
 				//put it in list
 				eye_neurons[j].put(n_id, n);
-				//put it in global list
-				//allINeurons.put(n_id, n);
 				//make it sensitive to an input
 				eye.linkNeuron(n_id,j, i);
 				n_id++;				
 				INeuron n2 = new INeuron(n_id);
-				ProbaWeight p = n2.addInWeight(Constants.fixedConnection, n.getId());
-				n.addOutWeight(p, n_id);
-				n.setUpperNeuron(n2);
+				ProbaWeight p = n2.addInWeight(Constants.fixedConnection, n);
+				n.addDirectOutWeight(p, n2);
 				n_weights++;
 				allINeurons.put(n_id, n2);
 				n_id++;				
@@ -163,9 +160,10 @@ public class SNetSnap {
 	boolean test = false;
 	private void buildEyeInput(){	 
 		
-		//reset activations of eye neurons not their outweights		
+		//reset activations of eye neurons and direct outweights
 		for(int i=0;i<eye_neurons.length;i++){
 			resetNeuronsActivation(eye_neurons[i]);
+			resetDirectOutWeights(eye_neurons[i]);
 		}
 		//reset activations of ineurons
 		resetNeuronsActivation(allINeurons);
@@ -211,12 +209,12 @@ public class SNetSnap {
 
 	private void propagateFromEyeNeurons() {
 		for (int i = 0; i < eye_neurons.length; i++) {
-			Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
+			Iterator<Entry<Integer, INeuron>> it = eye_neurons[i].entrySet().iterator();
 			while(it.hasNext()){
 				Map.Entry<Integer, INeuron> pair = it.next();
 				INeuron n = pair.getValue();
 				if(n.getActivation()>0){
-					n.activateOutWeights();
+					n.activateDirectOutWeights();
 				}
 			}	
 		}
@@ -262,7 +260,7 @@ public class SNetSnap {
 	
 	
 	/**
-	 * reset output weights activation to 0 in this layer
+	 * resets output weights activation to 0 in this layer
 	 * @param layer
 	 */
 	public void resetOutWeights(HashMap<Integer,INeuron> layer){
@@ -271,6 +269,19 @@ public class SNetSnap {
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron ne = (INeuron) pair.getValue();
 			ne.resetOutWeights();
+		}
+	}
+	
+	/**
+	 * reset direct output weights activation to 0 in this layer
+	 * @param layer
+	 */
+	public void resetDirectOutWeights(HashMap<Integer,INeuron> layer){
+		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<Integer, INeuron> pair = it.next();
+			INeuron ne = (INeuron) pair.getValue();
+			ne.resetDirectOutWeights();
 		}
 	}
 	
@@ -321,13 +332,13 @@ public class SNetSnap {
 	    			long runtime = System.currentTimeMillis()-before;
 	    			//calculate snap time
 	    			before = System.currentTimeMillis();
-	    			net.snap();
+	    			//net.snap();
 	    			long snaptime = System.currentTimeMillis()-before;;
 	    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);
 	    		}
 	    		
 	    		try {
-					Thread.sleep(2000);
+					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}    		
@@ -346,7 +357,7 @@ public class SNetSnap {
 
 		//update prediction probabilities		
 		//add +1 value to the inweights if they were activated at t-1 & neuron is activated
-		increaseInWeights();
+		increaseInWeights(allINeurons);
 		//reset activation of all w
 		for(int i=0;i<eye_neurons.length;i++){
 			resetOutWeights(eye_neurons[i]);
@@ -413,16 +424,15 @@ public class SNetSnap {
 			INeuron n = pair.getValue();
 			n.calculateActivation();
 			if(n.isSurprised()){
-				mlog.say("is surprised");
+				//mlog.say("is surprised");
 				//go through STM
 				for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
 					INeuron preneuron = iterator.next();
 					//doubloons weights will not be added
-					ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron.getId());
-					if(preneuron.addOutWeight(probaWeight, n.getId())){
+					ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
+					if(preneuron.addOutWeight(probaWeight, n)){
 						nw++;
 						n_weights++;
-						//mlog.say(preneuron.getId()+" to "+n.getId());
 					}
 				}
 			}
@@ -449,7 +459,7 @@ public class SNetSnap {
 			for (int j = 0; j < n_interface[0].length; j++) {//j = position in image
 				int n_id = n_interface[i][j];
 				INeuron neuron = eye_neurons[i].get(n_id);
-				//neuron.receiveUpperPredictedActivation();
+				//neuron.calculateActivation();
 				if(neuron.getUpperPredictedActivation()>0){
 					//mlog.say(neuron.getId()+" inweight was activated ");
 					sum[j]=sum[j]+1;
@@ -491,8 +501,8 @@ public class SNetSnap {
 	/**
 	 * age the outweights of neurons that are currently activated
 	 */
-	private void increaseInWeights() {
-		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
+	private void increaseInWeights(HashMap<Integer, INeuron> layer) {
+		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
@@ -529,14 +539,14 @@ public class SNetSnap {
 						//& !n2.canLearn() & 
 						double diff = 0;
 						int all = 0;
-						HashMap<Integer,ProbaWeight> out1 = n.getOutWeights();
-						HashMap<Integer,ProbaWeight> out2 = n2.getOutWeights();
-						Iterator<Entry<Integer, ProbaWeight>> out1it = out1.entrySet().iterator();
+						HashMap<INeuron,ProbaWeight> out1 = n.getOutWeights();
+						HashMap<INeuron,ProbaWeight> out2 = n2.getOutWeights();
+						Iterator<Entry<INeuron, ProbaWeight>> out1it = out1.entrySet().iterator();
 						while(out1it.hasNext()){
-							Map.Entry<Integer, ProbaWeight> out1pair = out1it.next();
+							Map.Entry<INeuron, ProbaWeight> out1pair = out1it.next();
 							ProbaWeight w = out1pair.getValue();	
 							//does n2 have all the same outweights?
-							Iterator<Entry<Integer, ProbaWeight>> out2it = out2.entrySet().iterator();
+							Iterator<Entry<INeuron, ProbaWeight>> out2it = out2.entrySet().iterator();
 							if(!out2.containsKey(out1pair.getKey())){
 								//give up on this n2
 								break;//TODO labeled break might be necessary
@@ -551,13 +561,13 @@ public class SNetSnap {
 							if(dist==0){//exact same outweights
 								boolean dosnap = true;
 								//check if no direct contradiction in inweights
-								HashMap<Integer,ProbaWeight> in = n.getInWeights();
-								HashMap<Integer,ProbaWeight> in2 = n2.getInWeights();
-								Iterator<Entry<Integer, ProbaWeight>> in1it = out1.entrySet().iterator();
+								HashMap<INeuron,ProbaWeight> in = n.getInWeights();
+								HashMap<INeuron,ProbaWeight> in2 = n2.getInWeights();
+								Iterator<Entry<INeuron, ProbaWeight>> in1it = out1.entrySet().iterator();
 								while(in1it.hasNext()){
-									Map.Entry<Integer, ProbaWeight> in1pair = in1it.next();
+									Map.Entry<INeuron, ProbaWeight> in1pair = in1it.next();
 									ProbaWeight inw = in1pair.getValue();	
-									Iterator<Entry<Integer, ProbaWeight>> in2it = in2.entrySet().iterator();
+									Iterator<Entry<INeuron, ProbaWeight>> in2it = in2.entrySet().iterator();
 									if(in2.containsKey(in1pair.getKey())){
 										//check that they do not individually contradict
 										ProbaWeight inw2 = in2.get(in1pair.getKey());
@@ -571,20 +581,20 @@ public class SNetSnap {
 									n.justSnapped = true;
 									n2.justSnapped = true;
 									//report n2 inputs to n if they did not exist
-									Iterator<Entry<Integer, ProbaWeight>> in2it = in2.entrySet().iterator();
+									Iterator<Entry<INeuron, ProbaWeight>> in2it = in2.entrySet().iterator();
 									//number of inweights not deleted
 									int nin = 0;
 									while(in2it.hasNext()){
-										Map.Entry<Integer, ProbaWeight> in2pair = in2it.next();
+										Map.Entry<INeuron, ProbaWeight> in2pair = in2it.next();
 										if(n.addInWeight(in2pair)){
 											nin++;
 										}
 									}
 									//do the same for direct inweights
-									HashMap<Integer,ProbaWeight> din = n2.getDirectInWeights();
+									HashMap<INeuron,ProbaWeight> din = n2.getDirectInWeights();
 									in2it = din.entrySet().iterator();
 									while(in2it.hasNext()){
-										Map.Entry<Integer, ProbaWeight> in2pair = in2it.next();
+										Map.Entry<INeuron, ProbaWeight> in2pair = in2it.next();
 										if(n.addDirectInWeight(in2pair)){
 											nin++;
 										}

@@ -22,15 +22,15 @@ import communication.MyLog;
 public class INeuron extends Neuron {
 	MyLog mlog = new MyLog("INeuron", true);
 
-	HashMap<Integer, ProbaWeight> inWeights = new HashMap<Integer, ProbaWeight>();
+	HashMap<INeuron, ProbaWeight> inWeights = new HashMap<INeuron, ProbaWeight>();
 	/**direct instantaneous weights*/
-	HashMap<Integer, ProbaWeight> directInWeights = new HashMap<Integer, ProbaWeight>();
-	//HashMap<Integer, ProbaWeight> directOutWeights = new HashMap<Integer, ProbaWeight>();
+	HashMap<INeuron, ProbaWeight> directInWeights = new HashMap<INeuron, ProbaWeight>();
+	HashMap<INeuron, ProbaWeight> directOutWeights = new HashMap<INeuron, ProbaWeight>();
 	//hidden neuron that "covers" this neuron (same that we give direct inweight to)
-	INeuron[] upn = null;
+	//INeuron[] upn = null;
 
 	/** (id of out neuron, weight) probabilistic outweights*/
-	HashMap<Integer, ProbaWeight> outWeights = new HashMap<Integer, ProbaWeight>();
+	HashMap<INeuron, ProbaWeight> outWeights = new HashMap<INeuron, ProbaWeight>();
 	/** activation of this neuron (real or vitual)*/
 	double activation;
 	/** probabilistic activation */
@@ -58,25 +58,25 @@ public class INeuron extends Neuron {
 	 * @param id id of the input neuron
 	 * @return existing or newly created connection.
 	 */
-	public ProbaWeight addInWeight(int wtype, int id) {		
+	public ProbaWeight addInWeight(int wtype, INeuron n) {		
 		ProbaWeight p;
-		if(inWeights.containsKey(id)){
-			p = inWeights.get(id);
+		if(inWeights.containsKey(n)){
+			p = inWeights.get(n);
 		}else{
 			p = new ProbaWeight(wtype);
 			if(wtype==Constants.fixedConnection){
-				directInWeights.put(id, p);
+				directInWeights.put(n, p);
 			}else{
-				inWeights.put(id, p);
+				inWeights.put(n, p);
 			}
 		}
 		return p;
 	}
 	
-	public void setUpperNeuron(INeuron n) {
+	/*public void setUpperNeuron(INeuron n) {
 		upn = new INeuron[1];
 		upn[0] = n;
-	}
+	}*/
 
 	/**
 	 * takes the inweight of a neuron and makes this neuron as input.
@@ -85,12 +85,11 @@ public class INeuron extends Neuron {
 	 * @param id id of the output neuron
 	 * @return true if the weight was added, false if it already existed
 	 */
-	public boolean addOutWeight(ProbaWeight p, int id) {
+	public boolean addOutWeight(ProbaWeight p, INeuron n) {
 		boolean b = false;
 		if(outWeights.containsValue(p)){
-			//mlog.say("addOutWeight: already exists");
 		}else{
-			outWeights.put(id, p);
+			outWeights.put(n, p);
 			b = true;
 		}		
 		return b;
@@ -123,9 +122,9 @@ public class INeuron extends Neuron {
 	 * (not the age)
 	 */
 	public void increaseInWeights(){
-		Iterator<Entry<Integer, ProbaWeight>> it = inWeights.entrySet().iterator();
+		Iterator<Entry<INeuron, ProbaWeight>> it = inWeights.entrySet().iterator();
 		while(it.hasNext()){
-			Map.Entry<Integer, ProbaWeight> pair = it.next();
+			Map.Entry<INeuron, ProbaWeight> pair = it.next();
 			ProbaWeight w = (ProbaWeight) pair.getValue();
 			//value is increased if this weight was previously activated
 			if(w.canLearn & w.isActivated()){//w.getWasActivated() & 
@@ -162,9 +161,9 @@ public class INeuron extends Neuron {
 			double a = 0;
 			double confidence = Constants.confidence_threshold;
 			
-			Iterator<Entry<Integer, ProbaWeight>> it = inWeights.entrySet().iterator();
+			Iterator<Entry<INeuron, ProbaWeight>> it = inWeights.entrySet().iterator();
 			while(it.hasNext()){
-				Map.Entry<Integer, ProbaWeight> pair = it.next();
+				Map.Entry<INeuron, ProbaWeight> pair = it.next();
 				ProbaWeight pw = pair.getValue();
 				double w  = pw.getProba();
 				//mlog.say(id+ " w "+w);
@@ -192,9 +191,9 @@ public class INeuron extends Neuron {
 	 * reset output weights activation to 0.
 	 */
 	public void resetOutWeights() {
-		Iterator<Entry<Integer, ProbaWeight>> it = inWeights.entrySet().iterator();
+		Iterator<Entry<INeuron, ProbaWeight>> it = outWeights.entrySet().iterator();//was inweights orz
 		while(it.hasNext()){
-			Map.Entry<Integer, ProbaWeight> pair = it.next();
+			Map.Entry<INeuron, ProbaWeight> pair = it.next();
 			ProbaWeight w = (ProbaWeight) pair.getValue();
 			w.resetActivation();
 		}		
@@ -215,12 +214,9 @@ public class INeuron extends Neuron {
 	 * to 1 (must check independently if neuron is activated)
 	 */
 	private void sendActivations(){
-		/*if(!isActivated()){
-			return;
-		}*/
-		Iterator<Entry<Integer, ProbaWeight>> it = outWeights.entrySet().iterator();
+		Iterator<Entry<INeuron, ProbaWeight>> it = outWeights.entrySet().iterator();
 		while(it.hasNext()){
-			Map.Entry<Integer, ProbaWeight> pair = it.next();
+			Map.Entry<INeuron, ProbaWeight> pair = it.next();
 			ProbaWeight pw = (ProbaWeight) pair.getValue();
 			pw.setActivation(1);
 		}			
@@ -231,9 +227,9 @@ public class INeuron extends Neuron {
 	 * set all in weights activations to 0
 	 */
 	public void resetInWeights() {
-		Iterator<Entry<Integer, ProbaWeight>> it = inWeights.entrySet().iterator();
+		Iterator<Entry<INeuron, ProbaWeight>> it = inWeights.entrySet().iterator();
 		while(it.hasNext()){
-			Map.Entry<Integer, ProbaWeight> pair = it.next();
+			Map.Entry<INeuron, ProbaWeight> pair = it.next();
 			ProbaWeight pw = (ProbaWeight) pair.getValue();
 			pw.resetActivation();
 		}			
@@ -244,15 +240,15 @@ public class INeuron extends Neuron {
 	 * 
 	 * @return output weights of this neuron
 	 */
-	public HashMap<Integer, ProbaWeight>  getOutWeights() {
-		return (HashMap<Integer, ProbaWeight>) outWeights.clone();
+	public HashMap<INeuron, ProbaWeight>  getOutWeights() {
+		return (HashMap<INeuron, ProbaWeight>) outWeights.clone();
 	}
 
 
 	public void ageOutWeights() {
-		Iterator<Entry<Integer, ProbaWeight>> it = outWeights.entrySet().iterator();
+		Iterator<Entry<INeuron, ProbaWeight>> it = outWeights.entrySet().iterator();
 		while(it.hasNext()){
-			Map.Entry<Integer, ProbaWeight> pair = it.next();
+			Map.Entry<INeuron, ProbaWeight> pair = it.next();
 			ProbaWeight w = pair.getValue();
 			w.increaseAge();
 		}			
@@ -288,8 +284,8 @@ public class INeuron extends Neuron {
 	/**
 	 * @return input weights of this neuron
 	 */
-	public HashMap<Integer, ProbaWeight> getInWeights() {
-		return (HashMap<Integer, ProbaWeight>) inWeights.clone();
+	public HashMap<INeuron, ProbaWeight> getInWeights() {
+		return (HashMap<INeuron, ProbaWeight>) inWeights.clone();
 	}
 
 
@@ -298,7 +294,7 @@ public class INeuron extends Neuron {
 	 * @param pair (key=input neuron id, value = ProbaWeight
 	 * @return whether the weight was added or not
 	 */
-	public boolean addInWeight(Entry<Integer, ProbaWeight> pair) {
+	public boolean addInWeight(Entry<INeuron, ProbaWeight> pair) {
 		boolean b = false;
 		if(!inWeights.containsKey(pair.getKey())){
 			inWeights.put(pair.getKey(), pair.getValue());
@@ -312,9 +308,9 @@ public class INeuron extends Neuron {
 	 * checks direct instantaneous inweights and changes activation accordingly
 	 */
 	public void makeDirectActivation() {
-		Iterator<Entry<Integer, ProbaWeight>> it = directInWeights.entrySet().iterator();
+		Iterator<Entry<INeuron, ProbaWeight>> it = directInWeights.entrySet().iterator();
 		while(it.hasNext()){
-			Map.Entry<Integer, ProbaWeight> pair = it.next();
+			Map.Entry<INeuron, ProbaWeight> pair = it.next();
 			ProbaWeight w = pair.getValue();
 			if(w.isActivated()){
 				this.increaseActivation(1);
@@ -323,12 +319,12 @@ public class INeuron extends Neuron {
 	}
 
 
-	public HashMap<Integer, ProbaWeight> getDirectInWeights() {		
-		return (HashMap<Integer, ProbaWeight>) directInWeights.clone();
+	public HashMap<INeuron, ProbaWeight> getDirectInWeights() {		
+		return (HashMap<INeuron, ProbaWeight>) directInWeights.clone();
 	}
 
 
-	public boolean addDirectInWeight(Entry<Integer, ProbaWeight> pair) {
+	public boolean addDirectInWeight(Entry<INeuron, ProbaWeight> pair) {
 		boolean b = false;
 		if(!directInWeights.containsKey(pair.getKey())){
 			directInWeights.put(pair.getKey(), pair.getValue());
@@ -338,9 +334,47 @@ public class INeuron extends Neuron {
 	}
 
 
+	/**
+	 * @return the activation of the 1st neuron in the list of directOutWeights
+	 */
 	public double getUpperPredictedActivation() {
 		//should never be null	
-		return upn[0].getPredictedActivation();
+		Iterator<Entry<INeuron, ProbaWeight>> it = directOutWeights.entrySet().iterator();
+		Map.Entry<INeuron, ProbaWeight> pair = it.next();
+		INeuron neuron = pair.getKey();
+	
+		return neuron.getPredictedActivation();//Predicted
+	}
+
+
+	public boolean addDirectOutWeight(ProbaWeight p, INeuron n2) {
+		boolean b = false;
+		if(directOutWeights.containsValue(p)){
+		}else{
+			directOutWeights.put(n2, p);
+			b = true;
+		}		
+		return b;
+	}
+
+
+	public void activateDirectOutWeights() {
+		Iterator<Entry<INeuron, ProbaWeight>> it = directOutWeights.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<INeuron, ProbaWeight> pair = it.next();
+			ProbaWeight pw = (ProbaWeight) pair.getValue();
+			pw.setActivation(1);
+		}	
+	}
+
+
+	public void resetDirectOutWeights() {
+		Iterator<Entry<INeuron, ProbaWeight>> it = directOutWeights.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<INeuron, ProbaWeight> pair = it.next();
+			ProbaWeight w = (ProbaWeight) pair.getValue();
+			w.resetActivation();
+		}		
 	}
 	
 }

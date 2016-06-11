@@ -694,7 +694,7 @@ public class CharSNet {
 	 */
 	private void calculateHiddenActivation() {
 		//reset action pool
-		action_modules.clear();
+		/*action_modules.clear();
 		
 		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
 		while(it.hasNext()){
@@ -723,7 +723,7 @@ public class CharSNet {
 				}
 
 			}
-		}	
+		}	*/
 	}
 		
 }
