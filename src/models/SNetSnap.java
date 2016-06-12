@@ -283,9 +283,9 @@ public class SNetSnap {
 		for(int k = 0; k<n; k++){
 			//values in "in" start at 1, not 0
 			int i = in[k]-1;//dont see white -1;
-			if(i>0){//dont see white
+			//if(i>0){//dont see white
 				eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
-			}
+			//}
 		}//*/
 		/*if(test){
 			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();

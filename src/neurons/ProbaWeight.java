@@ -55,9 +55,9 @@ public class ProbaWeight {
 	public void addValue() {
 		//mlog.say("+1 value");
 		value++;	
-		if(value/(double)age >1.3){
+		/*if(value/(double)age >1.3){
 			mlog.say("********** alert");
-		}
+		}*/
 	}
 
 
