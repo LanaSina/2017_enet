@@ -81,11 +81,11 @@ public class INeuron extends Neuron {
 	/**
 	 * takes the inweight of a neuron and makes this neuron as input.
 	 * does not add the connection if similar connection exists
+	 * @param n output neuron
 	 * @param p weight
-	 * @param id id of the output neuron
 	 * @return true if the weight was added, false if it already existed
 	 */
-	public boolean addOutWeight(ProbaWeight p, INeuron n) {
+	public boolean addOutWeight(INeuron n, ProbaWeight p) {
 		boolean b = false;
 		if(outWeights.containsValue(p)){
 		}else{
@@ -392,6 +392,14 @@ public class INeuron extends Neuron {
 	 * @param key the input neuron */
 	public void removeInWeight(INeuron key) {
 		inWeights.remove(key);		
+	}
+
+
+	public boolean removeOutWeight(INeuron key) {
+		if(outWeights.remove(key)==null){
+			return false;
+		}
+		return true;
 	}
 	
 }

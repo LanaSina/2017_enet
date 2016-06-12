@@ -6,6 +6,9 @@ Stages
 
 Hierarchy, top down search, rely on predictions, mute, STM>1
 
+TODO
+create ineurons only if sneuron was surprised 
+
 when we have space, we can avoid too big search in snap statement.
 also higher levels should get closer and closer to each other while sensory levels are separated: sensory out surface of brain, high level inside with trunk linking hemispheres??
 

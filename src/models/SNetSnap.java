@@ -111,9 +111,9 @@ public class SNetSnap {
 				eye.linkNeuron(n_id,j, i);
 				n_id++;				
 				INeuron n2 = new INeuron(n_id);
+				n2.justSnapped=true;//avoid snapping newborn neurons
 				ProbaWeight p = n2.addInWeight(Constants.fixedConnection, n);
 				n.addDirectOutWeight(p, n2);
-				//n_weights++;
 				allINeurons.put(n_id, n2);
 				n_id++;				
 			}
@@ -430,7 +430,7 @@ public class SNetSnap {
 					INeuron preneuron = iterator.next();
 					//doubloons weights will not be added
 					ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
-					if(preneuron.addOutWeight(probaWeight, n)){
+					if(preneuron.addOutWeight(n,probaWeight)){
 						nw++;
 						n_weights++;
 					}
@@ -525,7 +525,7 @@ public class SNetSnap {
 		deactivateAll();
 		
 		
-		ArrayList<Integer> remove = new ArrayList<Integer>();
+		ArrayList<INeuron> remove = new ArrayList<INeuron>();
 		//go through net
 		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
 		while(it.hasNext()){
@@ -577,34 +577,26 @@ public class SNetSnap {
 						//n2 must have all the weights that n1 has
 						while(out1it.hasNext()){
 							Map.Entry<INeuron, ProbaWeight> out1pair = out1it.next();
-							ProbaWeight w1 = out1pair.getValue();
-							//can still learn: give up
-							if(w1.canLearn()){
-								dosnap = false;
-								break;
-							}
-							
 							//does n2 have all the same outweights?
 							if(!out2.containsKey(out1pair.getKey())){
 								//don't have same outweights: give up on this n2
 								dosnap = false;
 								break;
-							} else {
-								//contains weight to same neuron; check value
-								ProbaWeight w2 = out2.get(out1pair.getKey());
-								if(w2.canLearn()){
-									dosnap = false;
-									break;//give up
-								}
 							}
 						}
-							
-						double dist = Math.sqrt(diff)/all;
-						if(dist==0){//exact same outweights
+						
+						double dist = 0;//don't snap if there were no outweights at all
+						if(all!=0){
+							dist = Math.sqrt(diff)/all;					
+						}
+						//count how many connections are removed
+						int g = 0;
+						if(dist==0){//ifexact same outweights
 							//check if no direct contradiction in inweights
 							HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
 							HashMap<INeuron,ProbaWeight> in2 = n2.getInWeights();
 							Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
+							
 							while(in1it.hasNext()){
 								Map.Entry<INeuron, ProbaWeight> in1pair = in1it.next();
 								ProbaWeight inw = in1pair.getValue();	
@@ -634,14 +626,14 @@ public class SNetSnap {
 							if(dosnap){
 								n.justSnapped = true;
 								n2.justSnapped = true;
+								remove.add(n2);
+								
 								//report n2 inputs to n if they did not exist
 								in2it = in2.entrySet().iterator();
-								//number of inweights not deleted
-								int nin = 0;
 								while(in2it.hasNext()){
 									Map.Entry<INeuron, ProbaWeight> in2pair = in2it.next();
 									if(!n.addInWeight(in2pair)){
-										nin++;
+										//nin++;
 									}
 								}
 								//do the same for direct inweights
@@ -654,21 +646,13 @@ public class SNetSnap {
 										down.setDirectOutWeight(n,in2pair.getValue());
 									}
 								}
-								//remove "ghost" outweights
-								int g = 0;
+								//remove "ghost" inweights from dead neuron
 								out2it = out2.entrySet().iterator();
 								while(out2it.hasNext()){
 									Map.Entry<INeuron, ProbaWeight> out2pair = out2it.next();
 									INeuron neuron = out2pair.getKey();
 									neuron.removeInWeight(n2);
-									g++;
-								}
-								
-								
-								//n2 will be deleted after this
-								remove.add(n2.getId());
-								n_weights = n_weights - g;//in2.size() + nin;
-								mlog.say("g "+ g);
+								}						
 							}
 						}
 					}
@@ -676,17 +660,29 @@ public class SNetSnap {
 			}
 		}
 		
-		for(int i=0; i<remove.size();i++){
-			allINeurons.remove(remove.get(i));
+		//count removed weights (only out weights)
+		int g = 0;
+		for(int i=0; i<remove.size();i++){	
+			g = g+remove.get(i).getOutWeights().size();
+			allINeurons.remove(remove.get(i).getId());
 		}
 		
-		//reset "just snapped" values
+		//reset "just snapped" values and remove ghost outweights
 		it = allINeurons.entrySet().iterator();
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			n.justSnapped = false;
+			for(int i=0; i<remove.size();i++){
+				if(n.removeOutWeight(remove.get(i))){
+					g++;
+				}
+			}		
+			mlog.say("inweights " +n.getInWeights().size());
+			mlog.say("outweights " +n.getOutWeights().size());
+
 		}
+		n_weights-=g;	
 		
 		mlog.say("after: weights "+ n_weights + " neurons " + allINeurons.size());
 	}
