@@ -27,6 +27,11 @@ public class Constants {
 	public static final int fixedConnection = 1;
 	/** this connection weight will change with time*/
 	public static final int defaultConnection = 2;
+
+	/** where data files will be created*/
+	public static final String DataPath = "/Users/lana/Development/SNET_data/";
+	/** network parameters file*/
+	public static final String ParamFileName = "parameters.csv";
 	
 	
 	

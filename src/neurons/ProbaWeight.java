@@ -105,12 +105,6 @@ public class ProbaWeight {
 		}
 	}
 
-
-	/*public boolean getWasActivated() {
-		return wasActivated;
-	}*/
-
-
 	public int getValue() {
 		return value;
 	}

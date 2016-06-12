@@ -1,7 +1,13 @@
 package models;
 
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -25,6 +31,14 @@ public class SNetSnap {
 	
 	/** log */
 	MyLog mlog = new MyLog("SNet", true);
+	/** data recording*/
+	boolean save = true;
+	/** the forlder for this specific run*/
+	String folderName;
+	/** network parameter series */
+	FileWriter paramWriter;
+	/** neurons weights */
+	FileWriter weightsWriter;
 	
 	/**number of presentations for current image*/
 	int presentations = 0;
@@ -60,7 +74,6 @@ public class SNetSnap {
 	/** total number of neuron ids*/
 	int n_id = 0;
 	/**short term memory, contains conscious neurons */
-	//HashMap<Integer, INeuron> 
 	Vector<INeuron> STM = new Vector<INeuron>();
 	
 	public SNetSnap(){
@@ -74,10 +87,103 @@ public class SNetSnap {
     	//net initialization
     	initNet();
     	
+    	if(save){
+    		initDataFiles();
+    	}
+    	
 		//main thread
     	new Thread(new ExperimentThread(this)).start();		
 	}
 	
+	private void initDataFiles() {
+		 //get current date
+	    DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
+	    Date date = new Date();
+	    String strDate = dateFormat.format(date);
+	
+	    folderName = Constants.DataPath + "/" + strDate + "/";
+	    //first create directory
+		File theDir = new File(folderName);
+		// if the directory does not exist, create it
+		if (!theDir.exists()) {
+		    mlog.say("creating directory: " + folderName);
+		    boolean result = false;
+		    try{
+		        theDir.mkdir();
+		        result = true;
+		    } 
+		    catch(SecurityException se){
+		    }        
+		    if(result) {    
+		        System.out.println("DIR created");  
+		    }
+		}
+		
+		//now create csv files
+		try {			
+			//parameters
+			paramWriter = new FileWriter(folderName+"/"+Constants.ParamFileName);
+			mlog.say("stream opened "+Constants.ParamFileName);
+        	String str = "iteration,neurons,connections\n";
+        	paramWriter.append(str);
+        	paramWriter.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+		writeParameters();
+		
+		//write initial weights
+		writeWeights();
+	}
+	
+	/** record weights in csv file*/
+	private void writeWeights(){
+		String weightsFileName = "weights_"+step+".csv";
+		
+		try {
+			weightsWriter = new FileWriter(folderName+"/"+weightsFileName);
+			String str = "from,to,weight,age\n";
+        	weightsWriter.append(str);
+        	weightsWriter.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
+			while(it.hasNext()){
+				Map.Entry<Integer, INeuron> pair = it.next();
+				INeuron n = (INeuron) pair.getValue();
+				//write only outweights
+				HashMap<INeuron,ProbaWeight> out = n.getOutWeights();
+				Iterator<Entry<INeuron, ProbaWeight>> outit = out.entrySet().iterator();
+				//n1 must have all the weights that n2 has
+				while(outit.hasNext()){
+					Map.Entry<INeuron, ProbaWeight> outpair = outit.next();
+					ProbaWeight w = outpair.getValue();
+		        	String str = n.getId()+","+outpair.getKey().getId()+","+w.getProba()+ "," + w.getAge()+"\n";
+		        	weightsWriter.append(str);					
+		        	weightsWriter.flush();	
+				}
+		    }
+			weightsWriter.close();
+			mlog.say("stream written "+weightsFileName);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void writeParameters() {
+		//"iteration,neurons,connections\n";
+		String str = step+","+allINeurons.size()+","+n_weights+"\n";
+    	try {
+			paramWriter.append(str);
+	    	paramWriter.flush();	
+		} catch (IOException e) {
+			e.printStackTrace();
+		}					
+	}
+
 	/**
 	 * set the sizes of arrays and lists
 	 */
@@ -178,9 +284,9 @@ public class SNetSnap {
 		for(int k = 0; k<n; k++){
 			//values in "in" start at 1, not 0
 			int i = in[k]-1;//dont see white -1;
-			//if(i>0){//dont see white
+			if(i>0){//dont see white
 				eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
-			//}
+			}
 		}//*/
 		/*if(test){
 			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
@@ -299,55 +405,7 @@ public class SNetSnap {
 		}
 	}
 	
-	//main thread
-	private class ExperimentThread implements Runnable {
-		/** log */
-		MyLog mlog = new MyLog("SNet Thread", true);
-		/** network */
-		SNetSnap net;
-		
-		public ExperimentThread(SNetSnap net){
-			this.net = net;
-		}
-		
-	    public void run() {
-	    	try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}  
 	
-	    	while(true){
-	    		long before = 0;
-	    		if(step%20==0){
-	    			//calculate runtime
-	    			before = System.currentTimeMillis();
-	    		}
-	    		
-	    		net.buildInputs();
-	    		net.updateSNet();
-	    		mlog.say("step " + step +" weights "+n_weights);
-		
-	    		if(step%20==0){
-	    			long runtime = System.currentTimeMillis()-before;
-	    			//calculate snap time
-	    			before = System.currentTimeMillis();
-	    			net.snap();
-	    			long snaptime = System.currentTimeMillis()-before;;
-	    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);
-	    		}
-	    		
-	    		try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}    		
-	    		step++;
-	    	}
-	    }
-	
-	}
-
 
 	/**
 	 * update states of all neurons by propagating activation
@@ -367,16 +425,8 @@ public class SNetSnap {
 		//age output weights of currently activated neurons	in INeurons
 		ageOutWeights(allINeurons);	
 		
-		//activate weights from sensory neurons		
-		/*for(int i=0;i<eye_neurons.length;i++){
-			activateOutWeights(eye_neurons[i]);
-		}*/
 		//for ineurons
 		activateOutWeights(allINeurons);
-		
-		//recalculate predicted activations and
-		//look at predictions
-		//buildPredictionMap();
 		
 		//create new weights based on (+) surprise
 		makeWeights();
@@ -520,10 +570,7 @@ public class SNetSnap {
 	 * */
 	private void snap() {
 		mlog.say("snapping");
-		mlog.say("total connections "+n_weights + " neurons "+ allINeurons.size());
-		//not certain if this is necessary
-		deactivateAll();
-		
+		mlog.say("total connections "+n_weights + " neurons "+ allINeurons.size());		
 		
 		ArrayList<INeuron> remove = new ArrayList<INeuron>();
 		//go through net
@@ -678,18 +725,69 @@ public class SNetSnap {
 					g++;
 				}
 			}		
-			mlog.say("inweights " +n.getInWeights().size());
-			mlog.say("outweights " +n.getOutWeights().size());
+			/*mlog.say("inweights " +n.getInWeights().size());
+			mlog.say("outweights " +n.getOutWeights().size());*/
 
 		}
 		n_weights-=g;	
 		
 		mlog.say("after: weights "+ n_weights + " neurons " + allINeurons.size());
 	}
-
-	private void deactivateAll() {
-		//rese
+	
+	//main thread
+		//TODO should be in different class, maybe starter
+		private class ExperimentThread implements Runnable {
+			/** log */
+			MyLog mlog = new MyLog("SNet Thread", true);
+			/** network */
+			SNetSnap net;
+			
+			public ExperimentThread(SNetSnap net){
+				this.net = net;
+			}
+			
+		    public void run() {
+		    	try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}  
 		
-	}
+		    	while(true){
+		    		long before = 0;
+		    		if(step%20==0){
+		    			//calculate runtime
+		    			before = System.currentTimeMillis();
+		    		}
+		    		
+		    		net.buildInputs();
+		    		net.updateSNet();
+		    		mlog.say("step " + step +" weights "+n_weights);
+			
+		    		if(step%20==0){
+		    			long runtime = System.currentTimeMillis()-before;
+		    			//save
+		    			if(save){
+		    				writeWeights();
+		    				writeParameters();
+		    			}
+		    			//calculate snap time
+		    			before = System.currentTimeMillis();
+		    			net.snap();
+		    			long snaptime = System.currentTimeMillis()-before;;
+		    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);
+		    		}
+		    		
+		    		try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}    		
+		    		step++;
+		    	}
+		    }
+		
+		}
+
 }
 
