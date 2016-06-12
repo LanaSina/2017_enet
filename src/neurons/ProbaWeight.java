@@ -10,14 +10,12 @@ import communication.MyLog;
  */
 public class ProbaWeight {
 	/** log */
-	MyLog mlog = new MyLog("PWeight", true);
+	MyLog mlog = new MyLog("PWeight",true);
 	
 	/** age of this weight*/
 	int age = 1;
 	/** value of this weight*/
 	private int value = 0;
-	/** depends on age of this weight */
-	boolean canLearn = true;
 	/** value of the activation of this weight at t*/
 	private int activation = 0; //could be binary
 	/** activation at t-1*/
@@ -31,11 +29,10 @@ public class ProbaWeight {
 		switch (type) {
 		case Constants.fixedConnection:{
 			value = 1;
-			canLearn = false;
 			break;
 		}
 		case Constants.defaultConnection:{
-			value=2;
+			value = 2;
 			break;
 		}
 		default:
@@ -56,7 +53,11 @@ public class ProbaWeight {
 	 * adds 1 to current value.
 	 */
 	public void addValue() {
-		value++;		
+		//mlog.say("+1 value");
+		value++;	
+		if(value/(double)age >1.3){
+			mlog.say("********** alert");
+		}
 	}
 
 
@@ -65,11 +66,6 @@ public class ProbaWeight {
 	 * set wasActivated to true or false
 	 */
 	public void resetActivation() {
-		/*if(activation>0){
-			wasActivated = true;
-		}else {
-			wasActivated = false;
-		}*/
 		activation = 0;		
 	}
 
@@ -102,6 +98,7 @@ public class ProbaWeight {
 	public void increaseAge() {
 		if(age<Constants.weight_max_age){
 			age++;
+			//mlog.say("+1 age");
 		}
 	}
 

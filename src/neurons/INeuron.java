@@ -127,7 +127,7 @@ public class INeuron extends Neuron {
 			Map.Entry<INeuron, ProbaWeight> pair = it.next();
 			ProbaWeight w = (ProbaWeight) pair.getValue();
 			//value is increased if this weight was previously activated
-			if(w.canLearn & w.isActivated()){//w.getWasActivated() & 
+			if(w.canLearn() & w.isActivated()){//w.getWasActivated() & 
 				w.addValue();
 			}
 		}
@@ -184,6 +184,13 @@ public class INeuron extends Neuron {
 			pro_activation = a;
 			activationCalculated = true;
 		}
+	}
+	
+	public void calculateActivation(boolean b) {
+		if(true){
+			activationCalculated = false;
+		}
+		calculateActivation();
 	}
 
 

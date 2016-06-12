@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.Map.Entry;
 
-
 import communication.Constants;
 import communication.MyLog;
 import neurons.INeuron;
@@ -28,9 +27,9 @@ import sensors.Eye;
  *
  */
 public class SNetSnap {
-	
 	/** log */
 	MyLog mlog = new MyLog("SNet", true);
+	
 	/** data recording*/
 	boolean save = true;
 	/** the forlder for this specific run*/
@@ -130,7 +129,7 @@ public class SNetSnap {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}		
-		writeParameters();
+		//writeParameters();
 		
 		//write initial weights
 		writeWeights();
@@ -292,7 +291,9 @@ public class SNetSnap {
 			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
 			INeuron n = iterator.next().getValue();
 			n.increaseActivation(1);
-			mlog.say(n.getId()+" is activated ");
+			if(n.isActivated()){
+				mlog.say(n.getId()+" is activated ");
+			}
 			test = false;
 		}else {
 			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
@@ -308,8 +309,7 @@ public class SNetSnap {
 		
 		
 		//integrate previously predicted activation to actual activation
-		//integrateActivation();
-		
+		//integrateActivation();	
 	}
 	
 
@@ -414,8 +414,12 @@ public class SNetSnap {
 	public void updateSNet() {			
 
 		//update prediction probabilities		
-		//add +1 value to the inweights if they were activated at t-1 & neuron is activated
+				
+		ageOutWeights(allINeurons);
 		increaseInWeights(allINeurons);
+		
+		//add +1 value to the inweights if they were activated at t-1 & neuron is activated
+		//increaseInWeights(allINeurons);
 		//reset activation of all w
 		for(int i=0;i<eye_neurons.length;i++){
 			resetOutWeights(eye_neurons[i]);
@@ -423,10 +427,15 @@ public class SNetSnap {
 		resetOutWeights(allINeurons);
 		
 		//age output weights of currently activated neurons	in INeurons
-		ageOutWeights(allINeurons);	
+		//ageOutWeights(allINeurons);	
+			
+		//increaseInWeights(allINeurons);
 		
 		//for ineurons
 		activateOutWeights(allINeurons);
+		
+		
+
 		
 		//create new weights based on (+) surprise
 		makeWeights();
@@ -452,8 +461,8 @@ public class SNetSnap {
 			INeuron n = pair.getValue();
 			//no hierarchy: all activated neurons are remembered, including sensory neurons.
 			if(n.isActivated()){
-				//mlog.say("activated");
 				STM.add(n);
+				//mlog.say("in stm " + n.getId());
 			}
 		}
 		
@@ -472,7 +481,7 @@ public class SNetSnap {
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
-			n.calculateActivation();
+			n.calculateActivation();//recalculate from scratch
 			if(n.isSurprised()){
 				//mlog.say("is surprised");
 				//go through STM
@@ -483,6 +492,7 @@ public class SNetSnap {
 					if(preneuron.addOutWeight(n,probaWeight)){
 						nw++;
 						n_weights++;
+						//mlog.say("from "+preneuron.getId()+" to "+n.getId());
 					}
 				}
 			}
@@ -543,13 +553,14 @@ public class SNetSnap {
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			if(n.getActivation()>0){
+				//mlog.say("age out "+n.getId());
 				n.ageOutWeights();
 			}
 		}
 	}
 	
 	/**
-	 * age the outweights of neurons that are currently activated
+	 * increase the inweights of neurons that are currently activated
 	 */
 	private void increaseInWeights(HashMap<Integer, INeuron> layer) {
 		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
@@ -557,6 +568,7 @@ public class SNetSnap {
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			if(n.getActivation()>0){
+				//mlog.say("increase in "+n.getId());
 				n.increaseInWeights();
 			}
 		}
@@ -637,7 +649,6 @@ public class SNetSnap {
 							dist = Math.sqrt(diff)/all;					
 						}
 						//count how many connections are removed
-						int g = 0;
 						if(dist==0){//ifexact same outweights
 							//check if no direct contradiction in inweights
 							HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
@@ -779,7 +790,7 @@ public class SNetSnap {
 		    		}
 		    		
 		    		try {
-						Thread.sleep(1000);
+						Thread.sleep(500);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}    		
