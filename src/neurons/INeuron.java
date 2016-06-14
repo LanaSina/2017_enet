@@ -33,8 +33,11 @@ public class INeuron extends Neuron {
 	HashMap<INeuron, ProbaWeight> outWeights = new HashMap<INeuron, ProbaWeight>();
 	/** activation of this neuron (real or vitual)*/
 	double activation;
-	/** probabilistic activation */
+	/** predicted activation (positive) */
 	double pro_activation;
+	/** predicted activation (absence of) */
+	//double abs_activation;
+	
 	/** has activation been calculated since the last reset or not*/
 	boolean activationCalculated = false;
 	/** predicted activation */
@@ -157,8 +160,11 @@ public class INeuron extends Neuron {
 	public void calculateActivation() {
 		if(!activationCalculated){
 			surprised = false;
-			//calculate predicted activation a
-			double a = 0;
+			//calculate predicted positive activation
+			double pa = 0;
+			//calculate predicted absence of activation
+			//double ab = 0;
+
 			double confidence = Constants.confidence_threshold;
 			
 			Iterator<Entry<INeuron, ProbaWeight>> it = inWeights.entrySet().iterator();
@@ -168,20 +174,23 @@ public class INeuron extends Neuron {
 				double w  = pw.getProba();
 				//mlog.say(id+ " w "+w);
 				if(w>confidence & pw.isActivated()){
-					a+=1;
+					pa+=1;
 					//mlog.say(" was activated from "+pair.getKey()+" to "+id);
-				}
+				}/* else if (w<0.4 & pw.isActivated()) {//(1-confidence)
+					ab+=1;
+				}*/
+				
 			}
 	
 			//mlog.say("predicted "+a+ " real "+ activation);
 			if(pro_activation==0 & activation>0){//(a==0 & activation>0){
 				surprised = true;
-				//mlog.say("surprised");
-			} else if(a>0){
-				//mlog.say("prediction exists");
-			}
+			}/* else if(abs_activation>0 & activation==0){
+				surprised = true;
+			}*/
 		
-			pro_activation = a;
+			pro_activation = pa;
+			//abs_activation = ab;
 			activationCalculated = true;
 		}
 	}

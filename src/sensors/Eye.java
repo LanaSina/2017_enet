@@ -168,7 +168,8 @@ public class Eye {
 		//mlog.say("called");
 		
 		try {
-			image_input = ImageIO.read(new File(imagesPath+"ball_"+name+".png"));
+			image_input = ImageIO.read(new File(imagesPath+name+".png"));
+			
 			im_h = image_input.getHeight();
 			im_w = image_input.getWidth();	
 			
@@ -189,20 +190,21 @@ public class Eye {
 			        double b2 = (1-mean);
 			        bw[i][j] = b2;
 				}				
-			}			
+			}
+			//reset focus point only when eye first created
+			if(init == false){
+				focus_center[0] =  im_w/2;
+				focus_center[1] = im_h/2; //{25,25}
+				//mlog.say("center "+ focus_center[0]);
+				init = true;
+			}				
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
 		//mlog.say("read "+ focus_center[0]);
 
-		//reset focus point only when eye first created
-		if(init == false){
-			focus_center[0] =  im_w/2;
-			focus_center[1] = im_h/2; //{25,25}
-			//mlog.say("center "+ focus_center[0]);
-			init = true;
-		}	
+		
 		
 		return bw;
 	}
