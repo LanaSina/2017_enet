@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import communication.Constants;
 import communication.MyLog;
 import neurons.INeuron;
+import neurons.PNeuron;
 import neurons.ProbaWeight;
 import sensors.Eye;
 
@@ -483,11 +484,42 @@ public class SNetPattern {
 				}
 				//no change happened, try building a spatial pattern
 				if(!didChange){
-					PNeuron neuron = new PNeuron(STM,n);
+					if(!patternExists(STM,n)){
+						PNeuron neuron = new PNeuron(STM,n,n_id);
+						n_id++;
+						allINeurons.put(neuron.getId(), neuron);
+						mlog.say("created pattern neuron");
+					}
 				}
 			}
 		}
 		mlog.say("added " + nw + " weights");
+	}
+	
+	/**
+	 * 
+	 * @param neurons list of neurons
+	 * @return true if there exists a PNeuron that can be activated by "neurons"
+	 */
+	private boolean patternExists(Vector<INeuron> neurons, INeuron to_n) {
+		boolean b = false;
+		
+		HashMap<INeuron, ProbaWeight> dinw = to_n.getDirectInWeights();
+		if(dinw.size()>0){
+			//look for neurons with bundleweights
+			for (Iterator<Entry<INeuron, ProbaWeight>> iterator = dinw.entrySet().iterator(); iterator.hasNext();) {
+				Entry<INeuron, ProbaWeight> pair = iterator.next();
+				
+				INeuron n = (INeuron) pair.getKey();
+				if(n.hasBundleWeights){
+					if(n.sameBundleWeights(neurons)){
+						b = true;
+						break;
+					}
+				}
+			}
+		}
+		return b;
 	}
 
 	//TODO maybe we should use "certainty" as a predictor

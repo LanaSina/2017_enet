@@ -1,6 +1,8 @@
 package neurons;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Vector;
 
 import communication.Constants;
@@ -14,7 +16,8 @@ import communication.Constants;
 public class BundleWeight extends ProbaWeight {
 	
 	/** the inweights*/
-	Vector<ProbaWeight> bundle = new Vector<ProbaWeight>();
+	//Vector<ProbaWeight> bundle = new Vector<ProbaWeight>();
+	HashMap<INeuron, ProbaWeight> bundle = new HashMap<>();
 
 	/**
 	 * This constructor might never be used
@@ -39,7 +42,8 @@ public class BundleWeight extends ProbaWeight {
 			ProbaWeight p = new ProbaWeight(Constants.fixedConnection);
 			//TODO I think we don't need to link to an actual neuron. DirectOutWeigths don't need to know who's out, do they
 			n.addDirectOutWeight(p, to);
-			bundle.addElement(p);
+			bundle.put(n, p);
+			//bundle.addElement(p);
 		}
 	}
 	
@@ -49,11 +53,26 @@ public class BundleWeight extends ProbaWeight {
 	@Override
 	public boolean isActivated() {
 		boolean b = true;
-		for (Iterator<ProbaWeight> iterator = bundle.iterator(); iterator.hasNext();) {
-			ProbaWeight p = iterator.next();
-			if(!p.isActivated()){
+		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = bundle.entrySet().iterator(); iterator.hasNext();) {
+			Entry<INeuron, ProbaWeight> pair = iterator.next();
+			if(!pair.getValue().isActivated()){
 				b = false;
 			}
+		}
+		return b;
+	}
+	
+	/**
+	 * @return true if bundle is the same
+	 */
+	@Override
+	public boolean sameBundle(Vector<INeuron> neurons) {
+		boolean b = true;
+		//are the 2 sets completely equivalent
+		if(!neurons.containsAll(bundle.keySet())){
+			b = false;
+		}else if(!bundle.keySet().containsAll(neurons)){
+			b = false;
 		}
 		return b;
 	}

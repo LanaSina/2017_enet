@@ -1,5 +1,7 @@
 package neurons;
 
+import java.util.Vector;
+
 import communication.Constants;
 import communication.MyLog;
 
@@ -18,8 +20,7 @@ public class ProbaWeight {
 	private int value = 0;
 	/** value of the activation of this weight at t*/
 	private int activation = 0; //could be binary
-	/** activation at t-1*/
-	//private boolean wasActivated = false;
+	/** bad */
 	
 	
 	/**
@@ -53,11 +54,7 @@ public class ProbaWeight {
 	 * adds 1 to current value.
 	 */
 	public void addValue() {
-		//mlog.say("+1 value");
 		value++;	
-		/*if(value/(double)age >1.3){
-			mlog.say("********** alert");
-		}*/
 	}
 
 
@@ -118,6 +115,11 @@ public class ProbaWeight {
 		}else {
 			return true;
 		}
+	}
+
+
+	public boolean sameBundle(Vector<INeuron> neurons) {
+		return false;
 	}
 	
 

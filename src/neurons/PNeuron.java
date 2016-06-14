@@ -1,5 +1,6 @@
 package neurons;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -7,14 +8,15 @@ import java.util.Vector;
 
 /**
  * Pattern neuron: only activated if all inweights are activated
+ * I have a feeling we don't need this class.
  * @author lana
  *
  */
 public class PNeuron extends INeuron {
-
+	
 	public PNeuron(int id) {
 		super(id);
-		mlog.setName("Pattern Neuron");
+		init();
 	}
 	
 	/**
@@ -24,12 +26,15 @@ public class PNeuron extends INeuron {
 	 */
 	public PNeuron(Vector<INeuron> from, INeuron to, int id) {
 		super(id);
-		mlog.setName("Pattern Neuron");
-		
 		BundleWeight b = new BundleWeight(from, to);
 		directInWeights.put(to, b);
+		init();
 	}
 
+	private void init() {
+		mlog.setName("Pattern Neuron");
+		hasBundleWeights = true;
+	}
 
 	/**
 	 * calculates the probabilistic activation of this neuron
@@ -40,7 +45,23 @@ public class PNeuron extends INeuron {
 		mlog.say("Pattern neuron activated");
 		super.calculateActivation();
 	}
-
 	
+	/**
+	 * @return true if one of the inweights is a bundleweights with these in-neurons
+	 */
+	@Override
+	public boolean sameBundleWeights(Vector<INeuron> neurons) {
+		boolean b = false;
+		//iterate over bundleweights
+		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = directInWeights.entrySet().iterator(); iterator.hasNext();) {
+			Entry<INeuron, ProbaWeight> pair = iterator.next();
+			ProbaWeight p = pair.getValue();
+			if(p.sameBundle(neurons)){
+				b = true;
+				break;
+			}
+		}
+		return b;
+	}
 	
 }

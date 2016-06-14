@@ -26,8 +26,6 @@ public class INeuron extends Neuron {
 	/**direct instantaneous weights*/
 	HashMap<INeuron, ProbaWeight> directInWeights = new HashMap<INeuron, ProbaWeight>();
 	HashMap<INeuron, ProbaWeight> directOutWeights = new HashMap<INeuron, ProbaWeight>();
-	//hidden neuron that "covers" this neuron (same that we give direct inweight to)
-	//INeuron[] upn = null;
 
 	/** (id of out neuron, weight) probabilistic outweights*/
 	HashMap<INeuron, ProbaWeight> outWeights = new HashMap<INeuron, ProbaWeight>();
@@ -48,6 +46,8 @@ public class INeuron extends Neuron {
 	boolean surprised = false;
 	/** used when pruning neurons*/
 	public boolean justSnapped = false;
+	/** used to single out PNeurons (bad)*/
+	public boolean hasBundleWeights = false;
 	
 	public INeuron(int id) {
 		super(id);
@@ -363,6 +363,7 @@ public class INeuron extends Neuron {
 	}
 
 
+	//TODO not use this
 	public boolean addDirectOutWeight(ProbaWeight p, INeuron n2) {
 		boolean b = false;
 		if(directOutWeights.containsKey(n2)){
@@ -416,6 +417,16 @@ public class INeuron extends Neuron {
 			return false;
 		}
 		return true;
+	}
+
+
+	public HashMap<INeuron, ProbaWeight> getDirectOutWeights() {
+		return (HashMap<INeuron, ProbaWeight>) directOutWeights.clone();		
+	}
+
+
+	public boolean sameBundleWeights(Vector<INeuron> neurons) {
+		return false;
 	}
 	
 }
