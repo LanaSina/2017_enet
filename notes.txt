@@ -8,14 +8,15 @@ Hierarchy, top down search, rely on predictions, mute, STM>1, continuous (non bi
 
 
 TODO
-update bundles when snapping
-how to count weights?
-how to write weights? sep direct, bundles and probazs
+sync of direct activations: how
+check mute timing
+how to write weights? separate direct, bundles and probas
 to activate pattern neurons we might need too many pass of “doDirect activation” so we really need deysnc activation w/o special treatment for “direct weights”.
 give priority to pattern neurons over patterned neurons (but when of we don’t have direct weights??)
 silenced neurons: can function but cannot get into stm
 all neurons with a directoutweight are silent
 
+with attention we can avoid trying to predict each neuron...
 
 We don’t actually need instantaneous weights — complete parallelism is more important than instant reaction times
 

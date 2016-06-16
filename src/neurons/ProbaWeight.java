@@ -1,5 +1,6 @@
 package neurons;
 
+import java.util.Set;
 import java.util.Vector;
 
 import communication.Constants;
@@ -118,8 +119,14 @@ public class ProbaWeight {
 	}
 
 
-	public boolean sameBundle(Vector<INeuron> neurons) {
+	public boolean sameBundle(Set<INeuron> neurons) {
 		return false;
+	}
+
+
+	//TODO
+	public void muteInputNeurons() {
+		// TODO Auto-generated method stub
 	}
 	
 

@@ -3,6 +3,7 @@ package neurons;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.Vector;
 
 import communication.Constants;
@@ -16,7 +17,6 @@ import communication.Constants;
 public class BundleWeight extends ProbaWeight {
 	
 	/** the inweights*/
-	//Vector<ProbaWeight> bundle = new Vector<ProbaWeight>();
 	HashMap<INeuron, ProbaWeight> bundle = new HashMap<>();
 
 	/**
@@ -57,6 +57,7 @@ public class BundleWeight extends ProbaWeight {
 			Entry<INeuron, ProbaWeight> pair = iterator.next();
 			if(!pair.getValue().isActivated()){
 				b = false;
+				break;
 			}
 		}
 		return b;
@@ -66,7 +67,7 @@ public class BundleWeight extends ProbaWeight {
 	 * @return true if bundle is the same
 	 */
 	@Override
-	public boolean sameBundle(Vector<INeuron> neurons) {
+	public boolean sameBundle(Set<INeuron> neurons) {
 		boolean b = true;
 		//are the 2 sets completely equivalent
 		if(!neurons.containsAll(bundle.keySet())){
@@ -76,4 +77,23 @@ public class BundleWeight extends ProbaWeight {
 		}
 		return b;
 	}
+	
+	@Override
+	public void muteInputNeurons() {
+		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = bundle.entrySet().iterator(); iterator.hasNext();) {
+			Entry<INeuron, ProbaWeight> pair = iterator.next();
+			INeuron n = pair.getKey();
+			n.setMute(true);
+		}
+	}
+
+	public Set<INeuron> getInNeurons() {
+		
+		return bundle.keySet();
+	}
+
+	public ProbaWeight getStrand(INeuron n2) {	
+		return bundle.get(n2);
+	}
+
 }

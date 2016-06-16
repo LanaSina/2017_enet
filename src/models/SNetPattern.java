@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 
 import communication.Constants;
 import communication.MyLog;
+import neurons.BundleWeight;
 import neurons.INeuron;
 import neurons.PNeuron;
 import neurons.ProbaWeight;
@@ -283,13 +284,21 @@ public class SNetPattern {
 		for(int k = 0; k<n; k++){
 			//values in "in" start at 1, not 0
 			int i = in[k]-1;//dont see white -1;
-			//if(i>0){//dont see white
+			if(i>0){//dont see white
 				eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
-			//}
+			}
 		}//*/
 		
 		//propagate instantly from eye to 1st INeurons
 		propagateFromEyeNeurons();
+		
+		//second pass for level 1 pattern neurons (bad)
+		//TODO do this top-down after 1st sensory activation ? (maybe takes too much time??)
+		Iterator<INeuron> it = allINeurons.values().iterator();
+		while(it.hasNext()){
+			INeuron nn =  it.next();
+			nn.makeDirectActivation();
+		}
 		
 		
 		//integrate previously predicted activation to actual activation
@@ -444,7 +453,7 @@ public class SNetPattern {
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			//no hierarchy: all activated neurons are remembered, including sensory neurons.
-			if(n.isActivated()){
+			if(n.isActivated() & !n.isMute()){
 				STM.add(n);
 				//mlog.say("in stm " + n.getId());
 			}
@@ -458,6 +467,13 @@ public class SNetPattern {
 	 * In this model there is no topological hierarchy yet, so all activated neurons are conscious.
 	 */
 	private void makeWeights() {
+		if(STM.size()==0){
+			mlog.say("just woke up");
+			return;
+		}
+		
+		//will store new neurons
+		Vector<INeuron> newn = new Vector<INeuron>();
 		
 		//ineurons 
 		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
@@ -468,6 +484,7 @@ public class SNetPattern {
 			n.calculateActivation();//recalculate from scratch
 			if(n.isSurprised()){
 				mlog.say("is surprised");
+				
 				//did we improve future prediction chances?
 				boolean didChange = false;
 				//go through STM
@@ -482,29 +499,45 @@ public class SNetPattern {
 						//mlog.say("from "+preneuron.getId()+" to "+n.getId());
 					}
 				}
+				
 				//no change happened, try building a spatial pattern
 				if(!didChange){
 					if(!patternExists(STM,n)){
 						PNeuron neuron = new PNeuron(STM,n,n_id);
+						newn.addElement(neuron);
 						n_id++;
-						allINeurons.put(neuron.getId(), neuron);
 						mlog.say("created pattern neuron");
 					}
 				}
 			}
 		}
-		mlog.say("added " + nw + " weights");
+		
+		for (Iterator<INeuron> iterator = newn.iterator(); iterator.hasNext();) {
+			INeuron neuron = iterator.next();
+			allINeurons.put(neuron.getId(), neuron);
+		}
+				
+		mlog.say("added " + nw + " weights and "+ newn.size() + " neurons ");
 	}
 	
 	/**
 	 * 
 	 * @param neurons list of neurons
-	 * @return true if there exists a PNeuron that can be activated by "neurons"
+	 * @return true if there exists a PNeuron that can be activated by the "neurons" pattern
+	 * and has an outweight to to_n
 	 */
 	private boolean patternExists(Vector<INeuron> neurons, INeuron to_n) {
 		boolean b = false;
 		
-		HashMap<INeuron, ProbaWeight> dinw = to_n.getDirectInWeights();
+		for (Iterator<INeuron> iterator = allINeurons.values().iterator(); iterator.hasNext();) {
+			INeuron n = iterator.next();
+			if(n.sameBundleWeights(neurons,to_n)){
+				b = true;
+				break;
+			}
+		}
+		
+		/*HashMap<INeuron, ProbaWeight> dinw = to_n.getDirectInWeights();
 		if(dinw.size()>0){
 			//look for neurons with bundleweights
 			for (Iterator<Entry<INeuron, ProbaWeight>> iterator = dinw.entrySet().iterator(); iterator.hasNext();) {
@@ -518,7 +551,7 @@ public class SNetPattern {
 					}
 				}
 			}
-		}
+		}*/
 		return b;
 	}
 
@@ -671,8 +704,8 @@ public class SNetPattern {
 							dist = Math.sqrt(diff)/all;					
 						}
 						//count how many connections are removed
-						if(dist==0){//ifexact same outweights
-							//check if no direct contradiction in inweights
+						if(dist==0){//if exact same outweights
+							//check if no direct contradiction in inweights (why? I forgot)
 							HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
 							HashMap<INeuron,ProbaWeight> in2 = n2.getInWeights();
 							Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
@@ -702,6 +735,7 @@ public class SNetPattern {
 									}
 								}
 							}
+							
 
 							if(dosnap){
 								n.justSnapped = true;
@@ -726,6 +760,21 @@ public class SNetPattern {
 										down.setDirectOutWeight(n,in2pair.getValue());
 									}
 								}
+								
+								//bundleWeights
+								HashMap<BundleWeight, Vector<INeuron>> bundlew = n2.getBundleWeights();
+								Iterator<BundleWeight> bwit = bundlew.keySet().iterator();
+								while(bwit.hasNext()){
+									BundleWeight bw = bwit.next();
+									if(n.addBundleWeight(bw)){
+										Vector<INeuron> ins = bundlew.get(bw);
+										for (Iterator<INeuron> iterator = ins.iterator(); iterator.hasNext();) {
+											INeuron down = iterator.next();
+											down.setDirectOutWeight(n,bw.getStrand(n2));
+										}
+									}
+								}
+								
 								//remove "ghost" inweights from dead neuron
 								out2it = out2.entrySet().iterator();
 								while(out2it.hasNext()){
@@ -812,7 +861,7 @@ public class SNetPattern {
 		    		}
 		    		
 		    		try {
-						Thread.sleep(500);
+						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}    		

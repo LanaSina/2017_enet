@@ -22,6 +22,7 @@ import communication.MyLog;
 public class INeuron extends Neuron {
 	MyLog mlog = new MyLog("INeuron", true);
 
+	/** probabilistic input weights*/
 	HashMap<INeuron, ProbaWeight> inWeights = new HashMap<INeuron, ProbaWeight>();
 	/**direct instantaneous weights*/
 	HashMap<INeuron, ProbaWeight> directInWeights = new HashMap<INeuron, ProbaWeight>();
@@ -47,7 +48,14 @@ public class INeuron extends Neuron {
 	/** used when pruning neurons*/
 	public boolean justSnapped = false;
 	/** used to single out PNeurons (bad)*/
-	public boolean hasBundleWeights = false;
+	//public boolean hasBundleWeights = false;
+	//bundle inweights
+	/** INeuron and PNeuron classes should be merged*/
+	HashMap<BundleWeight, Vector<INeuron>> bundleWeights = new HashMap<BundleWeight,Vector<INeuron>>();
+
+	
+	/** whether we can get remembered in the STM or not (eq to consciousness)*/
+	boolean mute = false;
 	
 	public INeuron(int id) {
 		super(id);
@@ -75,11 +83,6 @@ public class INeuron extends Neuron {
 		}
 		return p;
 	}
-	
-	/*public void setUpperNeuron(INeuron n) {
-		upn = new INeuron[1];
-		upn[0] = n;
-	}*/
 
 	/**
 	 * takes the inweight of a neuron and makes this neuron as input.
@@ -106,6 +109,7 @@ public class INeuron extends Neuron {
 	public void  resetActivation(){
 		activation = 0;
 		activationCalculated = false;
+		mute = false;
 	}
 
 	
@@ -340,6 +344,11 @@ public class INeuron extends Neuron {
 	}
 
 
+	/**
+	 * 
+	 * @param pair
+	 * @return true if the weight was added, false if it already existed
+	 */
 	public boolean addDirectInWeight(Entry<INeuron, ProbaWeight> pair) {
 		boolean b = false;
 		if(!directInWeights.containsKey(pair.getKey())){
@@ -425,7 +434,28 @@ public class INeuron extends Neuron {
 	}
 
 
-	public boolean sameBundleWeights(Vector<INeuron> neurons) {
+	public boolean sameBundleWeights(Vector<INeuron> neurons, INeuron to_n) {
+		return false;
+	}
+
+
+	public void setMute(boolean b) {
+		mute = b;
+	}
+
+
+	public boolean isMute() {
+		return mute;
+	}
+
+
+	public HashMap<BundleWeight, Vector<INeuron>> getBundleWeights() {
+		return (HashMap<BundleWeight, Vector<INeuron>>) bundleWeights.clone();	
+	}
+
+
+	public boolean addBundleWeight(BundleWeight bw) {
+		// TODO beware: 
 		return false;
 	}
 	
