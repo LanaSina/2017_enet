@@ -43,7 +43,6 @@ public class BundleWeight extends ProbaWeight {
 			//TODO I think we don't need to link to an actual neuron. DirectOutWeigths don't need to know who's out, do they
 			n.addDirectOutWeight(p, to);
 			bundle.put(n, p);
-			//bundle.addElement(p);
 		}
 	}
 	
@@ -59,7 +58,7 @@ public class BundleWeight extends ProbaWeight {
 				b = false;
 				break;
 			}else{
-				mlog.say("bundle strand activated "+n.getId());
+				//mlog.say("bundle strand activated "+n.getId());
 			}
 		}
 		return b;

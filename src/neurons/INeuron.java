@@ -227,7 +227,7 @@ public class INeuron extends Neuron {
 		Iterator<Entry<INeuron, ProbaWeight>> it = outWeights.entrySet().iterator();
 		while(it.hasNext()){
 			Map.Entry<INeuron, ProbaWeight> pair = it.next();
-			ProbaWeight pw = (ProbaWeight) pair.getValue();
+			ProbaWeight pw = pair.getValue();
 			pw.setActivation(1);
 		}			
 	}
@@ -333,10 +333,10 @@ public class INeuron extends Neuron {
 			BundleWeight b = iterator.next();
 			if(b.isActivated()){
 				this.increaseActivation(1);
-				mlog.say(id + " activated");
+				//mlog.say(id + " activated");
 				activated.addElement(b);
 				//mute bundle
-				//b.muteInputNeurons();
+				b.muteInputNeurons();
 			}		
 		}
 		//mute secondary patterns

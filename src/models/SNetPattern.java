@@ -33,7 +33,7 @@ public class SNetPattern {
 	MyLog mlog = new MyLog("SNet", true);
 	
 	/** data recording*/
-	boolean save = false;
+	boolean save = true;
 	/** the forlder for this specific run*/
 	String folderName;
 	/** network parameter series */
@@ -277,7 +277,7 @@ public class SNetPattern {
 		
 		//apply blur to selected portion of image
 		//get grayscale values of the image
-		/*int[] in = eye.buildCoarse(0,0);
+		int[] in = eye.buildCoarse(0,0);
 		
 		//go through sensory neurons and activate them.
 		int n = in.length;
@@ -285,12 +285,12 @@ public class SNetPattern {
 		for(int k = 0; k<n; k++){
 			//values in "in" start at 1, not 0
 			int i = in[k]-1;//dont see white -1;
-			if(i>0){//dont see white
+			//if(i>0){//dont see white
 				eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
-			}
+			//}
 		}//*/
 		
-		if(test==0){
+		/*if(test==0){
 			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
 			INeuron n2 = iterator.next().getValue();
 			n2.increaseActivation(1);
@@ -521,7 +521,7 @@ public class SNetPattern {
 			INeuron n = pair.getValue();
 			n.calculateActivation();//recalculate from scratch
 			if(n.isSurprised()){
-				mlog.say(n.getId() + " is surprised");
+				//mlog.say(n.getId() + " is surprised");
 				
 				//did we improve future prediction chances?
 				boolean didChange = false;
@@ -544,13 +544,13 @@ public class SNetPattern {
 						PNeuron neuron = new PNeuron(STM,n,n_id);
 						newn.addElement(neuron);
 						n_id++;
-						mlog.say("created pattern neuron "+neuron.getId());
+						/*mlog.say("created pattern neuron "+neuron.getId());
 						mlog.say("in ");
 						for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
 							INeuron iNeuron = iterator.next();
 							mlog.say(" "+iNeuron.getId());
 							
-						}
+						}*/
 					}
 				}
 			}
@@ -899,13 +899,13 @@ public class SNetPattern {
 		    			}
 		    			//calculate snap time
 		    			before = System.currentTimeMillis();
-		    			//net.snap();
+		    			net.snap();
 		    			long snaptime = System.currentTimeMillis()-before;;
 		    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);
 		    		}
 		    		
 		    		try {
-						Thread.sleep(2000);
+						Thread.sleep(500);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}    		

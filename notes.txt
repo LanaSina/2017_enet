@@ -9,8 +9,10 @@ Hierarchy, top down search, rely on predictions, mute, STM>1, continuous (non bi
 
 
 TODO
+snap not working (possibly bc no update of <ineurons> in bundle weights when snapping
+fuse classes when possible
+
 sync of direct activations: how
-check mute timing
 how to write weights? separate direct, bundles and probas
 to activate pattern neurons we might need too many pass of “doDirect activation” so we really need deysnc activation w/o special treatment for “direct weights”.
 give priority to pattern neurons over patterned neurons (but when of we don’t have direct weights??)
