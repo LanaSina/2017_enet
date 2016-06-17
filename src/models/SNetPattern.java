@@ -258,6 +258,7 @@ public class SNetPattern {
 	}
 	
 	
+	int test = 0;
 	/**
 	 * Resets eye neurons activation to 0;
 	 * builds the sensory input from the focused image,
@@ -276,7 +277,7 @@ public class SNetPattern {
 		
 		//apply blur to selected portion of image
 		//get grayscale values of the image
-		int[] in = eye.buildCoarse(0,0);
+		/*int[] in = eye.buildCoarse(0,0);
 		
 		//go through sensory neurons and activate them.
 		int n = in.length;
@@ -288,6 +289,44 @@ public class SNetPattern {
 				eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
 			}
 		}//*/
+		
+		if(test==0){
+			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
+			INeuron n2 = iterator.next().getValue();
+			n2.increaseActivation(1);
+			mlog.say("test is "+ test + " neuron " + n2.getId()+" is activated ");
+			test++;
+		}else if (test ==1 ){
+			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
+			iterator.next();
+			INeuron n2 = iterator.next().getValue();
+			n2.increaseActivation(1);
+			mlog.say("test is "+ test + " neuron " + n2.getId()+" is activated ");
+			test++;
+		}else if (test == 2 ){
+			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
+			INeuron n2 = iterator.next().getValue();
+			n2.increaseActivation(1);
+			mlog.say("test is "+ test + " neuron " + n2.getId()+" and other are activated ");
+			iterator.next();
+			n2 = iterator.next().getValue();
+			n2.increaseActivation(1);	
+			mlog.say("test is "+ test + " neuron " + n2.getId()+" and other are activated ");
+			test++;
+		} else if (test == 3) {
+			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
+			iterator.next();
+			iterator.next();
+			iterator.next();
+			iterator.next();
+			iterator.next();
+			INeuron n2 = iterator.next().getValue();
+			n2.increaseActivation(1);		
+			mlog.say("test is "+ test + " neuron " + n2.getId()+" is activated ");
+			test = 0;
+		}
+		
+		//*/
 		
 		//propagate instantly from eye to 1st INeurons
 		propagateFromEyeNeurons();
@@ -455,7 +494,6 @@ public class SNetPattern {
 			//no hierarchy: all activated neurons are remembered, including sensory neurons.
 			if(n.isActivated() & !n.isMute()){
 				STM.add(n);
-				//mlog.say("in stm " + n.getId());
 			}
 		}
 		
@@ -483,7 +521,7 @@ public class SNetPattern {
 			INeuron n = pair.getValue();
 			n.calculateActivation();//recalculate from scratch
 			if(n.isSurprised()){
-				mlog.say("is surprised");
+				mlog.say(n.getId() + " is surprised");
 				
 				//did we improve future prediction chances?
 				boolean didChange = false;
@@ -506,7 +544,13 @@ public class SNetPattern {
 						PNeuron neuron = new PNeuron(STM,n,n_id);
 						newn.addElement(neuron);
 						n_id++;
-						mlog.say("created pattern neuron");
+						mlog.say("created pattern neuron "+neuron.getId());
+						mlog.say("in ");
+						for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
+							INeuron iNeuron = iterator.next();
+							mlog.say(" "+iNeuron.getId());
+							
+						}
 					}
 				}
 			}
@@ -855,13 +899,13 @@ public class SNetPattern {
 		    			}
 		    			//calculate snap time
 		    			before = System.currentTimeMillis();
-		    			net.snap();
+		    			//net.snap();
 		    			long snaptime = System.currentTimeMillis()-before;;
 		    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);
 		    		}
 		    		
 		    		try {
-						Thread.sleep(1000);
+						Thread.sleep(2000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}    		

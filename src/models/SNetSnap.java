@@ -307,7 +307,6 @@ public class SNetSnap {
 		//propagate instantly from eye to 1st INeurons
 		propagateFromEyeNeurons();
 		
-		
 		//integrate previously predicted activation to actual activation
 		//integrateActivation();	
 	}

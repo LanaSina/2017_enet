@@ -30,33 +30,17 @@ public class PNeuron extends INeuron {
 	public PNeuron(Vector<INeuron> from, INeuron to, int id) {
 		super(id);
 		BundleWeight b = new BundleWeight(from, to);
-		//TODO no the inweights are from a bunch of neurons
-		//directInWeights.put(to, b);
 		bundleWeights.put(b, from);
-	
-		//make probaweight
-		ProbaWeight p = new ProbaWeight(Constants.defaultConnection);
+		
+		//make proba outweight
+		ProbaWeight p = to.addInWeight(Constants.defaultConnection, this);
 		outWeights.put(to, p);
 		init();
 	}
 
 	private void init() {
 		mlog.setName("Pattern Neuron");
-		//hasBundleWeights = true;
 	}
-	
-	/*@Override
-	public void makeDirectActivation() {
-		Iterator<Entry<INeuron, ProbaWeight>> it = directInWeights.entrySet().iterator();
-		while(it.hasNext()){
-			Map.Entry<INeuron, ProbaWeight> pair = it.next();
-			ProbaWeight w = pair.getValue();
-			if(w.isActivated()){
-				this.increaseActivation(1);
-			}
-		}				
-	}*/
-
 
 	/**
 	 * calculates the probabilistic activation of this neuron
@@ -71,6 +55,7 @@ public class PNeuron extends INeuron {
 			while(it.hasNext()){
 				Map.Entry<INeuron, ProbaWeight> pair = it.next();
 				ProbaWeight w = pair.getValue();
+				//mute sensory neurons
 				w.muteInputNeurons();
 			}
 		}
@@ -83,15 +68,6 @@ public class PNeuron extends INeuron {
 	public boolean sameBundleWeights(Vector<INeuron> neurons, INeuron to_n) {
 		boolean b = false;
 		//iterate over bundleweights
-		/*for (Iterator<Entry<INeuron, ProbaWeight>> iterator = directInWeights.entrySet().iterator(); iterator.hasNext();) {
-			Entry<INeuron, ProbaWeight> pair = iterator.next();
-			ProbaWeight p = pair.getValue();
-			if(p.sameBundle(neurons)){
-				b = true;
-				break;
-			}
-		}*/
-		
 		for (Iterator<Vector<INeuron>> iterator = bundleWeights.values().iterator(); iterator.hasNext();) {
 			Vector<INeuron> v = iterator.next();
 			if(v.containsAll(neurons) && neurons.containsAll(v)){//exactly equal
@@ -108,8 +84,9 @@ public class PNeuron extends INeuron {
 	@Override
 	public boolean addBundleWeight(BundleWeight bw) {
 		boolean b = false;
-		if(!sameBundleWeight(bw)){
-			
+		if(!sameBundleWeight(bw)){	
+			Vector<INeuron> vector = new Vector<INeuron>(bw.getInNeurons());
+			bundleWeights.put(bw, vector);
 			b = true;
 		}
 		return b;

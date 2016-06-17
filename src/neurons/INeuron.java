@@ -47,9 +47,6 @@ public class INeuron extends Neuron {
 	boolean surprised = false;
 	/** used when pruning neurons*/
 	public boolean justSnapped = false;
-	/** used to single out PNeurons (bad)*/
-	//public boolean hasBundleWeights = false;
-	//bundle inweights
 	/** INeuron and PNeuron classes should be merged*/
 	HashMap<BundleWeight, Vector<INeuron>> bundleWeights = new HashMap<BundleWeight,Vector<INeuron>>();
 
@@ -166,8 +163,6 @@ public class INeuron extends Neuron {
 			surprised = false;
 			//calculate predicted positive activation
 			double pa = 0;
-			//calculate predicted absence of activation
-			//double ab = 0;
 
 			double confidence = Constants.confidence_threshold;
 			
@@ -176,26 +171,21 @@ public class INeuron extends Neuron {
 				Map.Entry<INeuron, ProbaWeight> pair = it.next();
 				ProbaWeight pw = pair.getValue();
 				double w  = pw.getProba();
-				//mlog.say(id+ " w "+w);
 				if(w>confidence & pw.isActivated()){
 					pa+=1;
-					//mlog.say(" was activated from "+pair.getKey()+" to "+id);
-				}/* else if (w<0.4 & pw.isActivated()) {//(1-confidence)
-					ab+=1;
-				}*/
-				
+				}
 			}
 	
 			//mlog.say("predicted "+a+ " real "+ activation);
 			if(pro_activation==0 & activation>0){//(a==0 & activation>0){
 				surprised = true;
-			}/* else if(abs_activation>0 & activation==0){
-				surprised = true;
-			}*/
-		
+			}
+			
 			pro_activation = pa;
-			//abs_activation = ab;
 			activationCalculated = true;
+			
+			//activate direct out weights
+			activateDirectOutWeights();
 		}
 	}
 	
@@ -335,7 +325,33 @@ public class INeuron extends Neuron {
 			if(w.isActivated()){
 				this.increaseActivation(1);
 			}
-		}				
+		}
+		//bundle weights (bad)
+		// pattern contained in other patterns should be muted
+		Vector<BundleWeight> activated = new Vector<BundleWeight>();
+		for (Iterator<BundleWeight> iterator = bundleWeights.keySet().iterator(); iterator.hasNext();) {
+			BundleWeight b = iterator.next();
+			if(b.isActivated()){
+				this.increaseActivation(1);
+				mlog.say(id + " activated");
+				activated.addElement(b);
+				//mute bundle
+				//b.muteInputNeurons();
+			}		
+		}
+		//mute secondary patterns
+		for (Iterator<BundleWeight> iterator = activated.iterator(); iterator.hasNext();) {
+			BundleWeight b = iterator.next();		
+			for (Iterator<BundleWeight> iterator2 =  bundleWeights.keySet().iterator(); iterator2.hasNext();) {
+				BundleWeight b2 = iterator2.next();
+				if(!b.equals(b2) && b.getInNeurons().containsAll(b2.getInNeurons())){
+					b2.setActivation(0);//muting only is not enough
+					mlog.say("deactivated secondary pattern");
+				}
+			}
+			
+		}
+
 	}
 
 

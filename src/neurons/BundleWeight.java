@@ -53,11 +53,13 @@ public class BundleWeight extends ProbaWeight {
 	@Override
 	public boolean isActivated() {
 		boolean b = true;
-		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = bundle.entrySet().iterator(); iterator.hasNext();) {
-			Entry<INeuron, ProbaWeight> pair = iterator.next();
-			if(!pair.getValue().isActivated()){
+		for (Iterator<INeuron> iterator = bundle.keySet().iterator(); iterator.hasNext();) {
+			INeuron n = iterator.next();
+			if(!n.isActivated()){
 				b = false;
 				break;
+			}else{
+				mlog.say("bundle strand activated "+n.getId());
 			}
 		}
 		return b;
@@ -87,8 +89,7 @@ public class BundleWeight extends ProbaWeight {
 		}
 	}
 
-	public Set<INeuron> getInNeurons() {
-		
+	public Set<INeuron> getInNeurons() {	
 		return bundle.keySet();
 	}
 
