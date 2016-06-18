@@ -14,11 +14,13 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.Map.Entry;
 
+import com.sun.org.apache.xpath.internal.operations.And;
+import com.sun.swing.internal.plaf.metal.resources.metal;
+
 import communication.Constants;
 import communication.MyLog;
 import neurons.BundleWeight;
 import neurons.INeuron;
-import neurons.PNeuron;
 import neurons.ProbaWeight;
 import sensors.Eye;
 
@@ -533,7 +535,8 @@ public class SNetPattern {
 				//no change happened, try building a spatial pattern
 				if(!didChange){
 					if(!patternExists(STM,n)){
-						PNeuron neuron = new PNeuron(STM,n,n_id);
+						//PNeuron neuron = new PNeuron(STM,n,n_id);
+						INeuron neuron = new INeuron(STM,n,n_id);
 						newn.addElement(neuron);
 						n_id++;
 						/*mlog.say("created pattern neuron "+neuron.getId());
@@ -779,47 +782,16 @@ public class SNetPattern {
 								remove.add(n2);
 								
 								//report n2 inputs to n if they did not exist
-								in2it = in2.entrySet().iterator();
-								while(in2it.hasNext()){
-									Map.Entry<INeuron, ProbaWeight> in2pair = in2it.next();
-									if(!n.addInWeight(in2pair)){
-										//nin++;
-									}
-								}
+								n2.reportInWeights(n);
+								
 								//do the same for direct inweights
-								HashMap<INeuron,ProbaWeight> din = n2.getDirectInWeights();
-								in2it = din.entrySet().iterator();
-								while(in2it.hasNext()){
-									Map.Entry<INeuron, ProbaWeight> in2pair = in2it.next();
-									if(n.addDirectInWeight(in2pair)){
-										INeuron down = in2pair.getKey();
-										down.setDirectOutWeight(n,in2pair.getValue());
-									}
-								}
+								n2.reportDirectInWeights(n);
+			
+								//now report direct outweights
+								n2.reportDirectOutWeights(n);
 								
 								//bundleWeights
-								HashMap<BundleWeight, Vector<INeuron>> bundlew = n2.getBundleWeights();
-								Iterator<BundleWeight> bwit = bundlew.keySet().iterator();
-								while(bwit.hasNext()){
-									BundleWeight bw = bwit.next();
-									if(n.addBundleWeight(bw)){
-										//bw.
-										//re-route down neurons to n
-										Vector<INeuron> ins = bundlew.get(bw);
-										for (Iterator<INeuron> iterator = ins.iterator(); iterator.hasNext();) {
-											INeuron down = iterator.next();
-											down.setDirectOutWeight(n,bw.getStrand(n2));
-										}
-									}
-								}
-								
-								//remove "ghost" inweights from dead neuron
-								out2it = out2.entrySet().iterator();
-								while(out2it.hasNext()){
-									Map.Entry<INeuron, ProbaWeight> out2pair = out2it.next();
-									INeuron neuron = out2pair.getKey();
-									neuron.removeInWeight(n2);
-								}						
+								n2.reportBundleWeights(n);												
 							}
 						}
 					}
@@ -846,9 +818,6 @@ public class SNetPattern {
 					g++;
 				}
 			}		
-			/*mlog.say("inweights " +n.getInWeights().size());
-			mlog.say("outweights " +n.getOutWeights().size());*/
-
 		}
 		n_weights-=g;	
 		
