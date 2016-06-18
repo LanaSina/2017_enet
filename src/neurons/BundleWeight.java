@@ -96,4 +96,13 @@ public class BundleWeight extends ProbaWeight {
 		return bundle.get(n2);
 	}
 
+	public void removeStrand(INeuron key) {
+		if(bundle.remove(key)!=null){
+			//mlog.say("removed strand");
+		}
+		if(bundle.isEmpty()){
+			mlog.say("********** empty");
+		}
+	}
+
 }

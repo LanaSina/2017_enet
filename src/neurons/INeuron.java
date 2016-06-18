@@ -433,7 +433,14 @@ public class INeuron extends Neuron {
 	/** removes this weight from the list of inweights 
 	 * @param key the input neuron */
 	public void removeInWeight(INeuron key) {
-		inWeights.remove(key);		
+		inWeights.remove(key);	
+		//remove from bundle weights too
+		for (Iterator<Entry<BundleWeight, Vector<INeuron>>> it = bundleWeights.entrySet().iterator(); it.hasNext();) {
+			Entry<BundleWeight, Vector<INeuron>> pair = it.next();
+			pair.getValue().remove(key);
+			pair.getKey().removeStrand(key);
+		}
+		bundleWeights.remove(key);
 	}
 
 

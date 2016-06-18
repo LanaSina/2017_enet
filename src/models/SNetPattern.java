@@ -33,7 +33,7 @@ public class SNetPattern {
 	MyLog mlog = new MyLog("SNet", true);
 	
 	/** data recording*/
-	boolean save = true;
+	boolean save = false;
 	/** the forlder for this specific run*/
 	String folderName;
 	/** network parameter series */
@@ -458,17 +458,9 @@ public class SNetPattern {
 		}		
 		resetOutWeights(allINeurons);
 		
-		//age output weights of currently activated neurons	in INeurons
-		//ageOutWeights(allINeurons);	
-			
-		//increaseInWeights(allINeurons);
-		
 		//for ineurons
-		activateOutWeights(allINeurons);
-		
-		
-
-		
+		activateOutWeights(allINeurons);	
+			
 		//create new weights based on (+) surprise
 		makeWeights();
 		
@@ -811,6 +803,8 @@ public class SNetPattern {
 								while(bwit.hasNext()){
 									BundleWeight bw = bwit.next();
 									if(n.addBundleWeight(bw)){
+										//bw.
+										//re-route down neurons to n
 										Vector<INeuron> ins = bundlew.get(bw);
 										for (Iterator<INeuron> iterator = ins.iterator(); iterator.hasNext();) {
 											INeuron down = iterator.next();
@@ -839,6 +833,7 @@ public class SNetPattern {
 			g = g+remove.get(i).getOutWeights().size();
 			allINeurons.remove(remove.get(i).getId());
 		}
+		
 		
 		//reset "just snapped" values and remove ghost outweights
 		it = allINeurons.entrySet().iterator();
