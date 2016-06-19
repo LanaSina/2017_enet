@@ -2,6 +2,7 @@ Stages
 1: prediction
 2: Snap
 3: Space Patterns
+3.4: actions
 3.5: attention and wrong predictions
 4: Time Patterns
 
@@ -9,8 +10,10 @@ Hierarchy, top down search, rely on predictions, mute, STM>1, continuous (non bi
 
 
 TODO
-snap not working (possibly bc no update of <ineurons> in bundle weights when snapping
-fuse classes when possible
+illusion cue after 1st snap
+error at step 70!!
+error at step 80 (weights looks recalculated)
+also always recreating new pattern neurons…
 
 sync of direct activations: how
 how to write weights? separate direct, bundles and probas

@@ -31,6 +31,7 @@ public class ProbaWeight {
 		switch (type) {
 		case Constants.fixedConnection:{
 			value = 1;
+			age = Constants.weight_max_age;//to prevent learning
 			break;
 		}
 		case Constants.defaultConnection:{

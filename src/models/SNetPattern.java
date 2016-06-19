@@ -11,11 +11,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Vector;
 import java.util.Map.Entry;
 
-import com.sun.org.apache.xpath.internal.operations.And;
-import com.sun.swing.internal.plaf.metal.resources.metal;
+import java.util.Set;
+import java.util.Vector;
 
 import communication.Constants;
 import communication.MyLog;
@@ -36,12 +35,16 @@ public class SNetPattern {
 	
 	/** data recording*/
 	boolean save = false;
-	/** the forlder for this specific run*/
+	/** the folder for this specific run*/
 	String folderName;
 	/** network parameter series */
 	FileWriter paramWriter;
 	/** neurons weights */
 	FileWriter weightsWriter;
+	/** direct connections */
+	FileWriter dWeightsWriter;
+	/** bundle weights*/
+	FileWriter bWeightsWriter;
 	
 	/**number of presentations for current image*/
 	int presentations = 0;
@@ -63,7 +66,7 @@ public class SNetPattern {
 	/**images files*/
 	String imagesPath = "/Users/lana/Desktop/prgm/JAVANeuron/JAVANeuron/src/images/";
 	/** image description (chars)*/
-	String[] images = {"ball_1","ball_2","ball_3","ball_1","ball_2_b","ball_4"}; //{"a","b","c"};		
+	String[] images = {"ball_1","ball_2","ball_3"};//,"ball_1","ball_2_b","ball_4"}; //{"a","b","c"};		
 	
 	//sensors w/ actuators
 	/** image sensor*/
@@ -141,25 +144,37 @@ public class SNetPattern {
 	/** record weights in csv file*/
 	private void writeWeights(){
 		String weightsFileName = "weights_"+step+".csv";
+		String dWeightsFileName = "dweights_"+step+".csv";
+		String bWeightsFileName = "bweights_"+step+".csv";
 		
 		try {
 			weightsWriter = new FileWriter(folderName+"/"+weightsFileName);
 			String str = "from,to,weight,age\n";
         	weightsWriter.append(str);
         	weightsWriter.flush();
+        	
+        	dWeightsWriter = new FileWriter(folderName+"/"+dWeightsFileName);
+			str = "from,to\n";
+        	dWeightsWriter.append(str);
+        	dWeightsWriter.flush();
+        	
+        	bWeightsWriter = new FileWriter(folderName+"/"+bWeightsFileName);
+			str = "bid,from,to,weight,age\n";
+        	bWeightsWriter.append(str);
+        	bWeightsWriter.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
 		try {
 			Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
+			int id = 0;//bw
 			while(it.hasNext()){
 				Map.Entry<Integer, INeuron> pair = it.next();
-				INeuron n = (INeuron) pair.getValue();
-				//write only outweights
+				INeuron n =pair.getValue();
+				//write outweights
 				HashMap<INeuron,ProbaWeight> out = n.getOutWeights();
 				Iterator<Entry<INeuron, ProbaWeight>> outit = out.entrySet().iterator();
-				//n1 must have all the weights that n2 has
 				while(outit.hasNext()){
 					Map.Entry<INeuron, ProbaWeight> outpair = outit.next();
 					ProbaWeight w = outpair.getValue();
@@ -167,6 +182,30 @@ public class SNetPattern {
 		        	weightsWriter.append(str);					
 		        	weightsWriter.flush();	
 				}
+				
+				//directOutWeights
+				HashMap<INeuron,ProbaWeight> dout = n.getDirectOutWeights();
+				for (Iterator<INeuron> iterator = dout.keySet().iterator(); iterator.hasNext();) {
+					INeuron to = iterator.next();
+					String s = n.getId() + "," + to.getId() +"\n";
+					dWeightsWriter.append(s);
+					dWeightsWriter.flush();
+				}
+				
+				//bundles
+				Vector<BundleWeight> bws = n.getBundleWeights();
+				for (Iterator<BundleWeight> iterator = bws.iterator(); iterator.hasNext();) {
+					BundleWeight b = iterator.next();
+					//"bid,from,to,weight,age\n";
+					for (Iterator<INeuron> iterator2 = b.getInNeurons().iterator(); iterator2.hasNext();) {
+						INeuron n2 = iterator2.next();
+						String s = id + "," + n2.getId() + "," + n.getId() + "," + b.getProba() + "," + b.getAge() + "\n";
+						bWeightsWriter.append(s);
+						bWeightsWriter.flush();
+					}
+					id++;
+				}
+				
 		    }
 			weightsWriter.close();
 			mlog.say("stream written "+weightsFileName);
@@ -533,21 +572,14 @@ public class SNetPattern {
 				}
 				
 				//no change happened, try building a spatial pattern
-				if(!didChange){
+				/*if(!didChange){
 					if(!patternExists(STM,n)){
-						//PNeuron neuron = new PNeuron(STM,n,n_id);
 						INeuron neuron = new INeuron(STM,n,n_id);
 						newn.addElement(neuron);
 						n_id++;
-						/*mlog.say("created pattern neuron "+neuron.getId());
-						mlog.say("in ");
-						for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
-							INeuron iNeuron = iterator.next();
-							mlog.say(" "+iNeuron.getId());
-							
-						}*/
+						//mlog.say("created pattern neuron "+neuron.getId());
 					}
-				}
+				}*/
 			}
 		}
 		
@@ -557,6 +589,7 @@ public class SNetPattern {
 		}
 				
 		mlog.say("added " + nw + " weights and "+ newn.size() + " neurons ");
+		//writeWeights();
 	}
 	
 	/**
@@ -576,21 +609,6 @@ public class SNetPattern {
 			}
 		}
 		
-		/*HashMap<INeuron, ProbaWeight> dinw = to_n.getDirectInWeights();
-		if(dinw.size()>0){
-			//look for neurons with bundleweights
-			for (Iterator<Entry<INeuron, ProbaWeight>> iterator = dinw.entrySet().iterator(); iterator.hasNext();) {
-				Entry<INeuron, ProbaWeight> pair = iterator.next();
-				
-				INeuron n = (INeuron) pair.getKey();
-				if(n.hasBundleWeights){
-					if(n.sameBundleWeights(neurons)){
-						b = true;
-						break;
-					}
-				}
-			}
-		}*/
 		return b;
 	}
 
@@ -682,8 +700,13 @@ public class SNetPattern {
 		//go through net
 		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
 		while(it.hasNext()){
+			
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
+			
+			//dont do pneurons for now
+			if(n.getBundleWeights().size()>0) break;
+			
 			if(!n.justSnapped){
 				//look for equivalent neurons (neurons with equivalent outweights)
 				Iterator<Entry<Integer, INeuron>> it2 = allINeurons.entrySet().iterator();
@@ -693,6 +716,12 @@ public class SNetPattern {
 										
 					if((n.getId()!= n2.getId()) && !n2.justSnapped){
 						boolean dosnap = true;
+						
+						//dont do pneurons for now
+						if(n2.getBundleWeights().size()>0){
+							dosnap = false;
+							break;
+						}
 
 						//compare all out weights
 						double diff = 0;
@@ -701,98 +730,118 @@ public class SNetPattern {
 						HashMap<INeuron,ProbaWeight> out2 = n2.getOutWeights();
 						Iterator<Entry<INeuron, ProbaWeight>> out2it = out2.entrySet().iterator();
 						//n1 must have all the weights that n2 has
-						while(out2it.hasNext()){
-							Map.Entry<INeuron, ProbaWeight> out2pair = out2it.next();
-							ProbaWeight w2 = out2pair.getValue();
-							//can still learn: give up
-							if(w2.canLearn()){
-								dosnap = false;
-								break;
-							}
-							
-							//does n2 have all the same outweights?
-							if(!out1.containsKey(out2pair.getKey())){
-								//don't have same outweights: give up on this n2
-								dosnap = false;
-								break;
-							} else {
-								//contains weight to same neuron; check value
-								ProbaWeight w1 = out1.get(out2pair.getKey());
-								if(w1.canLearn()){
+						Set<INeuron> s1 = out1.keySet();
+						Set<INeuron> s2 = out2.keySet();
+						if(!s1.containsAll(s2) || !s2.containsAll(s1)){
+							dosnap = false;
+						} else {
+							//compare outw
+							while(out2it.hasNext()){
+								Map.Entry<INeuron, ProbaWeight> out2pair = out2it.next();
+								ProbaWeight w2 = out2pair.getValue();
+								//can still learn: give up
+								if(w2.canLearn()){
 									dosnap = false;
-									break;//give up
+									break;
 								}
-								diff += Math.pow(w1.getProba() - w2.getProba(),2);
-								all++;
+								
+								//does n2 have all the same outweights?
+								/*if(!out1.containsKey(out2pair.getKey())){
+									//don't have same outweights: give up on this n2
+									dosnap = false;
+									break;
+								} else {*/
+									//contains weight to same neuron; check value
+									ProbaWeight w1 = out1.get(out2pair.getKey());
+									if(w1.canLearn()){
+										dosnap = false;
+										break;//give up
+									}
+									diff += Math.pow(w1.getProba() - w2.getProba(),2);
+									all++;
+								//}
 							}
-						}
-						Iterator<Entry<INeuron, ProbaWeight>> out1it = out1.entrySet().iterator();
-						//n2 must have all the weights that n1 has
-						while(out1it.hasNext()){
-							Map.Entry<INeuron, ProbaWeight> out1pair = out1it.next();
-							//does n2 have all the same outweights?
-							if(!out2.containsKey(out1pair.getKey())){
-								//don't have same outweights: give up on this n2
-								dosnap = false;
-								break;
-							}
-						}
-						
-						double dist = 0;//don't snap if there were no outweights at all
-						if(all!=0){
-							dist = Math.sqrt(diff)/all;					
-						}
-						//count how many connections are removed
-						if(dist==0){//if exact same outweights
-							//check if no direct contradiction in inweights (why? I forgot)
-							HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
-							HashMap<INeuron,ProbaWeight> in2 = n2.getInWeights();
-							Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
+							/*Iterator<Entry<INeuron, ProbaWeight>> out1it = out1.entrySet().iterator();
+							//n2 must have all the weights that n1 has
+							while(out1it.hasNext()){
+								Map.Entry<INeuron, ProbaWeight> out1pair = out1it.next();
+								//does n2 have all the same outweights?
+								if(!out2.containsKey(out1pair.getKey())){
+									//don't have same outweights: give up on this n2
+									dosnap = false;
+									break;
+								}
+							}*/
 							
-							while(in1it.hasNext()){
-								Map.Entry<INeuron, ProbaWeight> in1pair = in1it.next();
-								ProbaWeight inw = in1pair.getValue();	
-								if(in2.containsKey(in1pair.getKey())){
-									//check that they do not individually contradict
-									ProbaWeight inw2 = in2.get(in1pair.getKey());
-									double indiff = Math.pow(inw.getProba() - inw2.getProba(),2);
-									if(indiff>0.01){
-										dosnap = false;//give up
+							double dist = 0;//do snap even if there were no outweights at all
+							if(all!=0){
+								dist = Math.sqrt(diff)/all;					
+							}
+							//count how many connections are removed
+							if(dist==0){//if exact same outweights
+								//check if no direct contradiction in inweights (why? I forgot)
+								HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
+								HashMap<INeuron,ProbaWeight> in2 = n2.getInWeights();
+								Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
+								
+								while(in1it.hasNext()){
+									Map.Entry<INeuron, ProbaWeight> in1pair = in1it.next();
+									ProbaWeight inw = in1pair.getValue();	
+									if(in2.containsKey(in1pair.getKey())){
+										//check that they do not individually contradict
+										ProbaWeight inw2 = in2.get(in1pair.getKey());
+										double indiff = Math.pow(inw.getProba() - inw2.getProba(),2);
+										if(indiff>0.01){
+											dosnap = false;//give up
+										}
 									}
 								}
-							}
-							Iterator<Entry<INeuron, ProbaWeight>> in2it = in2.entrySet().iterator();
-							while(in2it.hasNext()){
-								Map.Entry<INeuron, ProbaWeight> in2pair = in2it.next();
-								ProbaWeight inw2 = in2pair.getValue();	
-								if(in1.containsKey(in2pair.getKey())){
-									//check that they do not individually contradict
-									ProbaWeight inw1 = in1.get(in2pair.getKey());
-									double indiff = Math.pow(inw1.getProba() - inw2.getProba(),2);
-									if(indiff>0.01){
-										dosnap = false;//give up
+								Iterator<Entry<INeuron, ProbaWeight>> in2it = in2.entrySet().iterator();
+								while(in2it.hasNext()){
+									Map.Entry<INeuron, ProbaWeight> in2pair = in2it.next();
+									ProbaWeight inw2 = in2pair.getValue();	
+									if(in1.containsKey(in2pair.getKey())){
+										//check that they do not individually contradict
+										ProbaWeight inw1 = in1.get(in2pair.getKey());
+										double indiff = Math.pow(inw1.getProba() - inw2.getProba(),2);
+										if(indiff>0.01){
+											dosnap = false;//give up
+										}
 									}
 								}
-							}
-							
+								
+								if(dosnap){
+									n.justSnapped = true;
+									n2.justSnapped = true;
+									remove.add(n2);
+									
+									//report n2 inputs to n if they did not exist
+									n2.reportInWeights(n);
+									
+									//do the same for direct inweights
+									n2.reportDirectInWeights(n);
+				
+									//now report direct outweights
+									//n2.reportDirectOutWeights(n);
+									
+									//bundleWeights
+									//n2.reportBundleWeights(n);	
 
-							if(dosnap){
-								n.justSnapped = true;
-								n2.justSnapped = true;
-								remove.add(n2);
-								
-								//report n2 inputs to n if they did not exist
-								n2.reportInWeights(n);
-								
-								//do the same for direct inweights
-								n2.reportDirectInWeights(n);
-			
-								//now report direct outweights
-								n2.reportDirectOutWeights(n);
-								
-								//bundleWeights
-								n2.reportBundleWeights(n);												
+
+									//remove "ghost" inweights from dead neuron
+									//the only thing that hasn't been cleared yet
+									n2.removeAllOutWeights();
+									
+									/*out2it = out2.entrySet().iterator();
+									while(out2it.hasNext()){
+										Map.Entry<INeuron, ProbaWeight> out2pair = out2it.next();
+										INeuron neuron = out2pair.getKey();
+										neuron.removeInWeight(n2);
+									}	//*/
+								}
 							}
+
+							
 						}
 					}
 				}

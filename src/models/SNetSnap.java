@@ -31,7 +31,7 @@ public class SNetSnap {
 	MyLog mlog = new MyLog("SNet", true);
 	
 	/** data recording*/
-	boolean save = true;
+	boolean save = false;
 	/** the forlder for this specific run*/
 	String folderName;
 	/** network parameter series */

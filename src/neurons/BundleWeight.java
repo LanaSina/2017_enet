@@ -105,4 +105,18 @@ public class BundleWeight extends ProbaWeight {
 		}
 	}
 
+	/**
+	 * remove the replaced neuron. does not put replacement instead....
+	 * @param replaced
+	 * @param replacement
+	 */
+	public void replace(INeuron replaced, INeuron replacement) {
+		if(bundle.containsKey(replaced)){
+			ProbaWeight p = bundle.remove(replaced);
+			/*if(!bundle.containsKey(replacement)){
+				bundle.put(replacement, p);
+			}*/
+		}		
+	}
+
 }

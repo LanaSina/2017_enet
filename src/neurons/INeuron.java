@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import com.sun.org.apache.xml.internal.resolver.helpers.PublicId;
 
@@ -48,7 +49,8 @@ public class INeuron extends Neuron {
 	/** used when pruning neurons*/
 	public boolean justSnapped = false;
 	/** INeuron and PNeuron classes should be merged*/
-	HashMap<BundleWeight, Vector<INeuron>> bundleWeights = new HashMap<BundleWeight,Vector<INeuron>>();
+	//HashMap<BundleWeight, Vector<INeuron>> bundleWeights = new HashMap<BundleWeight,Vector<INeuron>>();
+	Vector<BundleWeight> bundleWeights = new Vector<BundleWeight>();
 
 	
 	/** whether we can get remembered in the STM or not (eq to consciousness)*/
@@ -70,7 +72,8 @@ public class INeuron extends Neuron {
 		mlog.setName("Pattern Neuron");
 
 		BundleWeight b = new BundleWeight(from, to);
-		bundleWeights.put(b, from);
+		//bundleWeights.put(b, from);
+		bundleWeights.add(b);
 		
 		//make proba outweight
 		ProbaWeight p = to.addInWeight(Constants.defaultConnection, this);
@@ -360,13 +363,12 @@ public class INeuron extends Neuron {
 			}
 		}
 		//bundle weights (bad)
-		// pattern contained in other patterns should be muted
+		// pattern contained inside other patterns should be muted
 		Vector<BundleWeight> activated = new Vector<BundleWeight>();
-		for (Iterator<BundleWeight> iterator = bundleWeights.keySet().iterator(); iterator.hasNext();) {
+		for (Iterator<BundleWeight> iterator = bundleWeights.iterator(); iterator.hasNext();) {
 			BundleWeight b = iterator.next();
 			if(b.isActivated()){
 				this.increaseActivation(1);
-				//mlog.say(id + " activated");
 				activated.addElement(b);
 				//mute bundle
 				b.muteInputNeurons();
@@ -375,11 +377,11 @@ public class INeuron extends Neuron {
 		//mute secondary patterns
 		for (Iterator<BundleWeight> iterator = activated.iterator(); iterator.hasNext();) {
 			BundleWeight b = iterator.next();		
-			for (Iterator<BundleWeight> iterator2 =  bundleWeights.keySet().iterator(); iterator2.hasNext();) {
+			for (Iterator<BundleWeight> iterator2 =  bundleWeights.iterator(); iterator2.hasNext();) {
 				BundleWeight b2 = iterator2.next();
 				if(!b.equals(b2) && b.getInNeurons().containsAll(b2.getInNeurons())){
-					b2.setActivation(0);//muting only is not enough
-					mlog.say("deactivated secondary pattern");
+					//b2.setActivation(0);//muting only is not enough
+					//mlog.say("deactivated secondary pattern");
 				}
 			}
 			
@@ -490,10 +492,9 @@ public class INeuron extends Neuron {
 	public void removeInWeight(INeuron key) {
 		inWeights.remove(key);	
 		//remove from bundle weights too
-		for (Iterator<Entry<BundleWeight, Vector<INeuron>>> it = bundleWeights.entrySet().iterator(); it.hasNext();) {
-			Entry<BundleWeight, Vector<INeuron>> pair = it.next();
-			pair.getValue().remove(key);
-			pair.getKey().removeStrand(key);
+		for (Iterator<BundleWeight> it = bundleWeights.iterator(); it.hasNext();) {
+			BundleWeight b = it.next();
+			b.removeStrand(key);
 		}
 		bundleWeights.remove(key);
 	}
@@ -518,8 +519,9 @@ public class INeuron extends Neuron {
 	public boolean sameBundleWeights(Vector<INeuron> neurons, INeuron to_n) {
 		boolean b = false;
 		//iterate over bundleweights
-		for (Iterator<Vector<INeuron>> iterator = bundleWeights.values().iterator(); iterator.hasNext();) {
-			Vector<INeuron> v = iterator.next();
+		for (Iterator<BundleWeight> iterator = bundleWeights.iterator(); iterator.hasNext();) {
+			BundleWeight bw = iterator.next();
+			Set<INeuron> v = bw.getInNeurons();
 			if(v.containsAll(neurons) && neurons.containsAll(v)){//exactly equal
 				if(outWeights.containsKey(to_n)){
 					b = true;
@@ -541,8 +543,8 @@ public class INeuron extends Neuron {
 	}
 
 
-	public HashMap<BundleWeight, Vector<INeuron>> getBundleWeights() {
-		return (HashMap<BundleWeight, Vector<INeuron>>) bundleWeights.clone();	
+	public Vector<BundleWeight> getBundleWeights() {
+		return (Vector<BundleWeight>) bundleWeights.clone();	
 	}
 
 	
@@ -550,8 +552,7 @@ public class INeuron extends Neuron {
 		//moved from PNeuron
 		boolean b = false;
 		if(!sameBundleWeight(bw)){	
-			Vector<INeuron> vector = new Vector<INeuron>(bw.getInNeurons());
-			bundleWeights.put(bw, vector);
+			bundleWeights.add(bw);
 			b = true;
 		}
 		return b;
@@ -564,7 +565,7 @@ public class INeuron extends Neuron {
 	 */
 	private boolean sameBundleWeight(BundleWeight bw) {
 		boolean b = false;
-		for (Iterator<BundleWeight> iterator = bundleWeights.keySet().iterator(); iterator.hasNext();) {
+		for (Iterator<BundleWeight> iterator = bundleWeights.iterator(); iterator.hasNext();) {
 			BundleWeight ownbw = iterator.next();
 			if(ownbw.sameBundle(bw.getInNeurons())){
 				b = true;
@@ -574,8 +575,19 @@ public class INeuron extends Neuron {
 		return b;
 	}
 
-	public void removeDirectInWeight(INeuron n) {
-		directInWeights.remove(n);
+	/**
+	 * 
+	 * @param n
+	 * @return true if n was present as direct in weight
+	 */
+	public boolean removeDirectInWeight(INeuron n) {
+		boolean b;
+		if(directInWeights.remove(n) != null){
+			b = true;
+		} else{
+			b = false;
+		}
+		return b;
 	}
 	
 	/**
@@ -592,9 +604,21 @@ public class INeuron extends Neuron {
 				//remap output neuron
 				INeuron up = pair.getKey();
 				ProbaWeight p = pair.getValue();
-				up.removeDirectInWeight(this);
-				up.addDirectInWeight(n,p);
+				if(up.removeDirectInWeight(this)){
+					up.addDirectInWeight(n,p);
+				}
+				//if this had outweights in a bundle, replace them
+				up.replaceInBundle(this,n);
 			}
+		}
+
+	}
+
+	private void replaceInBundle(INeuron replaced, INeuron replacement) {
+		for (Iterator<BundleWeight> iterator = bundleWeights.iterator(); iterator.hasNext();) {
+			BundleWeight b = iterator.next();
+			//Vector<INeuron> v = pair.getValue();
+			b.replace(replaced, replacement);	
 		}
 	}
 
@@ -608,7 +632,6 @@ public class INeuron extends Neuron {
 	 * @param n
 	 */
 	public void reportInWeights(INeuron n) {
-		Iterator<Entry<INeuron, ProbaWeight>> in2it = inWeights.entrySet().iterator();
 		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = inWeights.entrySet().iterator(); iterator.hasNext();) {
 			Entry<INeuron, ProbaWeight> pair = iterator.next();
 			//add the inweight to n
@@ -616,10 +639,19 @@ public class INeuron extends Neuron {
 				//remap input neuron's weight
 				INeuron in = pair.getKey();
 				ProbaWeight p = pair.getValue();
-				in.addOutWeight(n, p);
 				in.removeOutWeight(this);
+				in.addOutWeight(n, p);
 			}
 		}
+		
+		
+		/*in2it = in2.entrySet().iterator();
+		while(in2it.hasNext()){
+			Map.Entry<INeuron, ProbaWeight> in2pair = in2it.next();
+			if(!n.addInWeight(in2pair)){
+				//nin++;
+			}
+		}*/
 	}
 
 	/**
@@ -645,14 +677,14 @@ public class INeuron extends Neuron {
 	 * @param n
 	 */
 	public void reportBundleWeights(INeuron n) {
-		for (Iterator<Entry<BundleWeight, Vector<INeuron>>> iterator = bundleWeights.entrySet().iterator(); iterator.hasNext();) {
-			Entry<BundleWeight, Vector<INeuron>> pair = iterator.next();
-			if(n.addBundleWeight(pair.getKey())){
+		for (Iterator<BundleWeight> iterator = bundleWeights.iterator(); iterator.hasNext();) {
+			BundleWeight b = iterator.next();
+			if(n.addBundleWeight(b)){
 				//re-route down neurons to n
-				Vector<INeuron> ins = pair.getValue();
+				Set<INeuron> ins = b.getInNeurons();
 				for (Iterator<INeuron> it2 = ins.iterator(); iterator.hasNext();) {
 					INeuron in = it2.next();
-					in.addDirectOutWeight(n, pair.getKey().getStrand(in));
+					in.addDirectOutWeight(n, b.getStrand(in));
 					in.removeDirectOutWeight(this);
 				}
 			}
@@ -669,7 +701,14 @@ public class INeuron extends Neuron {
 		directOutWeights.remove(n);
 	}
 
-	
-	
+	/**
+	 * delete the links from this neuron in other neurons
+	 */
+	public void removeAllOutWeights() {
+		for (Iterator<INeuron> iterator = outWeights.keySet().iterator(); iterator.hasNext();) {
+			INeuron n = iterator.next();
+			n.removeInWeight(this);
+		}
+	}
 	
 }
