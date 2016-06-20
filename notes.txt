@@ -2,19 +2,14 @@ Stages
 1: prediction
 2: Snap
 3: Space Patterns
-3.4: actions
-3.5: attention and wrong predictions
-4: Time Patterns
+4: actions
+5: attention and wrong predictions
+6: Time Patterns
 
-Hierarchy, top down search, rely on predictions, mute, STM>1, continuous (non binary, not layered) stimulation
+top down search, rely on predictions, mute, STM>1, continuous (non binary, not layered) stimulation
 
 
 TODO
-illusion cue after 1st snap
-error at step 70!!
-error at step 80 (weights looks recalculated)
-also always recreating new pattern neurons…
-
 sync of direct activations: how
 how to write weights? separate direct, bundles and probas
 to activate pattern neurons we might need too many pass of “doDirect activation” so we really need deysnc activation w/o special treatment for “direct weights”.

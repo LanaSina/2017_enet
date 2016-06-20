@@ -48,8 +48,7 @@ public class INeuron extends Neuron {
 	boolean surprised = false;
 	/** used when pruning neurons*/
 	public boolean justSnapped = false;
-	/** INeuron and PNeuron classes should be merged*/
-	//HashMap<BundleWeight, Vector<INeuron>> bundleWeights = new HashMap<BundleWeight,Vector<INeuron>>();
+	/**pattern weights that input to this neuron, and output to someone else*/
 	Vector<BundleWeight> bundleWeights = new Vector<BundleWeight>();
 
 	
@@ -72,12 +71,13 @@ public class INeuron extends Neuron {
 		mlog.setName("Pattern Neuron");
 
 		BundleWeight b = new BundleWeight(from, to);
-		//bundleWeights.put(b, from);
 		bundleWeights.add(b);
 		
-		//make proba outweight
-		ProbaWeight p = to.addInWeight(Constants.defaultConnection, this);
-		outWeights.put(to, p);
+		to.addInWeight(this, b);
+	}
+
+	private void addInWeight(INeuron n, ProbaWeight b) {
+		inWeights.put(n, b);	
 	}
 
 	/**
@@ -150,9 +150,9 @@ public class INeuron extends Neuron {
 		Iterator<Entry<INeuron, ProbaWeight>> it = inWeights.entrySet().iterator();
 		while(it.hasNext()){
 			Map.Entry<INeuron, ProbaWeight> pair = it.next();
-			ProbaWeight w = (ProbaWeight) pair.getValue();
+			ProbaWeight w = pair.getValue();
 			//value is increased if this weight was previously activated
-			if(w.canLearn() & w.isActivated()){//w.getWasActivated() & 
+			if(w.canLearn() & w.isActivated()){
 				w.addValue();
 			}
 		}
@@ -162,10 +162,7 @@ public class INeuron extends Neuron {
 	 * recalculates activation
 	 * @return true is activation is positive, false otherwise
 	 */
-	public boolean isActivated() {
-		//Calculate activation once only
-		//calculateActivation();	
-		
+	public boolean isActivated() {	
 		boolean b = false;
 		if(activation>0){
 			b = true;
@@ -197,8 +194,8 @@ public class INeuron extends Neuron {
 				}
 			}
 	
-			//mlog.say("predicted "+a+ " real "+ activation);
-			if(pro_activation==0 & activation>0){//(a==0 & activation>0){
+	
+			if(pro_activation==0 & activation>0){
 				surprised = true;
 			}
 			
@@ -237,12 +234,18 @@ public class INeuron extends Neuron {
 	 * reset output weights activation to 0.
 	 */
 	public void resetOutWeights() {
-		Iterator<Entry<INeuron, ProbaWeight>> it = outWeights.entrySet().iterator();//was inweights orz
+		Iterator<ProbaWeight> it = outWeights.values().iterator();
 		while(it.hasNext()){
-			Map.Entry<INeuron, ProbaWeight> pair = it.next();
-			ProbaWeight w = (ProbaWeight) pair.getValue();
+			ProbaWeight w = it.next();
 			w.resetActivation();
 		}		
+		
+		//bundle weights too
+		//TODO put bundleweights and outweights in the same collection
+		for (Iterator<BundleWeight> iterator = bundleWeights.iterator(); iterator.hasNext();) {
+			BundleWeight b = iterator.next();
+			b.resetActivation();
+		}
 	}
 
 	
@@ -265,7 +268,13 @@ public class INeuron extends Neuron {
 			Map.Entry<INeuron, ProbaWeight> pair = it.next();
 			ProbaWeight pw = pair.getValue();
 			pw.setActivation(1);
-		}			
+		}		
+		//bundles
+		for (Iterator<BundleWeight> iterator = bundleWeights.iterator(); iterator.hasNext();) {
+			BundleWeight b = iterator.next();
+			b.setActivation(1);
+			//mlog.say("============ set activation bundle");
+		}
 	}
 
 
@@ -292,12 +301,17 @@ public class INeuron extends Neuron {
 
 
 	public void ageOutWeights() {
-		Iterator<Entry<INeuron, ProbaWeight>> it = outWeights.entrySet().iterator();
-		while(it.hasNext()){
-			Map.Entry<INeuron, ProbaWeight> pair = it.next();
-			ProbaWeight w = pair.getValue();
-			w.increaseAge();
-		}			
+
+		for (Iterator<ProbaWeight> iterator = outWeights.values().iterator(); iterator.hasNext();) {
+			ProbaWeight p = iterator.next();
+			p.increaseAge();
+		}
+		
+		//age bundle weights outweight too
+		for (Iterator<BundleWeight> iterator = bundleWeights.iterator(); iterator.hasNext();) {
+			BundleWeight b = iterator.next();
+			b.increaseAge();
+		}
 	}
 
 
@@ -362,12 +376,12 @@ public class INeuron extends Neuron {
 				this.increaseActivation(1);
 			}
 		}
-		//bundle weights (bad)
+		//TODO bundleweight could have cleaner implementation... maybe put it in inweights
 		// pattern contained inside other patterns should be muted
 		Vector<BundleWeight> activated = new Vector<BundleWeight>();
 		for (Iterator<BundleWeight> iterator = bundleWeights.iterator(); iterator.hasNext();) {
 			BundleWeight b = iterator.next();
-			if(b.isActivated()){
+			if(b.bundleIsActivated()){
 				this.increaseActivation(1);
 				activated.addElement(b);
 				//mute bundle

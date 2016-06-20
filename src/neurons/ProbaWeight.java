@@ -1,5 +1,6 @@
 package neurons;
 
+import java.util.HashMap;
 import java.util.Set;
 import java.util.Vector;
 
@@ -18,7 +19,7 @@ public class ProbaWeight {
 	/** age of this weight*/
 	int age = 1;
 	/** value of this weight*/
-	private int value = 0;
+	protected int value = 0;
 	/** value of the activation of this weight at t*/
 	private int activation = 0; //could be binary
 	/** bad */
@@ -97,7 +98,6 @@ public class ProbaWeight {
 	public void increaseAge() {
 		if(age<Constants.weight_max_age){
 			age++;
-			//mlog.say("+1 age");
 		}
 	}
 
@@ -130,5 +130,8 @@ public class ProbaWeight {
 		// TODO Auto-generated method stub
 	}
 	
+	public HashMap<INeuron, ProbaWeight> getBundle() {
+		return null;
+	}
 
 }

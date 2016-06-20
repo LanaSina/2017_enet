@@ -3,6 +3,7 @@ package neurons;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
+
 import java.util.Set;
 import java.util.Vector;
 
@@ -32,9 +33,10 @@ public class BundleWeight extends ProbaWeight {
 	 * @param from
 	 * @param to not actually used
 	 */
-	public BundleWeight(Vector<INeuron> from, INeuron to) {
+	public BundleWeight(Vector<INeuron> from, INeuron to) {		
 		//create age and value
 		super(Constants.defaultConnection);
+		mlog.setName("BWeight");
 		
 		//create bundle
 		for (Iterator<INeuron> iterator = from.iterator(); iterator.hasNext();) {
@@ -49,8 +51,7 @@ public class BundleWeight extends ProbaWeight {
 	/**
 	 * @return true if all weights in bundle are activated, false otherwise
 	 */
-	@Override
-	public boolean isActivated() {
+	public boolean bundleIsActivated() {
 		boolean b = true;
 		for (Iterator<INeuron> iterator = bundle.keySet().iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
@@ -112,11 +113,14 @@ public class BundleWeight extends ProbaWeight {
 	 */
 	public void replace(INeuron replaced, INeuron replacement) {
 		if(bundle.containsKey(replaced)){
-			ProbaWeight p = bundle.remove(replaced);
-			/*if(!bundle.containsKey(replacement)){
-				bundle.put(replacement, p);
-			}*/
+			bundle.remove(replaced);
 		}		
+	}
+
+	
+	@Override
+	public HashMap<INeuron, ProbaWeight> getBundle() {
+		return (HashMap<INeuron, ProbaWeight>) bundle.clone();
 	}
 
 }

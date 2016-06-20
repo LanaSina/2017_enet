@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,6 +21,7 @@ import communication.Constants;
 import communication.MyLog;
 import neurons.BundleWeight;
 import neurons.INeuron;
+import neurons.Neuron;
 import neurons.ProbaWeight;
 import sensors.Eye;
 
@@ -34,7 +36,7 @@ public class SNetPattern {
 	MyLog mlog = new MyLog("SNet", true);
 	
 	/** data recording*/
-	boolean save = false;
+	boolean save = true;
 	/** the folder for this specific run*/
 	String folderName;
 	/** network parameter series */
@@ -66,7 +68,7 @@ public class SNetPattern {
 	/**images files*/
 	String imagesPath = "/Users/lana/Desktop/prgm/JAVANeuron/JAVANeuron/src/images/";
 	/** image description (chars)*/
-	String[] images = {"ball_1","ball_2","ball_3"};//,"ball_1","ball_2_b","ball_4"}; //{"a","b","c"};		
+	String[] images = {"ball_1","ball_2","ball_3","ball_1","ball_2_b","ball_4"}; //{"a","b","c"};		
 	
 	//sensors w/ actuators
 	/** image sensor*/
@@ -530,7 +532,7 @@ public class SNetPattern {
 			}
 		}
 		
-		mlog.say("stm "+ STM.size());
+		//mlog.say("stm "+ STM.size());
 	}
 
 	/**
@@ -554,7 +556,6 @@ public class SNetPattern {
 			INeuron n = pair.getValue();
 			n.calculateActivation();//recalculate from scratch
 			if(n.isSurprised()){
-				//mlog.say(n.getId() + " is surprised");
 				
 				//did we improve future prediction chances?
 				boolean didChange = false;
@@ -567,19 +568,34 @@ public class SNetPattern {
 						nw++;
 						n_weights++;
 						didChange = true;
-						//mlog.say("from "+preneuron.getId()+" to "+n.getId());
 					}
 				}
 				
 				//no change happened, try building a spatial pattern
-				/*if(!didChange){
+				if(!didChange){
+					//don't create pattern neurons that just have 1 other pneuron as input
+					//because they are equivalent
+					/*boolean onePNeuron = true;
+					if(STM.size()>1){
+						onePNeuron = false;
+					}else{
+						//only 1 iteration
+						for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
+							INeuron iNeuron = iterator.next();
+							if(iNeuron.getBundleWeights().isEmpty()){
+								onePNeuron = false;
+							}
+						}
+					}*/
+					
 					if(!patternExists(STM,n)){
 						INeuron neuron = new INeuron(STM,n,n_id);
 						newn.addElement(neuron);
 						n_id++;
-						//mlog.say("created pattern neuron "+neuron.getId());
+						mlog.say("created pattern neuron "+neuron.getId());
 					}
-				}*/
+				}
+									
 			}
 		}
 		
@@ -601,13 +617,41 @@ public class SNetPattern {
 	private boolean patternExists(Vector<INeuron> neurons, INeuron to_n) {
 		boolean b = false;
 		
+		//unroll patterns
+		HashSet<INeuron> allPatterns = new HashSet<INeuron>();
+		for (Iterator<INeuron> iterator = neurons.iterator(); iterator.hasNext();) {
+			INeuron n = iterator.next();
+			Vector<BundleWeight> bws = n.getBundleWeights();
+			if(bws.isEmpty()){
+				allPatterns.add(n);
+			}else {
+				for (Iterator<BundleWeight> iterator2 = bws.iterator(); iterator2.hasNext();) {
+					BundleWeight bw = iterator2.next();
+					//there will not be duplicates
+					allPatterns.addAll(bw.getInNeurons());
+				}
+			}
+			
+		}
+		
 		for (Iterator<INeuron> iterator = allINeurons.values().iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
 			if(n.sameBundleWeights(neurons,to_n)){
 				b = true;
 				break;
 			}
+			
+			//chack against unrolled patterns
+			Vector<BundleWeight> bws = n.getBundleWeights();
+			for (Iterator<BundleWeight> iterator2 = bws.iterator(); iterator2.hasNext();) {
+				BundleWeight bw = iterator2.next();
+				if(bw.getInNeurons().containsAll(allPatterns)){
+					b = true;
+					break;
+				}
+			}
 		}
+		
 		
 		return b;
 	}
@@ -660,12 +704,10 @@ public class SNetPattern {
 	 * age the outweights of neurons that are currently activated
 	 */
 	private void ageOutWeights(HashMap<Integer, INeuron> layer) {
-		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
+		Iterator<INeuron> it = layer.values().iterator();
 		while(it.hasNext()){
-			Map.Entry<Integer, INeuron> pair = it.next();
-			INeuron n = pair.getValue();
+			INeuron n =  it.next();
 			if(n.getActivation()>0){
-				//mlog.say("age out "+n.getId());
 				n.ageOutWeights();
 			}
 		}
@@ -680,7 +722,6 @@ public class SNetPattern {
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			if(n.getActivation()>0){
-				//mlog.say("increase in "+n.getId());
 				n.increaseInWeights();
 			}
 		}
@@ -745,33 +786,15 @@ public class SNetPattern {
 									break;
 								}
 								
-								//does n2 have all the same outweights?
-								/*if(!out1.containsKey(out2pair.getKey())){
-									//don't have same outweights: give up on this n2
+								//contains weight to same neuron; check value
+								ProbaWeight w1 = out1.get(out2pair.getKey());
+								if(w1.canLearn()){
 									dosnap = false;
-									break;
-								} else {*/
-									//contains weight to same neuron; check value
-									ProbaWeight w1 = out1.get(out2pair.getKey());
-									if(w1.canLearn()){
-										dosnap = false;
-										break;//give up
-									}
-									diff += Math.pow(w1.getProba() - w2.getProba(),2);
-									all++;
-								//}
-							}
-							/*Iterator<Entry<INeuron, ProbaWeight>> out1it = out1.entrySet().iterator();
-							//n2 must have all the weights that n1 has
-							while(out1it.hasNext()){
-								Map.Entry<INeuron, ProbaWeight> out1pair = out1it.next();
-								//does n2 have all the same outweights?
-								if(!out2.containsKey(out1pair.getKey())){
-									//don't have same outweights: give up on this n2
-									dosnap = false;
-									break;
+									break;//give up
 								}
-							}*/
+								diff += Math.pow(w1.getProba() - w2.getProba(),2);
+								all++;
+							}
 							
 							double dist = 0;//do snap even if there were no outweights at all
 							if(all!=0){
@@ -822,22 +845,15 @@ public class SNetPattern {
 									n2.reportDirectInWeights(n);
 				
 									//now report direct outweights
-									//n2.reportDirectOutWeights(n);
+									n2.reportDirectOutWeights(n);
 									
 									//bundleWeights
-									//n2.reportBundleWeights(n);	
+									n2.reportBundleWeights(n);	
 
 
 									//remove "ghost" inweights from dead neuron
 									//the only thing that hasn't been cleared yet
 									n2.removeAllOutWeights();
-									
-									/*out2it = out2.entrySet().iterator();
-									while(out2it.hasNext()){
-										Map.Entry<INeuron, ProbaWeight> out2pair = out2it.next();
-										INeuron neuron = out2pair.getKey();
-										neuron.removeInWeight(n2);
-									}	//*/
 								}
 							}
 
