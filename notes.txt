@@ -10,12 +10,11 @@ top down search, rely on predictions, mute, STM>1, continuous (non binary, not l
 
 
 TODO
+add bweight as regular outweighs 
+snap pneurons too
+start with really 0 neurons;
 sync of direct activations: how
-how to write weights? separate direct, bundles and probas
 to activate pattern neurons we might need too many pass of “doDirect activation” so we really need deysnc activation w/o special treatment for “direct weights”.
-give priority to pattern neurons over patterned neurons (but when of we don’t have direct weights??)
-silenced neurons: can function but cannot get into stm
-all neurons with a directoutweight are silent
 
 with attention we can avoid trying to predict each neuron...
 

@@ -35,8 +35,6 @@ public class INeuron extends Neuron {
 	double activation;
 	/** predicted activation (positive) */
 	double pro_activation;
-	/** predicted activation (absence of) */
-	//double abs_activation;
 	
 	/** has activation been calculated since the last reset or not*/
 	boolean activationCalculated = false;
@@ -655,17 +653,10 @@ public class INeuron extends Neuron {
 				ProbaWeight p = pair.getValue();
 				in.removeOutWeight(this);
 				in.addOutWeight(n, p);
-			}
+			}			
 		}
-		
-		
-		/*in2it = in2.entrySet().iterator();
-		while(in2it.hasNext()){
-			Map.Entry<INeuron, ProbaWeight> in2pair = in2it.next();
-			if(!n.addInWeight(in2pair)){
-				//nin++;
-			}
-		}*/
+		//remove inweights from this neuron
+		inWeights.clear();
 	}
 
 	/**

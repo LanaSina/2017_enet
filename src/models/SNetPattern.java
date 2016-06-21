@@ -572,25 +572,12 @@ public class SNetPattern {
 				}
 				
 				//no change happened, try building a spatial pattern
-				if(!didChange){
-					//don't create pattern neurons that just have 1 other pneuron as input
-					//because they are equivalent
-					/*boolean onePNeuron = true;
-					if(STM.size()>1){
-						onePNeuron = false;
-					}else{
-						//only 1 iteration
-						for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
-							INeuron iNeuron = iterator.next();
-							if(iNeuron.getBundleWeights().isEmpty()){
-								onePNeuron = false;
-							}
-						}
-					}*/
-					
+				if(!didChange){					
 					if(!patternExists(STM,n)){
 						INeuron neuron = new INeuron(STM,n,n_id);
 						newn.addElement(neuron);
+						//1 outweight per PNeuron
+						n_weights++;
 						n_id++;
 						mlog.say("created pattern neuron "+neuron.getId());
 					}
@@ -759,10 +746,10 @@ public class SNetPattern {
 						boolean dosnap = true;
 						
 						//dont do pneurons for now
-						if(n2.getBundleWeights().size()>0){
+						/*if(n2.getBundleWeights().size()>0){
 							dosnap = false;
 							break;
-						}
+						}//*/
 
 						//compare all out weights
 						double diff = 0;
@@ -803,7 +790,7 @@ public class SNetPattern {
 							//count how many connections are removed
 							if(dist==0){//if exact same outweights
 								//check if no direct contradiction in inweights (why? I forgot)
-								HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
+								/*HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
 								HashMap<INeuron,ProbaWeight> in2 = n2.getInWeights();
 								Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
 								
@@ -831,7 +818,7 @@ public class SNetPattern {
 											dosnap = false;//give up
 										}
 									}
-								}
+								}*/
 								
 								if(dosnap){
 									n.justSnapped = true;
@@ -849,7 +836,6 @@ public class SNetPattern {
 									
 									//bundleWeights
 									n2.reportBundleWeights(n);	
-
 
 									//remove "ghost" inweights from dead neuron
 									//the only thing that hasn't been cleared yet
@@ -882,7 +868,7 @@ public class SNetPattern {
 				if(n.removeOutWeight(remove.get(i))){
 					g++;
 				}
-			}		
+			}
 		}
 		n_weights-=g;	
 		
