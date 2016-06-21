@@ -628,7 +628,7 @@ public class SNetPattern {
 				break;
 			}
 			
-			//chack against unrolled patterns
+			//check against unrolled patterns
 			Vector<BundleWeight> bws = n.getBundleWeights();
 			for (Iterator<BundleWeight> iterator2 = bws.iterator(); iterator2.hasNext();) {
 				BundleWeight bw = iterator2.next();

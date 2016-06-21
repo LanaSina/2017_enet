@@ -10,8 +10,9 @@ top down search, rely on predictions, mute, STM>1, continuous (non binary, not l
 
 
 TODO
-add bweight as regular outweighs 
-snap pneurons too
+rewrite pneurons as
+"put replacement instead"
+
 start with really 0 neurons;
 sync of direct activations: how
 to activate pattern neurons we might need too many pass of “doDirect activation” so we really need deysnc activation w/o special treatment for “direct weights”.

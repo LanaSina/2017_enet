@@ -19,6 +19,8 @@ public class BundleWeight extends ProbaWeight {
 	
 	/** the inweights*/
 	HashMap<INeuron, ProbaWeight> bundle = new HashMap<>();
+	/** the output neuron */
+	INeuron outn;
 
 	/**
 	 * This constructor might never be used
@@ -37,6 +39,7 @@ public class BundleWeight extends ProbaWeight {
 		//create age and value
 		super(Constants.defaultConnection);
 		mlog.setName("BWeight");
+		outn = to;
 		
 		//create bundle
 		for (Iterator<INeuron> iterator = from.iterator(); iterator.hasNext();) {
@@ -63,6 +66,14 @@ public class BundleWeight extends ProbaWeight {
 			}
 		}
 		return b;
+	}
+	
+	/**
+	 * remaps the output neuron
+	 * @param to
+	 */
+	public void remap(INeuron to) {
+		outn = to;
 	}
 	
 	/**
@@ -114,6 +125,7 @@ public class BundleWeight extends ProbaWeight {
 	public void replace(INeuron replaced, INeuron replacement) {
 		if(bundle.containsKey(replaced)){
 			bundle.remove(replaced);
+			//TODO  put replacement instead....
 		}		
 	}
 

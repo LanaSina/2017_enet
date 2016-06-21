@@ -64,13 +64,13 @@ public class INeuron extends Neuron {
 	 * @param stm list of pre-neurons
 	 * @param n neuron to make the bundleWeigth to
 	 */
-	public INeuron(Vector<INeuron> from, INeuron to, int id) {
+	public INeuron(Vector<INeuron> from, INeuron to, int id) {//TODO make "to" as a vector
 		super(id);
 		mlog.setName("Pattern Neuron");
 
 		BundleWeight b = new BundleWeight(from, to);
 		bundleWeights.add(b);
-		
+		outWeights.put(to, b);		
 		to.addInWeight(this, b);
 	}
 
@@ -239,11 +239,11 @@ public class INeuron extends Neuron {
 		}		
 		
 		//bundle weights too
-		//TODO put bundleweights and outweights in the same collection
-		for (Iterator<BundleWeight> iterator = bundleWeights.iterator(); iterator.hasNext();) {
+		//have put bundleweights and outweights in the same collection
+		/*for (Iterator<BundleWeight> iterator = bundleWeights.iterator(); iterator.hasNext();) {
 			BundleWeight b = iterator.next();
 			b.resetActivation();
-		}
+		}*/
 	}
 
 	
@@ -267,12 +267,12 @@ public class INeuron extends Neuron {
 			ProbaWeight pw = pair.getValue();
 			pw.setActivation(1);
 		}		
-		//bundles
-		for (Iterator<BundleWeight> iterator = bundleWeights.iterator(); iterator.hasNext();) {
+		//bundles are now in outweights
+		/*for (Iterator<BundleWeight> iterator = bundleWeights.iterator(); iterator.hasNext();) {
 			BundleWeight b = iterator.next();
 			b.setActivation(1);
 			//mlog.say("============ set activation bundle");
-		}
+		}*/
 	}
 
 
@@ -306,10 +306,11 @@ public class INeuron extends Neuron {
 		}
 		
 		//age bundle weights outweight too
-		for (Iterator<BundleWeight> iterator = bundleWeights.iterator(); iterator.hasNext();) {
+		//NO: we have put them in outweights
+		/*for (Iterator<BundleWeight> iterator = bundleWeights.iterator(); iterator.hasNext();) {
 			BundleWeight b = iterator.next();
 			b.increaseAge();
-		}
+		}*/
 	}
 
 
@@ -560,7 +561,7 @@ public class INeuron extends Neuron {
 	}
 
 	
-	public boolean addBundleWeight(BundleWeight bw) {
+	private boolean addBundleWeight(BundleWeight bw) {
 		//moved from PNeuron
 		boolean b = false;
 		if(!sameBundleWeight(bw)){	
@@ -571,7 +572,6 @@ public class INeuron extends Neuron {
 	}
 	
 	/**
-	 * moved from PNeuron
 	 * @param bw
 	 * @return true if we possess a similar bundleweight
 	 */
@@ -691,7 +691,7 @@ public class INeuron extends Neuron {
 					INeuron in = it2.next();
 					in.addDirectOutWeight(n, b.getStrand(in));
 					in.removeDirectOutWeight(this);
-				}
+				}				
 			}
 			
 		}
