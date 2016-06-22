@@ -12,6 +12,7 @@ import communication.Constants;
 /**
  * This is a weight made of a bundle of FixedWeights (weight with fixed values).
  * It is only activated if all inweights without exception are activated
+ * 
  * @author lana
  *
  */
@@ -20,7 +21,7 @@ public class BundleWeight extends ProbaWeight {
 	/** the inweights*/
 	HashMap<INeuron, ProbaWeight> bundle = new HashMap<>();
 	/** the output neuron */
-	INeuron outn;
+	//INeuron outn;
 
 	/**
 	 * This constructor might never be used
@@ -39,7 +40,9 @@ public class BundleWeight extends ProbaWeight {
 		//create age and value
 		super(Constants.defaultConnection);
 		mlog.setName("BWeight");
-		outn = to;
+		//outn = to;
+		//TODO learning should happen on each strand
+		
 		
 		//create bundle
 		for (Iterator<INeuron> iterator = from.iterator(); iterator.hasNext();) {
@@ -72,9 +75,9 @@ public class BundleWeight extends ProbaWeight {
 	 * remaps the output neuron
 	 * @param to
 	 */
-	public void remap(INeuron to) {
+	/*public void remap(INeuron to) {
 		outn = to;
-	}
+	}*/
 	
 	/**
 	 * @return true if bundle is the same
@@ -134,5 +137,15 @@ public class BundleWeight extends ProbaWeight {
 	public HashMap<INeuron, ProbaWeight> getBundle() {
 		return (HashMap<INeuron, ProbaWeight>) bundle.clone();
 	}
+	
+	
+	/**
+	 * each strand will have its own value. the bundle itself is 1.
+	 */
+	@Override
+	public int getValue() {
+		return 1;
+	}
+
 
 }

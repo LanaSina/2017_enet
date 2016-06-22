@@ -69,9 +69,12 @@ public class INeuron extends Neuron {
 		mlog.setName("Pattern Neuron");
 
 		BundleWeight b = new BundleWeight(from, to);
-		bundleWeights.add(b);
-		outWeights.put(to, b);		
-		to.addInWeight(this, b);
+		bundleWeights.add(b);//this should be a normal inweight
+		ProbaWeight p = to.addInWeight(Constants.defaultConnection, this);
+		outWeights.put(to, p);
+		
+		/*outWeights.put(to, b);		
+		to.addInWeight(this, b);*/
 	}
 
 	private void addInWeight(INeuron n, ProbaWeight b) {

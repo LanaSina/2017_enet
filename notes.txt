@@ -10,8 +10,11 @@ top down search, rely on predictions, mute, STM>1, continuous (non binary, not l
 
 
 TODO
-rewrite pneurons as
-"put replacement instead"
+no white bug: double prediction; stm is often 0
+put bw as simple direct inweight
+dream
+noise
+
 
 start with really 0 neurons;
 sync of direct activations: how
