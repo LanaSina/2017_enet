@@ -10,14 +10,14 @@ top down search, rely on predictions, mute, STM>1, continuous (non binary, not l
 
 
 TODO
-no white bug: double prediction; stm is often 0
-put bw as simple direct inweight
+no white: number of connections is not correct
 dream
 noise
 
 
 start with really 0 neurons;
 sync of direct activations: how
+
 to activate pattern neurons we might need too many pass of “doDirect activation” so we really need deysnc activation w/o special treatment for “direct weights”.
 
 with attention we can avoid trying to predict each neuron...

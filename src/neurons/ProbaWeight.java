@@ -72,7 +72,7 @@ public class ProbaWeight {
 	/**
 	 * @param a activation value
 	 */
-	public void setActivation(int a) {
+	public void setActivation(int a, INeuron n) {
 		activation = a;
 	}
 

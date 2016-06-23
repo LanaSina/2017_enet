@@ -8,7 +8,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.sun.org.apache.xml.internal.resolver.helpers.PublicId;
+import com.sun.org.apache.xpath.internal.operations.And;
 
+import apple.laf.JRSUIUtils.Tree;
 import communication.Constants;
 import communication.MyLog;
 
@@ -69,16 +71,20 @@ public class INeuron extends Neuron {
 		mlog.setName("Pattern Neuron");
 
 		BundleWeight b = new BundleWeight(from, to);
-		bundleWeights.add(b);//this should be a normal inweight
+		//as special inweight to this
+		bundleWeights.add(b);
+		//as outweight from this to To
 		ProbaWeight p = to.addInWeight(Constants.defaultConnection, this);
 		outWeights.put(to, p);
-		
-		/*outWeights.put(to, b);		
-		to.addInWeight(this, b);*/
 	}
 
-	private void addInWeight(INeuron n, ProbaWeight b) {
-		inWeights.put(n, b);	
+	/**
+	 * adds or replace new weight (there isnt supposed to be contradictions in inweights
+	 * @param n
+	 * @param p
+	 */
+	private void addInWeight(INeuron n, ProbaWeight p) {
+		inWeights.put(n, p);
 	}
 
 	/**
@@ -217,6 +223,8 @@ public class INeuron extends Neuron {
 					//mute sensory neurons
 					w.muteInputNeurons();
 				}
+				//unmute self just in case we had a recurrent connection
+				this.setMute(false);
 			}
 			
 			
@@ -240,13 +248,6 @@ public class INeuron extends Neuron {
 			ProbaWeight w = it.next();
 			w.resetActivation();
 		}		
-		
-		//bundle weights too
-		//have put bundleweights and outweights in the same collection
-		/*for (Iterator<BundleWeight> iterator = bundleWeights.iterator(); iterator.hasNext();) {
-			BundleWeight b = iterator.next();
-			b.resetActivation();
-		}*/
 	}
 
 	
@@ -268,14 +269,8 @@ public class INeuron extends Neuron {
 		while(it.hasNext()){
 			Map.Entry<INeuron, ProbaWeight> pair = it.next();
 			ProbaWeight pw = pair.getValue();
-			pw.setActivation(1);
-		}		
-		//bundles are now in outweights
-		/*for (Iterator<BundleWeight> iterator = bundleWeights.iterator(); iterator.hasNext();) {
-			BundleWeight b = iterator.next();
-			b.setActivation(1);
-			//mlog.say("============ set activation bundle");
-		}*/
+			pw.setActivation(1,this);
+		}
 	}
 
 
@@ -307,13 +302,6 @@ public class INeuron extends Neuron {
 			ProbaWeight p = iterator.next();
 			p.increaseAge();
 		}
-		
-		//age bundle weights outweight too
-		//NO: we have put them in outweights
-		/*for (Iterator<BundleWeight> iterator = bundleWeights.iterator(); iterator.hasNext();) {
-			BundleWeight b = iterator.next();
-			b.increaseAge();
-		}*/
 	}
 
 
@@ -488,7 +476,7 @@ public class INeuron extends Neuron {
 		while(it.hasNext()){
 			Map.Entry<INeuron, ProbaWeight> pair = it.next();
 			ProbaWeight pw = (ProbaWeight) pair.getValue();
-			pw.setActivation(1);
+			pw.setActivation(1,this);
 		}	
 	}
 
@@ -508,11 +496,11 @@ public class INeuron extends Neuron {
 	public void removeInWeight(INeuron key) {
 		inWeights.remove(key);	
 		//remove from bundle weights too
-		for (Iterator<BundleWeight> it = bundleWeights.iterator(); it.hasNext();) {
+		/*for (Iterator<BundleWeight> it = bundleWeights.iterator(); it.hasNext();) {
 			BundleWeight b = it.next();
 			b.removeStrand(key);
 		}
-		bundleWeights.remove(key);
+		bundleWeights.remove(key);*/
 	}
 
 
@@ -622,9 +610,13 @@ public class INeuron extends Neuron {
 				if(up.removeDirectInWeight(this)){
 					up.addDirectInWeight(n,p);
 				}
-				//if this had outweights in a bundle, replace them
-				up.replaceInBundle(this,n);
 			}
+		}
+		
+		//remove self from bundle weights
+		for (Iterator<BundleWeight> iterator = bundleWeights.iterator(); iterator.hasNext();) {
+			BundleWeight b = iterator.next();
+			b.replace(this, n);
 		}
 
 	}
@@ -632,7 +624,6 @@ public class INeuron extends Neuron {
 	private void replaceInBundle(INeuron replaced, INeuron replacement) {
 		for (Iterator<BundleWeight> iterator = bundleWeights.iterator(); iterator.hasNext();) {
 			BundleWeight b = iterator.next();
-			//Vector<INeuron> v = pair.getValue();
 			b.replace(replaced, replacement);	
 		}
 	}
@@ -649,14 +640,16 @@ public class INeuron extends Neuron {
 	public void reportInWeights(INeuron n) {
 		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = inWeights.entrySet().iterator(); iterator.hasNext();) {
 			Entry<INeuron, ProbaWeight> pair = iterator.next();
+			INeuron from = pair.getKey();
+			ProbaWeight w = pair.getValue();
+			//recurrent weight
+			if(from==this){
+				from = n;
+			}
 			//add the inweight to n
-			if(n.addInWeight(pair)){
-				//remap input neuron's weight
-				INeuron in = pair.getKey();
-				ProbaWeight p = pair.getValue();
-				in.removeOutWeight(this);
-				in.addOutWeight(n, p);
-			}			
+			n.addInWeight(from,w);
+			//remap (are supposed to be same anyway)
+			from.addOutWeight(n, w);			
 		}
 		//remove inweights from this neuron
 		inWeights.clear();
@@ -687,6 +680,14 @@ public class INeuron extends Neuron {
 	public void reportBundleWeights(INeuron n) {
 		for (Iterator<BundleWeight> iterator = bundleWeights.iterator(); iterator.hasNext();) {
 			BundleWeight b = iterator.next();
+			//remove self from bundle weight
+			ProbaWeight p = b.removeStrand(this);
+			if(p!=null){
+				//add n instead
+				b.addStrand(n,p);
+				n.addOutWeight(n, b);
+			}
+			
 			if(n.addBundleWeight(b)){
 				//re-route down neurons to n
 				Set<INeuron> ins = b.getInNeurons();
@@ -717,6 +718,19 @@ public class INeuron extends Neuron {
 			INeuron n = iterator.next();
 			n.removeInWeight(this);
 		}
+	}
+
+	public boolean directInWeightsContains(INeuron n2) {
+		boolean b = false;
+		for (Iterator<INeuron> iterator = directInWeights.keySet().iterator(); iterator.hasNext();) {
+			INeuron from = iterator.next();
+			if(from==n2){
+				b = true;
+				break;
+			}
+		}
+		
+		return b;
 	}
 	
 }

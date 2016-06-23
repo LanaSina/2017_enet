@@ -40,17 +40,15 @@ public class BundleWeight extends ProbaWeight {
 		//create age and value
 		super(Constants.defaultConnection);
 		mlog.setName("BWeight");
-		//outn = to;
-		//TODO learning should happen on each strand
-		
+		//TODO learning should happen on each strand		
 		
 		//create bundle
 		for (Iterator<INeuron> iterator = from.iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
 			ProbaWeight p = new ProbaWeight(Constants.fixedConnection);
-			//TODO I think we don't need to link to an actual neuron. DirectOutWeigths don't need to know who's out, do they
-			n.addDirectOutWeight(p, to);
 			bundle.put(n, p);
+			//n.addDirectOutWeight(p, to);
+			n.addDirectOutWeight(to, this);
 		}
 	}
 	
@@ -71,13 +69,6 @@ public class BundleWeight extends ProbaWeight {
 		return b;
 	}
 	
-	/**
-	 * remaps the output neuron
-	 * @param to
-	 */
-	/*public void remap(INeuron to) {
-		outn = to;
-	}*/
 	
 	/**
 	 * @return true if bundle is the same
@@ -111,13 +102,11 @@ public class BundleWeight extends ProbaWeight {
 		return bundle.get(n2);
 	}
 
-	public void removeStrand(INeuron key) {
-		if(bundle.remove(key)!=null){
-			//mlog.say("removed strand");
-		}
+	public ProbaWeight removeStrand(INeuron key) {
 		if(bundle.isEmpty()){
 			mlog.say("********** empty");
 		}
+		return bundle.remove(key);
 	}
 
 	/**
@@ -127,8 +116,8 @@ public class BundleWeight extends ProbaWeight {
 	 */
 	public void replace(INeuron replaced, INeuron replacement) {
 		if(bundle.containsKey(replaced)){
-			bundle.remove(replaced);
-			//TODO  put replacement instead....
+			ProbaWeight p = bundle.remove(replaced);
+			bundle.put(replacement, p);
 		}		
 	}
 
@@ -147,5 +136,24 @@ public class BundleWeight extends ProbaWeight {
 		return 1;
 	}
 
+	public void addStrand(INeuron n, ProbaWeight p) {
+		bundle.put(n, p);
+	}
+
+	//TODO maybe bundeweights and probaweights just descend from the same interface
+	//bc bw doesnt need the "activation" var for example
+	@Override
+	public void setActivation(int a, INeuron n) {
+		//activation = a;
+		bundle.get(n).setActivation(1, n);
+	}
+	
+	@Override
+	public void resetActivation() {
+		for (Iterator<ProbaWeight> iterator = bundle.values().iterator(); iterator.hasNext();) {
+			ProbaWeight p = iterator.next();
+			p.resetActivation();
+		}		
+	}
 
 }

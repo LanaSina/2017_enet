@@ -317,6 +317,8 @@ public class SNetPattern {
 		}
 		//reset activations of ineurons
 		resetNeuronsActivation(allINeurons);
+		resetDirectOutWeights(allINeurons);
+
 		
 		//apply blur to selected portion of image
 		//get grayscale values of the image
@@ -576,8 +578,6 @@ public class SNetPattern {
 					if(!patternExists(STM,n)){
 						INeuron neuron = new INeuron(STM,n,n_id);
 						newn.addElement(neuron);
-						//1 outweight per PNeuron
-						n_weights++;
 						n_id++;
 						mlog.say("created pattern neuron "+neuron.getId());
 					}
@@ -744,12 +744,6 @@ public class SNetPattern {
 										
 					if((n.getId()!= n2.getId()) && !n2.justSnapped){
 						boolean dosnap = true;
-						
-						//dont do pneurons for now
-						/*if(n2.getBundleWeights().size()>0){
-							dosnap = false;
-							break;
-						}//*/
 
 						//compare all out weights
 						double diff = 0;
@@ -760,7 +754,11 @@ public class SNetPattern {
 						//n1 must have all the weights that n2 has
 						Set<INeuron> s1 = out1.keySet();
 						Set<INeuron> s2 = out2.keySet();
-						if(!s1.containsAll(s2) || !s2.containsAll(s1)){
+						
+						//avoid recurrent connections
+						if(n.directInWeightsContains(n2) || n.directInWeightsContains(n2) ||
+								//avoid different sets of outweights
+								!s1.containsAll(s2) || !s2.containsAll(s1)){
 							dosnap = false;
 						} else {
 							//compare outw
@@ -789,8 +787,8 @@ public class SNetPattern {
 							}
 							//count how many connections are removed
 							if(dist==0){//if exact same outweights
-								//check if no direct contradiction in inweights (why? I forgot)
-								/*HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
+								//check if no direct contradiction in inweights (important)
+								HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
 								HashMap<INeuron,ProbaWeight> in2 = n2.getInWeights();
 								Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
 								
@@ -818,7 +816,7 @@ public class SNetPattern {
 											dosnap = false;//give up
 										}
 									}
-								}*/
+								}//*/
 								
 								if(dosnap){
 									n.justSnapped = true;
@@ -839,7 +837,7 @@ public class SNetPattern {
 
 									//remove "ghost" inweights from dead neuron
 									//the only thing that hasn't been cleared yet
-									n2.removeAllOutWeights();
+									//n2.removeAllOutWeights();
 								}
 							}
 
