@@ -10,7 +10,8 @@ top down search, rely on predictions, mute, STM>1, continuous (non binary, not l
 
 
 TODO
-no white: number of connections is not correct
+bw strands to be unique for one input neurons
+bundle weights minimization (take the smaller?bigger? of two sets if one is included in the other?)
 dream
 noise
 

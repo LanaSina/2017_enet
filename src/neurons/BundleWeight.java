@@ -110,14 +110,19 @@ public class BundleWeight extends ProbaWeight {
 	}
 
 	/**
-	 * remove the replaced neuron. does not put replacement instead....
+	 * replace the neuron
 	 * @param replaced
 	 * @param replacement
 	 */
 	public void replace(INeuron replaced, INeuron replacement) {
 		if(bundle.containsKey(replaced)){
 			ProbaWeight p = bundle.remove(replaced);
-			bundle.put(replacement, p);
+			//avoid recurrent connections if bundle has only one strand
+			if(replaced!=replacement || bundle.size()>0){
+				//avoid recurrent connections if bundle has only one strand
+				bundle.put(replacement, p);
+				
+			}
 		}		
 	}
 
@@ -154,6 +159,17 @@ public class BundleWeight extends ProbaWeight {
 			ProbaWeight p = iterator.next();
 			p.resetActivation();
 		}		
+	}
+
+	public boolean contains(INeuron n2) {
+		return bundle.containsKey(n2);
+	}
+
+	//tell to in neurons to change their outweight map
+	public void notifyChange(INeuron from, INeuron to) {
+		if(bundle.containsKey(from)){
+			from.reportDirectOutWeights(to);
+		}
 	}
 
 }

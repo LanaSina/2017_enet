@@ -218,7 +218,7 @@ public class SNetSnap {
 				INeuron n2 = new INeuron(n_id);
 				n2.justSnapped=true;//avoid snapping newborn neurons
 				ProbaWeight p = n2.addInWeight(Constants.fixedConnection, n);
-				n.addDirectOutWeight(p, n2);
+				//TODO legacy n.addDirectOutWeight(p, n2);
 				allINeurons.put(n_id, n2);
 				n_id++;				
 			}
@@ -694,7 +694,7 @@ public class SNetSnap {
 									}
 								}
 								//do the same for direct inweights
-								HashMap<INeuron,ProbaWeight> din = n2.getDirectInWeights();
+								/*//TODO legacy HashMap<INeuron,ProbaWeight> din = n2.getDirectInWeights();
 								in2it = din.entrySet().iterator();
 								while(in2it.hasNext()){
 									Map.Entry<INeuron, ProbaWeight> in2pair = in2it.next();
@@ -702,7 +702,7 @@ public class SNetSnap {
 										INeuron down = in2pair.getKey();
 										down.setDirectOutWeight(n,in2pair.getValue());
 									}
-								}
+								}*/
 								//remove "ghost" inweights from dead neuron
 								out2it = out2.entrySet().iterator();
 								while(out2it.hasNext()){

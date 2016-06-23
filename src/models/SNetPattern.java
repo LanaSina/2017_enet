@@ -186,21 +186,22 @@ public class SNetPattern {
 				}
 				
 				//directOutWeights
-				HashMap<INeuron,ProbaWeight> dout = n.getDirectOutWeights();
+				/*HashMap<INeuron,ProbaWeight> dout = n.getDirectOutWeights();
 				for (Iterator<INeuron> iterator = dout.keySet().iterator(); iterator.hasNext();) {
 					INeuron to = iterator.next();
 					String s = n.getId() + "," + to.getId() +"\n";
 					dWeightsWriter.append(s);
 					dWeightsWriter.flush();
-				}
+				}*/
 				
 				//bundles
-				Vector<BundleWeight> bws = n.getBundleWeights();
+				Vector<BundleWeight> bws = n.getDirectInWeights();
 				for (Iterator<BundleWeight> iterator = bws.iterator(); iterator.hasNext();) {
 					BundleWeight b = iterator.next();
 					//"bid,from,to,weight,age\n";
 					for (Iterator<INeuron> iterator2 = b.getInNeurons().iterator(); iterator2.hasNext();) {
 						INeuron n2 = iterator2.next();
+						//header = "bid,from,to,weight,age\n";
 						String s = id + "," + n2.getId() + "," + n.getId() + "," + b.getProba() + "," + b.getAge() + "\n";
 						bWeightsWriter.append(s);
 						bWeightsWriter.flush();
@@ -260,9 +261,13 @@ public class SNetPattern {
 				eye.linkNeuron(n_id,j, i);
 				n_id++;				
 				INeuron n2 = new INeuron(n_id);
-				n2.justSnapped=true;//avoid snapping newborn neurons
-				ProbaWeight p = n2.addInWeight(Constants.fixedConnection, n);
-				n.addDirectOutWeight(p, n2);
+				n2.justSnapped = true;//avoid snapping newborn neurons
+				//add direct in weight
+				Vector<INeuron> v = new Vector<INeuron>();
+				v.addElement(n);
+				BundleWeight b = n2.addDirectInWeight(v);
+				//ProbaWeight p = n2.addInWeight(Constants.fixedConnection, n);
+				n.addDirectOutWeight(n2,b);
 				allINeurons.put(n_id, n2);
 				n_id++;				
 			}
@@ -598,7 +603,7 @@ public class SNetPattern {
 	/**
 	 * 
 	 * @param neurons list of neurons
-	 * @return true if there exists a PNeuron that can be activated by the "neurons" pattern
+	 * @return true if there exists a PNeuron in the whole net that can be activated by the "neurons" pattern
 	 * and has an outweight to to_n
 	 */
 	private boolean patternExists(Vector<INeuron> neurons, INeuron to_n) {
@@ -608,7 +613,7 @@ public class SNetPattern {
 		HashSet<INeuron> allPatterns = new HashSet<INeuron>();
 		for (Iterator<INeuron> iterator = neurons.iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
-			Vector<BundleWeight> bws = n.getBundleWeights();
+			Vector<BundleWeight> bws = n.getDirectInWeights();
 			if(bws.isEmpty()){
 				allPatterns.add(n);
 			}else {
@@ -618,7 +623,6 @@ public class SNetPattern {
 					allPatterns.addAll(bw.getInNeurons());
 				}
 			}
-			
 		}
 		
 		for (Iterator<INeuron> iterator = allINeurons.values().iterator(); iterator.hasNext();) {
@@ -629,7 +633,7 @@ public class SNetPattern {
 			}
 			
 			//check against unrolled patterns
-			Vector<BundleWeight> bws = n.getBundleWeights();
+			Vector<BundleWeight> bws = n.getDirectInWeights();
 			for (Iterator<BundleWeight> iterator2 = bws.iterator(); iterator2.hasNext();) {
 				BundleWeight bw = iterator2.next();
 				if(bw.getInNeurons().containsAll(allPatterns)){
@@ -732,9 +736,6 @@ public class SNetPattern {
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			
-			//dont do pneurons for now
-			if(n.getBundleWeights().size()>0) break;
-			
 			if(!n.justSnapped){
 				//look for equivalent neurons (neurons with equivalent outweights)
 				Iterator<Entry<Integer, INeuron>> it2 = allINeurons.entrySet().iterator();
@@ -831,9 +832,6 @@ public class SNetPattern {
 				
 									//now report direct outweights
 									n2.reportDirectOutWeights(n);
-									
-									//bundleWeights
-									n2.reportBundleWeights(n);	
 
 									//remove "ghost" inweights from dead neuron
 									//the only thing that hasn't been cleared yet
