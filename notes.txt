@@ -10,7 +10,7 @@ top down search, rely on predictions, mute, STM>1, continuous (non binary, not l
 
 
 TODO
-bw strands to be unique for one input neurons
+prediction map bug
 bundle weights minimization (take the smaller?bigger? of two sets if one is included in the other?)
 dream
 noise
