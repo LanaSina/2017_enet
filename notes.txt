@@ -11,6 +11,10 @@ top down search, rely on predictions, mute, STM>1, continuous (non binary, not l
 
 TODO
 prediction map bug
+1) becomes gray
+2) becomes permanent
+3) reduced to 1 px
+
 bundle weights minimization (take the smaller?bigger? of two sets if one is included in the other?)
 dream
 noise

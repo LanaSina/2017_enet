@@ -35,7 +35,7 @@ public class SNetPattern {
 	MyLog mlog = new MyLog("SNet", true);
 	
 	/** data recording*/
-	boolean save = true;
+	boolean save = false;
 	/** the folder for this specific run*/
 	String folderName;
 	/** network parameter series */
