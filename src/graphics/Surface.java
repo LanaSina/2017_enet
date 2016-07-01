@@ -36,6 +36,7 @@ public class Surface extends JPanel{
 	
 	//controls
 	JLabel timeLabel;
+	JLabel speedLabel;
 	
 	/** items to be controlled */
 	Vector<ControllableThread> puppets = new Vector<ControllableThread>();
@@ -176,7 +177,7 @@ public class Surface extends JPanel{
 		//time label
 		timeLabel = new JLabel("Time: 0");
 		ctrlFrame.add(timeLabel);
-		//button
+		//pause button
 		JButton pauseButton = new JButton("Pause"); 		
 		pauseButton.addActionListener(new ActionListener() {
 	         public void actionPerformed(ActionEvent e) {
@@ -197,8 +198,35 @@ public class Surface extends JPanel{
 	    });
 		ctrlFrame.add(pauseButton);
 		
-		JButton okButton = new JButton("OK"); 	
-		ctrlFrame.add(okButton);
+		//speed
+		//label
+		speedLabel = new JLabel("Speed: 0");
+		ctrlFrame.add(speedLabel);
+		//buttons
+		JButton speedDownButton = new JButton("-"); 		
+		speedDownButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {	        	 
+	        	 for (Iterator<ControllableThread> iterator = puppets.iterator(); iterator.hasNext();) {
+					ControllableThread p = iterator.next();
+					//just take the last one?
+					int speed = p.speedDown();	
+					speedLabel.setText("Speed: "+ speed);
+				}
+	         }          
+	    });
+		ctrlFrame.add(speedDownButton);
+		
+		JButton speedUpButton = new JButton("+"); 		
+		speedUpButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {	        	 
+	        	 for (Iterator<ControllableThread> iterator = puppets.iterator(); iterator.hasNext();) {
+					ControllableThread p = iterator.next();
+					int speed = p.speedUp();
+					speedLabel.setText("Speed: "+ speed);
+				}
+	         }          
+	    });
+		ctrlFrame.add(speedUpButton);
 
 		frame.setVisible(true);   
 		ctrlFrame.setLocation(500, 10);

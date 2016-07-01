@@ -39,6 +39,8 @@ public class SNetPattern implements ControllableThread {
 	Surface panel;
 	/** controls from UI */
 	boolean paused = false;
+	/** speed*/
+	int speed = 1;
 	
 	/** data recording*/
 	boolean save = false;
@@ -932,7 +934,7 @@ public class SNetPattern implements ControllableThread {
 	    		}
 	    		
 	    		try {
-					Thread.sleep(500);
+					Thread.sleep(2000/speed);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}    			    		
@@ -944,6 +946,20 @@ public class SNetPattern implements ControllableThread {
 	@Override
 	public void setPaused(boolean paused) {
 		this.paused = paused;
+	}
+
+	@Override
+	public int speedUp() {
+		speed++;	
+		return speed;
+	}
+
+	@Override
+	public int speedDown() {
+		if(speed>1){
+			speed--;
+		}
+		return speed;
 	}
 
 }

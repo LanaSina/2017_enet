@@ -7,4 +7,8 @@ package communication;
  */
 public interface ControllableThread {
 	public void setPaused(boolean paused);
+	
+	public int speedUp();
+	
+	public int speedDown();
 }
