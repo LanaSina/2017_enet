@@ -13,12 +13,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import java.util.Set;
 import java.util.Vector;
 
 import communication.Constants;
+import communication.ControllableThread;
 import communication.MyLog;
+import graphics.Surface;
 import neurons.BundleWeight;
 import neurons.INeuron;
 import neurons.ProbaWeight;
@@ -30,9 +31,14 @@ import sensors.Eye;
  * @author lana
  *
  */
-public class SNetPattern {
+public class SNetPattern implements ControllableThread {
 	/** log */
 	MyLog mlog = new MyLog("SNet", true);
+	
+	/** graphics*/
+	Surface panel;
+	/** controls from UI */
+	boolean paused = false;
 	
 	/** data recording*/
 	boolean save = false;
@@ -84,8 +90,12 @@ public class SNetPattern {
 	Vector<INeuron> STM = new Vector<INeuron>();
 	
 	public SNetPattern(){
+		//graphics
+    	panel = new Surface();
+    	panel.addControllable(this);
+		
     	//sensor init
-    	eye = new Eye(imagesPath);
+    	eye = new Eye(imagesPath,panel);
 		String iname = images[img_id];//+"_very_small";
     	eye.readImage(iname);
     	
@@ -871,25 +881,27 @@ public class SNetPattern {
 	}
 	
 	//main thread
-		//TODO should be in different class, maybe starter
-		private class ExperimentThread implements Runnable {
-			/** log */
-			MyLog mlog = new MyLog("SNet Thread", true);
-			/** network */
-			SNetPattern net;
-			
-			public ExperimentThread(SNetPattern net){
-				this.net = net;
-			}
-			
-		    public void run() {
-		    	try {
-					Thread.sleep(000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}  
+	//TODO should be in different class, maybe starter
+	private class ExperimentThread implements Runnable {
+		/** log */
+		MyLog mlog = new MyLog("SNet Thread", true);
+		/** network */
+		SNetPattern net;
 		
-		    	while(true){
+		public ExperimentThread(SNetPattern net){
+			this.net = net;
+		}
+		
+	    public void run() {
+	    	try {
+				Thread.sleep(000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}  
+	
+	    	while(true){
+	    		//pause
+	    		if(!paused){
 		    		long before = 0;
 		    		if(step%20==0){
 		    			//calculate runtime
@@ -914,16 +926,25 @@ public class SNetPattern {
 		    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);
 		    		}
 		    		
-		    		try {
-						Thread.sleep(500);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}    		
 		    		step++;
-		    	}
-		    }
-		
-		}
+		    		
+				    panel.setTime(step);
+	    		}
+	    		
+	    		try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}    			    		
+	    	}
+	    }
+	    		
+	}
+
+	@Override
+	public void setPaused(boolean paused) {
+		this.paused = paused;
+	}
 
 }
 

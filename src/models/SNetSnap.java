@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 
 import communication.Constants;
 import communication.MyLog;
+import graphics.Surface;
 import neurons.INeuron;
 import neurons.ProbaWeight;
 import sensors.Eye;
@@ -29,6 +30,9 @@ import sensors.Eye;
 public class SNetSnap {
 	/** log */
 	MyLog mlog = new MyLog("SNet", true);
+	
+	/** graphics*/
+	Surface panel;
 	
 	/** data recording*/
 	boolean save = false;
@@ -76,8 +80,11 @@ public class SNetSnap {
 	Vector<INeuron> STM = new Vector<INeuron>();
 	
 	public SNetSnap(){
+		//graphics
+    	panel = new Surface();
+    	
     	//sensor init
-    	eye = new Eye(imagesPath);
+    	eye = new Eye(imagesPath,panel);
     	mlog.say("read image called");
     	eye.readImage(images[img_id]);
     	

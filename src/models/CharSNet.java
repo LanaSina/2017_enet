@@ -8,6 +8,7 @@ import java.util.Vector;
 
 import communication.Constants;
 import communication.MyLog;
+import graphics.Surface;
 import javafx.scene.web.WebHistory;
 import neurons.INeuron;
 import neurons.MotorNeuron;
@@ -22,6 +23,9 @@ import sensors.Eye;
 public class CharSNet {
 	/** log */
 	MyLog mlog = new MyLog("CarCNet", true);
+	
+	/** graphics*/
+	Surface panel;
 	
 	/**number of presentations for current image*/
 	int presentations = 0;
@@ -82,8 +86,11 @@ public class CharSNet {
 	ArrayList<INeuron> eyepro_v = new ArrayList<INeuron>();
 	
 	public CharSNet(){
+		//graphics
+    	panel = new Surface();
+    	
     	//sensor init
-    	eye = new Eye(imagesPath);
+    	eye = new Eye(imagesPath,panel);
     	eye.readImage(images[img_id]);
     	
     	//net creation

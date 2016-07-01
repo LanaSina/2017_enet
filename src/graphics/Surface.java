@@ -5,12 +5,18 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.util.Iterator;
+import java.util.Vector;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
 
+import communication.ControllableThread;
 import communication.MyLog;
 
 
@@ -27,7 +33,14 @@ public class Surface extends JPanel{
 	 * automatically generated
 	 */
 	private static final long serialVersionUID = -6405382732377682006L;
-	/** something (what?) */
+	
+	//controls
+	JLabel timeLabel;
+	
+	/** items to be controlled */
+	Vector<ControllableThread> puppets = new Vector<ControllableThread>();
+	
+	/** frame */
 	JFrame frame;
 	/**the current letter beng shown*/
 	BufferedImage letter;
@@ -51,6 +64,10 @@ public class Surface extends JPanel{
 	/** size of the complete visual field: width */
 	int visualField_w = 50;
 	
+	/** boolean linked to stop/start button*/
+	boolean paused = false;
+	
+	
 	public Surface(){
 		letter = new BufferedImage(50,50,BufferedImage.TYPE_INT_RGB);
 		focused = letter;
@@ -60,6 +77,14 @@ public class Surface extends JPanel{
 		warped = new BufferedImage(50,50,BufferedImage.TYPE_INT_RGB);
 		
 		buildFrame(this);
+	}
+	
+	/**
+	 * add elements to be controlled by the UI
+	 * @param t
+	 */
+	public void addControllable(ControllableThread t) {
+		puppets.addElement(t);
 	}
 	
 	
@@ -128,15 +153,56 @@ public class Surface extends JPanel{
 		g.drawImage(warped, 10, y, null);  
     }
 	
+	/**
+	 * The hierarchy is reversed. TODO correct this.
+	 * @param s
+	 * @return
+	 */
 	private JFrame buildFrame(Surface s){
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		frame.setSize(700, 700);
-		
+		frame.setSize(300,700);		
 		frame.add(s);
 		frame.setTitle("SNET");
-		frame.setVisible(true);   
+		
+		//controls
+		JFrame ctrlFrame = new JFrame();
+		ctrlFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		ctrlFrame.setSize(500,100);
+		ctrlFrame.setLayout(new BoxLayout(ctrlFrame.getContentPane(),BoxLayout.X_AXIS));
+		ctrlFrame.setTitle("Controls");
+		
+		//pause/start
+		//time label
+		timeLabel = new JLabel("Time: 0");
+		ctrlFrame.add(timeLabel);
+		//button
+		JButton pauseButton = new JButton("Pause"); 		
+		pauseButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	        	 if(!paused){
+	        		 paused = true;
+	        		 pauseButton.setText("Start");
+	        	 }else{
+	        		 paused = false;
+	        		 pauseButton.setText("Pause");
+	        	 }	
+	        	 
+	        	 for (Iterator<ControllableThread> iterator = puppets.iterator(); iterator.hasNext();) {
+					ControllableThread p = iterator.next();
+					//mlog.say("a puppet");
+					p.setPaused(paused);				
+				}
+	         }          
+	    });
+		ctrlFrame.add(pauseButton);
+		
+		JButton okButton = new JButton("OK"); 	
+		ctrlFrame.add(okButton);
 
+		frame.setVisible(true);   
+		ctrlFrame.setLocation(500, 10);
+		ctrlFrame.setVisible(true); 
 		
 		//graphics creation
     	int delay = 50; //milliseconds 	
@@ -153,5 +219,10 @@ public class Surface extends JPanel{
 
 	public void setPredicted(BufferedImage prediction) {
 		predicted = prediction;
+	}
+
+
+	public void setTime(int step) {
+		timeLabel.setText("Time: "+step);	
 	}
 }

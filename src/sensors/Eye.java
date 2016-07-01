@@ -81,12 +81,13 @@ public class Eye {
 	BufferedImage eye_input_coarse;
 	
 	
-	public Eye(String imagesPath){
+	public Eye(String imagesPath, Surface panel){
 		//init
 		this.imagesPath = imagesPath;
+		this.panel = panel;
 		
 		//graphics
-    	panel = new Surface();
+    	/*panel = new Surface();*/
     	
     	//number of neurons in focused area
     	n = ef_s*ef_s/(eres_f*eres_f);
