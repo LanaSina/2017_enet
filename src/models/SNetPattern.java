@@ -19,6 +19,7 @@ import java.util.Vector;
 import communication.Constants;
 import communication.ControllableThread;
 import communication.MyLog;
+import graphics.NetworkGraph;
 import graphics.Surface;
 import neurons.BundleWeight;
 import neurons.INeuron;
@@ -37,6 +38,8 @@ public class SNetPattern implements ControllableThread {
 	
 	/** graphics*/
 	Surface panel;
+	/** net visualization */
+	NetworkGraph netGraph;
 	/** controls from UI */
 	boolean paused = false;
 	/** speed*/
@@ -84,7 +87,8 @@ public class SNetPattern implements ControllableThread {
 	HashMap<Integer, INeuron>[] eye_neurons = new HashMap[Constants.gray_scales];
 	
 	//neurons
-	/**all neurons except eyes (sensory) so this is like "hidden layer"*/
+	/**all neurons except eyes (sensory) so this is like "hidden layer"
+	 * id, neuron*/
 	HashMap<Integer, INeuron> allINeurons = new HashMap<Integer, INeuron>();
 	/** total number of neuron ids*/
 	int n_id = 0;
@@ -95,6 +99,7 @@ public class SNetPattern implements ControllableThread {
 		//graphics
     	panel = new Surface();
     	panel.addControllable(this);
+    	
 		
     	//sensor init
     	eye = new Eye(imagesPath,panel);
@@ -105,6 +110,10 @@ public class SNetPattern implements ControllableThread {
     	createNet();	
     	//net initialization
     	initNet();
+    	
+    	Vector<INeuron> v = new Vector<INeuron>(allINeurons.values());
+    	netGraph = new NetworkGraph(v);
+	    netGraph.show();
     	
     	if(save){
     		initDataFiles();
@@ -914,7 +923,7 @@ public class SNetPattern implements ControllableThread {
 		    		net.updateSNet();
 		    		mlog.say("step " + step +" weights "+n_weights);
 			
-		    		if(step%20==0){
+		    		/*if(step%20==0){
 		    			long runtime = System.currentTimeMillis()-before;
 		    			//save
 		    			if(save){
@@ -926,11 +935,14 @@ public class SNetPattern implements ControllableThread {
 		    			net.snap();
 		    			long snaptime = System.currentTimeMillis()-before;;
 		    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);
-		    		}
+		    		}*/
 		    		
 		    		step++;
 		    		
+		    		//UI
 				    panel.setTime(step);
+				    Vector<INeuron> v = new Vector<INeuron>(allINeurons.values());
+				    netGraph.update(v);
 	    		}
 	    		
 	    		try {
