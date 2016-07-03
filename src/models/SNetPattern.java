@@ -350,7 +350,7 @@ public class SNetPattern implements ControllableThread {
 		int[] in = eye.buildCoarse(0,0);
 		
 		//go through sensory neurons and activate them.
-		int n = in.length;
+		/*int n = in.length;
 		int[][] n_interface = eye.getNeuralInterface();
 		for(int k = 0; k<n; k++){
 			//values in "in" start at 1, not 0
@@ -360,7 +360,7 @@ public class SNetPattern implements ControllableThread {
 			//}
 		}//*/
 		
-		/*if(test==0){
+		if(test==0){
 			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
 			INeuron n2 = iterator.next().getValue();
 			n2.increaseActivation(1);
@@ -920,10 +920,12 @@ public class SNetPattern implements ControllableThread {
 		    		}
 		    		
 		    		net.buildInputs();
+		    		
+					    
 		    		net.updateSNet();
 		    		mlog.say("step " + step +" weights "+n_weights);
 			
-		    		/*if(step%20==0){
+		    		if(step%20==0){
 		    			long runtime = System.currentTimeMillis()-before;
 		    			//save
 		    			if(save){
@@ -935,18 +937,19 @@ public class SNetPattern implements ControllableThread {
 		    			net.snap();
 		    			long snaptime = System.currentTimeMillis()-before;;
 		    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);
-		    		}*/
+		    		}
 		    		
 		    		step++;
 		    		
 		    		//UI
 				    panel.setTime(step);
-				    Vector<INeuron> v = new Vector<INeuron>(allINeurons.values());
-				    netGraph.update(v);
+				    //Vector<INeuron> v = new Vector<INeuron>(allINeurons.values());
+				    netGraph.updateNeurons(allINeurons);
+				  
 	    		}
 	    		
 	    		try {
-					Thread.sleep(2000/speed);
+					Thread.sleep(3000/speed);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}    			    		

@@ -200,7 +200,7 @@ public class Surface extends JPanel{
 		
 		//speed
 		//label
-		speedLabel = new JLabel("Speed: 0");
+		speedLabel = new JLabel("Speed: 1");
 		ctrlFrame.add(speedLabel);
 		//buttons
 		JButton speedDownButton = new JButton("-"); 		

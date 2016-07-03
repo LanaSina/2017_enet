@@ -11,6 +11,7 @@ top down search, rely on predictions, mute, STM>1, continuous (non binary, not l
 
 TODO
 prediction map bug
+try it w/ simple case
 1) becomes gray
 2) becomes permanent
 3) reduced to 1 px
