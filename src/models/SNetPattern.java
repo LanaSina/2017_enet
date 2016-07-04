@@ -16,6 +16,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.swing.JButton;
+
 import communication.Constants;
 import communication.ControllableThread;
 import communication.MyLog;
@@ -78,7 +80,7 @@ public class SNetPattern implements ControllableThread {
 	/**images files*/
 	String imagesPath = "/Users/lana/Desktop/prgm/JAVANeuron/JAVANeuron/src/images/";
 	/** image description (chars)*/
-	String[] images = {"ball_1","ball_2","ball_3","ball_1","ball_2_b","ball_4"}; //{"a","b","c"};		
+	String[] images = {"ball_1","ball_2","ball_3"};//,"ball_1","ball_2_b","ball_4"}; //{"a","b","c"};		
 	
 	//sensors w/ actuators
 	/** image sensor*/
@@ -110,11 +112,16 @@ public class SNetPattern implements ControllableThread {
     	createNet();	
     	//net initialization
     	initNet();
-    	
-    	Vector<INeuron> v = new Vector<INeuron>(allINeurons.values());
-    	netGraph = new NetworkGraph(v);
+    	//graphics
+    	netGraph = new NetworkGraph((HashMap<Integer, INeuron>) allINeurons.clone());
 	    netGraph.show();
     	
+	    //init potential folder name
+	    //get current date
+	    DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
+	    Date date = new Date();
+	    String strDate = dateFormat.format(date);
+	    folderName = Constants.DataPath + "/" + strDate + "/";
     	if(save){
     		initDataFiles();
     	}
@@ -124,12 +131,7 @@ public class SNetPattern implements ControllableThread {
 	}
 	
 	private void initDataFiles() {
-		 //get current date
-	    DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
-	    Date date = new Date();
-	    String strDate = dateFormat.format(date);
-	
-	    folderName = Constants.DataPath + "/" + strDate + "/";
+		
 	    //first create directory
 		File theDir = new File(folderName);
 		// if the directory does not exist, create it
@@ -165,6 +167,22 @@ public class SNetPattern implements ControllableThread {
 	
 	/** record weights in csv file*/
 	private void writeWeights(){
+		File theDir = new File(folderName);
+		// if the directory does not exist, create it
+		if (!theDir.exists()) {
+		    mlog.say("creating directory: " + folderName);
+		    boolean result = false;
+		    try{
+		        theDir.mkdir();
+		        result = true;
+		    } 
+		    catch(SecurityException se){
+		    }        
+		    if(result) {    
+		        System.out.println("DIR created");  
+		    }
+		}
+		
 		String weightsFileName = "weights_"+step+".csv";
 		String dWeightsFileName = "dweights_"+step+".csv";
 		String bWeightsFileName = "bweights_"+step+".csv";
@@ -350,7 +368,7 @@ public class SNetPattern implements ControllableThread {
 		int[] in = eye.buildCoarse(0,0);
 		
 		//go through sensory neurons and activate them.
-		/*int n = in.length;
+		int n = in.length;
 		int[][] n_interface = eye.getNeuralInterface();
 		for(int k = 0; k<n; k++){
 			//values in "in" start at 1, not 0
@@ -360,7 +378,7 @@ public class SNetPattern implements ControllableThread {
 			//}
 		}//*/
 		
-		if(test==0){
+		/*if(test==0){
 			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
 			INeuron n2 = iterator.next().getValue();
 			n2.increaseActivation(1);
@@ -589,13 +607,15 @@ public class SNetPattern implements ControllableThread {
 				//go through STM
 				for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
 					INeuron preneuron = iterator.next();
-					//doubloons weights will not be added
-					ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
-					if(preneuron.addOutWeight(n,probaWeight)){
-						nw++;
-						n_weights++;
-						didChange = true;
-					}
+					//if(n!=preneuron){//loops OK
+						//doubloons weights will not be added
+						ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
+						if(preneuron.addOutWeight(n,probaWeight)){
+							nw++;
+							n_weights++;
+							didChange = true;
+						}
+					//}
 				}
 				
 				//no change happened, try building a spatial pattern
@@ -777,7 +797,7 @@ public class SNetPattern implements ControllableThread {
 						Set<INeuron> s2 = out2.keySet();
 						
 						//avoid recurrent connections
-						if(n.directInWeightsContains(n2) || n.directInWeightsContains(n2) ||
+						if(//n.directInWeightsContains(n2) || n.directInWeightsContains(n2) ||
 								//avoid different sets of outweights
 								!s1.containsAll(s2) || !s2.containsAll(s1)){
 							dosnap = false;
@@ -944,8 +964,7 @@ public class SNetPattern implements ControllableThread {
 		    		//UI
 				    panel.setTime(step);
 				    //Vector<INeuron> v = new Vector<INeuron>(allINeurons.values());
-				    netGraph.updateNeurons(allINeurons);
-				  
+				    netGraph.updateNeurons(allINeurons);				  
 	    		}
 	    		
 	    		try {
@@ -975,6 +994,20 @@ public class SNetPattern implements ControllableThread {
 			speed--;
 		}
 		return speed;
+	}
+
+	@Override
+	public void save(JButton saveButton) {
+		//deactivate button
+		saveButton.setEnabled(false);
+		writeWeights();
+		//reactivate button
+		saveButton.setEnabled(true);	
+	}
+
+	@Override
+	public void refresh() {
+		netGraph.redraw((HashMap<Integer, INeuron>) allINeurons.clone());
 	}
 
 }

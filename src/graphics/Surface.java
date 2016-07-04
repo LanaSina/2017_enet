@@ -227,9 +227,34 @@ public class Surface extends JPanel{
 	         }          
 	    });
 		ctrlFrame.add(speedUpButton);
+		
+		//save
+		JButton saveButton = new JButton("Save"); 		
+		saveButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {	        	 
+	        	 for (Iterator<ControllableThread> iterator = puppets.iterator(); iterator.hasNext();) {
+					ControllableThread p = iterator.next();
+					p.save(saveButton);
+				}
+	         }          
+	    });
+		ctrlFrame.add(saveButton);
+		
+		//refresh graph layout
+		JButton refreshButton = new JButton("Redraw"); 		
+		refreshButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {	        	 
+	        	 for (Iterator<ControllableThread> iterator = puppets.iterator(); iterator.hasNext();) {
+					ControllableThread p = iterator.next();
+					mlog.say("refresh");
+					p.refresh();
+				}
+	         }          
+	    });
+		ctrlFrame.add(refreshButton);
 
 		frame.setVisible(true);   
-		ctrlFrame.setLocation(500, 10);
+		ctrlFrame.setLocation(310, 10);
 		ctrlFrame.setVisible(true); 
 		
 		//graphics creation
