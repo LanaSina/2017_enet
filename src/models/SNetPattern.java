@@ -23,6 +23,7 @@ import communication.ControllableThread;
 import communication.MyLog;
 import graphics.NetworkGraph;
 import graphics.Surface;
+import javafx.scene.shape.FillRule;
 import neurons.BundleWeight;
 import neurons.INeuron;
 import neurons.ProbaWeight;
@@ -76,7 +77,7 @@ public class SNetPattern implements ControllableThread {
 	/**images files*/
 	String imagesPath = "/Users/lana/Desktop/prgm/JAVANeuron/JAVANeuron/src/images/";
 	/** image description (chars)*/
-	String[] images = {"ball_1","ball_2","ball_3"};//,"ball_1","ball_2_b","ball_4"}; //{"a","b","c"};		
+	String[] images = {"ball_1","ball_2","ball_3","ball_1","ball_2_b","ball_4"}; //{"a","b","c"};		
 	
 	//sensors w/ actuators
 	/** image sensor*/
