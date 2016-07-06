@@ -30,7 +30,6 @@ public class INeuron extends Neuron {
 	/** probabilistic input weights*/
 	HashMap<INeuron, ProbaWeight> inWeights = new HashMap<INeuron, ProbaWeight>();
 	/**direct instantaneous weights*/
-	//HashMap<Vector<INeuron>, BundleWeight> directInWeights = new HashMap<Vector<INeuron>, BundleWeight>();
 	Vector<BundleWeight> directInWeights = new Vector<BundleWeight>();
 
 	HashMap<INeuron, ProbaWeight> directOutWeights = new HashMap<INeuron, ProbaWeight>();

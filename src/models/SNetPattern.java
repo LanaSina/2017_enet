@@ -55,8 +55,6 @@ public class SNetPattern implements ControllableThread {
 	FileWriter paramWriter;
 	/** neurons weights */
 	FileWriter weightsWriter;
-	/** direct connections */
-	FileWriter dWeightsWriter;
 	/** bundle weights*/
 	FileWriter bWeightsWriter;
 	
@@ -71,9 +69,7 @@ public class SNetPattern implements ControllableThread {
 	/** time step (simulation time) */
 	int step = 0;
 	/** number of timesteps to stay on each image*/
-	int max_timesteps = 10;
-	/** total number of connections in the network (between "hidden" neurons) */
-	int n_weights = 0;
+	//int max_timesteps = 10;
 	
 	
 	//environment
@@ -184,7 +180,6 @@ public class SNetPattern implements ControllableThread {
 		}
 		
 		String weightsFileName = "weights_"+step+".csv";
-		String dWeightsFileName = "dweights_"+step+".csv";
 		String bWeightsFileName = "bweights_"+step+".csv";
 		
 		try {
@@ -192,11 +187,6 @@ public class SNetPattern implements ControllableThread {
 			String str = "from,to,weight,age\n";
         	weightsWriter.append(str);
         	weightsWriter.flush();
-        	
-        	/*dWeightsWriter = new FileWriter(folderName+"/"+dWeightsFileName);
-			str = "from,to\n";
-        	dWeightsWriter.append(str);
-        	dWeightsWriter.flush();*/
         	
         	bWeightsWriter = new FileWriter(folderName+"/"+bWeightsFileName);
 			str = "bid,from,to,weight,age\n";
@@ -223,15 +213,6 @@ public class SNetPattern implements ControllableThread {
 		        	weightsWriter.flush();	
 				}
 				
-				//directOutWeights
-				/*HashMap<INeuron,ProbaWeight> dout = n.getDirectOutWeights();
-				for (Iterator<INeuron> iterator = dout.keySet().iterator(); iterator.hasNext();) {
-					INeuron to = iterator.next();
-					String s = n.getId() + "," + to.getId() +"\n";
-					dWeightsWriter.append(s);
-					dWeightsWriter.flush();
-				}*/
-				
 				//bundles
 				Vector<BundleWeight> bws = n.getDirectInWeights();
 				for (Iterator<BundleWeight> iterator = bws.iterator(); iterator.hasNext();) {
@@ -256,8 +237,10 @@ public class SNetPattern implements ControllableThread {
 	}
 	
 	private void writeParameters() {
+		//count weights
+		int nw = countWeights();
 		//"iteration,neurons,connections\n";
-		String str = step+","+allINeurons.size()+","+n_weights+"\n";
+		String str = step+","+allINeurons.size()+","+nw+"\n";
     	try {
 			paramWriter.append(str);
 	    	paramWriter.flush();	
@@ -549,9 +532,7 @@ public class SNetPattern implements ControllableThread {
 			
 		calculateAndPropagateActivation();
 		//create new weights based on (+) surprise
-		//if(step<20){
-			makeWeights();
-		//}
+		makeWeights();
 		
 		//look at predictions
 		buildPredictionMap();
@@ -609,8 +590,6 @@ public class SNetPattern implements ControllableThread {
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
-			//n.calculateActivation();//recalculate from scratch
-			//n.propagateActivation();
 			if(n.isSurprised()){
 				
 				//did we improve future prediction chances?
@@ -623,7 +602,6 @@ public class SNetPattern implements ControllableThread {
 						ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
 						if(preneuron.addOutWeight(n,probaWeight)){
 							nw++;
-							n_weights++;
 							didChange = true;
 						}
 					//}
@@ -774,7 +752,8 @@ public class SNetPattern implements ControllableThread {
 	 * */
 	private void snap() {
 		mlog.say("snapping");
-		mlog.say("total connections "+n_weights + " neurons "+ allINeurons.size());		
+		int nw = countWeights();
+		mlog.say("total connections "+ nw + " neurons "+ allINeurons.size());		
 		
 		ArrayList<INeuron> remove = new ArrayList<INeuron>();
 		//go through net
@@ -915,9 +894,18 @@ public class SNetPattern implements ControllableThread {
 				}
 			}
 		}
-		n_weights-=g;	
 		
-		mlog.say("after: weights "+ n_weights + " neurons " + allINeurons.size());
+		nw = countWeights();
+		mlog.say("after: weights "+ nw + " neurons " + allINeurons.size());
+	}
+	
+	private int countWeights() {
+		int nw = 0;
+		for (Iterator<INeuron> iterator = allINeurons.values().iterator(); iterator.hasNext();) {
+			INeuron n = iterator.next();
+			nw+= n.getOutWeights().size();
+		}
+		return nw;
 	}
 	
 	//main thread
@@ -953,7 +941,8 @@ public class SNetPattern implements ControllableThread {
 		    		
 					    
 		    		net.updateSNet();
-		    		mlog.say("step " + step +" weights "+n_weights);
+		    		int nw = countWeights();
+		    		mlog.say("step " + step +" weights "+nw);
 			
 		    		if(step%20==0){
 		    			long runtime = System.currentTimeMillis()-before;
