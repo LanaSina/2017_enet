@@ -6,6 +6,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Shape;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.HashMap;
@@ -14,13 +16,17 @@ import java.util.Map.Entry;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 
 import org.apache.commons.collections15.Transformer;
 
+import communication.ControllableThread;
 import communication.MyLog;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.graph.DirectedSparseGraph;
+import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
@@ -43,7 +49,7 @@ public class NetworkGraph {
 	String name = "SNet";
 	
 	/**Graph<V, E> where V is the type of the vertices and E is the type of the edges*/
-	Graph<NeuronVertex, SynapseEdge> g = new SparseMultigraph<NeuronVertex, SynapseEdge>();
+	Graph<NeuronVertex, SynapseEdge> g = new DirectedSparseGraph<NeuronVertex, SynapseEdge>();
     /** visualizer*/
     BasicVisualizationServer<NeuronVertex,SynapseEdge> vv;
     /** number of neurons*/
@@ -53,6 +59,9 @@ public class NetworkGraph {
     //static NeuronVertex[] vertices;  
     /** id, graphical object */
     static HashMap<Integer, NeuronVertex> vertices;
+    
+    /** whether to draw the frame or not*/
+    boolean paused = false;
 
    /**
     * Creates a new instance of NeuronGraph 
@@ -70,6 +79,9 @@ public class NetworkGraph {
     	for (Iterator<INeuron> iterator = neurons.values().iterator(); iterator.hasNext();) {
     		INeuron iNeuron = (INeuron) iterator.next();
     		NeuronVertex nv = new NeuronVertex(iNeuron.getId());
+    		if(iNeuron.isActivated()){
+    			nv.setSpiking(true);
+    		}
     		vertices.put(iNeuron.getId(), nv);
     		g.addVertex(nv);
     	}
@@ -120,83 +132,86 @@ public class NetworkGraph {
      * @param ne
      */
     public void updateNeurons(HashMap<Integer, INeuron> neurons) {
-    	//remove neurons
-    	Vector<NeuronVertex> toBeRemoved = new Vector<NeuronVertex>();
-    	for (Iterator<Integer> iterator = vertices.keySet().iterator(); iterator.hasNext();) {
-			Integer id = iterator.next();
-			if(!neurons.containsKey(id)){
-				NeuronVertex nv = vertices.get(id);
-				//delete outdated edges first
-				Vector<SynapseEdge> edges = new Vector<SynapseEdge>(g.getOutEdges(nv));
-				for (Iterator<SynapseEdge> iterator2 = edges.iterator(); iterator2.hasNext();) {
-					SynapseEdge edge = iterator2.next();
-					g.removeEdge(edge);
+    	
+    	if(!paused){
+	    	//remove neurons
+	    	Vector<NeuronVertex> toBeRemoved = new Vector<NeuronVertex>();
+	    	for (Iterator<Integer> iterator = vertices.keySet().iterator(); iterator.hasNext();) {
+				Integer id = iterator.next();
+				if(!neurons.containsKey(id)){
+					NeuronVertex nv = vertices.get(id);
+					//delete outdated edges first
+					Vector<SynapseEdge> edges = new Vector<SynapseEdge>(g.getOutEdges(nv));
+					for (Iterator<SynapseEdge> iterator2 = edges.iterator(); iterator2.hasNext();) {
+						SynapseEdge edge = iterator2.next();
+						g.removeEdge(edge);
+					}
+					//delete neuron
+					g.removeVertex(nv);
+					toBeRemoved.addElement(nv);
 				}
-				//delete neuron
-				g.removeVertex(nv);
-				toBeRemoved.addElement(nv);
 			}
-		}
-    	//delete from vertices collection
-    	for (Iterator<NeuronVertex> iterator = toBeRemoved.iterator(); iterator.hasNext();) {
-			NeuronVertex neuronVertex = iterator.next();
-			vertices.remove(neuronVertex.id);
-		}
-    	
-    	
-    	// Add neurons
-    	for (Iterator<INeuron> iterator = neurons.values().iterator(); iterator.hasNext();) {
-    		INeuron iNeuron = iterator.next();
-    		if(!vertices.containsKey(iNeuron.getId())){
-    			NeuronVertex nv = new NeuronVertex(iNeuron.getId());   		
-    			vertices.put(iNeuron.getId(), nv);
-        		g.addVertex(nv);
-        		//mlog.say("added");
-    		}  
-    		NeuronVertex v = vertices.get(iNeuron.getId());
-    		v.setSpiking(false);
-    		if(iNeuron.isActivated()){
-    			v.setSpiking(true);
-    		}  			
+	    	//delete from vertices collection
+	    	for (Iterator<NeuronVertex> iterator = toBeRemoved.iterator(); iterator.hasNext();) {
+				NeuronVertex neuronVertex = iterator.next();
+				vertices.remove(neuronVertex.id);
+			}
+	    	
+	    	
+	    	// Add neurons
+	    	for (Iterator<INeuron> iterator = neurons.values().iterator(); iterator.hasNext();) {
+	    		INeuron iNeuron = iterator.next();
+	    		if(!vertices.containsKey(iNeuron.getId())){
+	    			NeuronVertex nv = new NeuronVertex(iNeuron.getId());   		
+	    			vertices.put(iNeuron.getId(), nv);
+	        		g.addVertex(nv);
+	        		//mlog.say("added");
+	    		}  
+	    		NeuronVertex v = vertices.get(iNeuron.getId());
+	    		v.setSpiking(false);
+	    		if(iNeuron.isActivated()){
+	    			v.setSpiking(true);
+	    		}  			
+	    	}
+	    	
+	    	
+	    	 //add edges
+	        for (Iterator<INeuron> iterator = neurons.values().iterator(); iterator.hasNext();) {
+				INeuron from = iterator.next();
+				//iterate over outweights
+				HashMap<INeuron, ProbaWeight> weights = from.getOutWeights();
+				for (Iterator<Entry<INeuron, ProbaWeight>> iterator2 = weights.entrySet().iterator(); iterator2.hasNext();) {
+					Entry<INeuron, ProbaWeight> pair = iterator2.next();
+					ProbaWeight p = pair.getValue();
+					INeuron out = pair.getKey();
+					//weight is high and edge does not exist
+					if(p.getProba()>minWeight){				
+						if((g.findEdge(vertices.get(from.getId()), vertices.get(out.getId()))==null)){ 
+							String label = "w_"+from.getId()+","+out.getId();
+		        			SynapseEdge se = new SynapseEdge(label, p.getProba());
+		        			g.addEdge(se, vertices.get(from.getId()), vertices.get(out.getId()));
+						}
+					}else{
+						//weight is low but edge does exist
+						SynapseEdge s;
+						if((s = g.findEdge(vertices.get(from.getId()), vertices.get(out.getId())))!=null){ 
+							//mlog.say("found");
+							g.removeEdge(s);
+						}
+					}
+						
+				}
+			}  
+	    	
+	    	//repaint out of main thread
+	    	Runnable code = new Runnable() {
+	        	public void run() {
+	        		vv.repaint();
+	        	}
+	        };
+	
+	        (new Thread(code)).start();
     	}
-    	
-    	
-    	 //add edges
-        for (Iterator<INeuron> iterator = neurons.values().iterator(); iterator.hasNext();) {
-			INeuron from = iterator.next();
-			//iterate over outweights
-			HashMap<INeuron, ProbaWeight> weights = from.getOutWeights();
-			for (Iterator<Entry<INeuron, ProbaWeight>> iterator2 = weights.entrySet().iterator(); iterator2.hasNext();) {
-				Entry<INeuron, ProbaWeight> pair = iterator2.next();
-				ProbaWeight p = pair.getValue();
-				INeuron out = pair.getKey();
-				//weight is high and edge does not exist
-				if(p.getProba()>minWeight){				
-					if((g.findEdge(vertices.get(from.getId()), vertices.get(out.getId()))==null)){ 
-						String label = "w_"+from.getId()+","+out.getId();
-	        			SynapseEdge se = new SynapseEdge(label, p.getProba());
-	        			g.addEdge(se, vertices.get(from.getId()), vertices.get(out.getId()));
-					}
-				}else{
-					//weight is low but edge does exist
-					SynapseEdge s;
-					if((s = g.findEdge(vertices.get(from.getId()), vertices.get(out.getId())))!=null){ 
-						//mlog.say("found");
-						g.removeEdge(s);
-					}
-				}
-					
-			}
-		}  
-    	
-    	//repaint out of main thread
-    	Runnable code = new Runnable() {
-        	public void run() {
-        		vv.repaint();
-        	}
-        };
-
-        (new Thread(code)).start();//*/
     }
         
     
@@ -216,11 +231,30 @@ public class NetworkGraph {
                 return (nv.toString());
             }
         });//*/
-      
         
         
         JFrame frame = new JFrame(name);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLayout(new BoxLayout(frame.getContentPane(),BoxLayout.Y_AXIS));
+		
+		//pause button
+		JButton pauseButton = new JButton("Pause"); 		
+		pauseButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {
+	        	 if(!paused){
+	        		 paused = true;
+	        		 pauseButton.setText("Start");
+	        	 }else{
+	        		 paused = false;
+	        		 pauseButton.setText("Pause");
+	        	 }	
+	         }          
+	    });
+		frame.add(pauseButton);
+		
+		
+		
+		
         frame.setLocation(310, 150);
         frame.getContentPane().add(vv, BorderLayout.CENTER); 
         frame.pack();      

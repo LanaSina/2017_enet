@@ -193,10 +193,10 @@ public class SNetPattern implements ControllableThread {
         	weightsWriter.append(str);
         	weightsWriter.flush();
         	
-        	dWeightsWriter = new FileWriter(folderName+"/"+dWeightsFileName);
+        	/*dWeightsWriter = new FileWriter(folderName+"/"+dWeightsFileName);
 			str = "from,to\n";
         	dWeightsWriter.append(str);
-        	dWeightsWriter.flush();
+        	dWeightsWriter.flush();*/
         	
         	bWeightsWriter = new FileWriter(folderName+"/"+bWeightsFileName);
 			str = "bid,from,to,weight,age\n";
@@ -211,7 +211,7 @@ public class SNetPattern implements ControllableThread {
 			int id = 0;//bw
 			while(it.hasNext()){
 				Map.Entry<Integer, INeuron> pair = it.next();
-				INeuron n =pair.getValue();
+				INeuron n = pair.getValue();
 				//write outweights
 				HashMap<INeuron,ProbaWeight> out = n.getOutWeights();
 				Iterator<Entry<INeuron, ProbaWeight>> outit = out.entrySet().iterator();
@@ -326,9 +326,7 @@ public class SNetPattern implements ControllableThread {
     		nextImage = true;	
 		}
 		
-		if(nextImage){// && (step<20)
-			
-    		//mlog.say("presentations "+presentations + " step "+step);
+		if(nextImage){
 			presentations = 0;
 			nextImage = false;
     		//change char
@@ -368,7 +366,7 @@ public class SNetPattern implements ControllableThread {
 		int[] in = eye.buildCoarse(0,0);
 		
 		//go through sensory neurons and activate them.
-		int n = in.length;
+		/*int n = in.length;
 		int[][] n_interface = eye.getNeuralInterface();
 		for(int k = 0; k<n; k++){
 			//values in "in" start at 1, not 0
@@ -377,8 +375,8 @@ public class SNetPattern implements ControllableThread {
 				eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
 			//}
 		}//*/
-		
-		/*if(test==0){
+
+		if(test==0){
 			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
 			INeuron n2 = iterator.next().getValue();
 			n2.increaseActivation(1);
@@ -390,8 +388,9 @@ public class SNetPattern implements ControllableThread {
 			INeuron n2 = iterator.next().getValue();
 			n2.increaseActivation(1);
 			mlog.say("test is "+ test + " neuron " + n2.getId()+" is activated ");
-			test++;
-		}else if (test == 2 ){
+			test = 0;
+			//test++;
+		}/*else if (test == 2 ){
 			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
 			INeuron n2 = iterator.next().getValue();
 			n2.increaseActivation(1);
@@ -412,20 +411,20 @@ public class SNetPattern implements ControllableThread {
 			n2.increaseActivation(1);		
 			mlog.say("test is "+ test + " neuron " + n2.getId()+" is activated ");
 			test = 0;
-		}
+		}*/
 		
 		//*/
 		
 		//propagate instantly from eye to 1st INeurons
 		propagateFromEyeNeurons();
-		
+
 		//second pass for level 1 pattern neurons (bad)
 		//TODO do this top-down after 1st sensory activation ? (maybe takes too much time??)
-		Iterator<INeuron> it = allINeurons.values().iterator();
+		/*Iterator<INeuron> it = allINeurons.values().iterator();
 		while(it.hasNext()){
 			INeuron nn =  it.next();
 			nn.makeDirectActivation();
-		}
+		}*/
 		
 		
 		//integrate previously predicted activation to actual activation
@@ -549,8 +548,11 @@ public class SNetPattern implements ControllableThread {
 		//for ineurons
 		activateOutWeights(allINeurons);	
 			
+		calculateAndPropagateActivation();
 		//create new weights based on (+) surprise
-		makeWeights();
+		if(step<20){
+			makeWeights();
+		}
 		
 		//look at predictions
 		buildPredictionMap();
@@ -561,6 +563,15 @@ public class SNetPattern implements ControllableThread {
 		//input activations are reset and updated at the beginning of next step.
 	}
 	
+	private void calculateAndPropagateActivation() {
+		for (Iterator<INeuron> iterator = allINeurons.values().iterator(); iterator.hasNext();) {
+			INeuron n = iterator.next();
+			n.calculateActivation();
+			n.propagateActivation();
+		}
+		
+	}
+
 	/**
 	 * empties old memories and put in conscious neurons.
 	 * For now the memory span is 1 timestep only.
@@ -599,7 +610,8 @@ public class SNetPattern implements ControllableThread {
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
-			n.calculateActivation();//recalculate from scratch
+			//n.calculateActivation();//recalculate from scratch
+			//n.propagateActivation();
 			if(n.isSurprised()){
 				
 				//did we improve future prediction chances?
@@ -707,13 +719,12 @@ public class SNetPattern implements ControllableThread {
 				int n_id = n_interface[i][j];
 				INeuron neuron = eye_neurons[i].get(n_id);
 				//neuron.calculateActivation();
-				if(neuron.getUpperPredictedActivation()>0){
+				if(neuron.getUpperPredictedActivation()>0){//
 					//mlog.say(neuron.getId()+" inweight was activated ");
 					sum[j]=sum[j]+1;
-					//don't take contradictions into consideration for now (we don't have actions, so no contradictions will happen)
 					//if white, dont't add anything
 					// gray
-					coarse[j] = coarse[j] + i;//trying to get stronger values for higher scales.
+					coarse[j] = coarse[j] + i;
 				}
 			}
 		}		
@@ -796,8 +807,8 @@ public class SNetPattern implements ControllableThread {
 						Set<INeuron> s1 = out1.keySet();
 						Set<INeuron> s2 = out2.keySet();
 						
-						//avoid recurrent connections
-						if(//n.directInWeightsContains(n2) || n.directInWeightsContains(n2) ||
+						//avoid direct recurrent connections
+						if(n.directInWeightsContains(n2) || n2.directInWeightsContains(n) ||
 								//avoid different sets of outweights
 								!s1.containsAll(s2) || !s2.containsAll(s1)){
 							dosnap = false;
@@ -812,7 +823,7 @@ public class SNetPattern implements ControllableThread {
 									break;
 								}
 								
-								//contains weight to same neuron; check value
+								//weight to same neuron; check value
 								ProbaWeight w1 = out1.get(out2pair.getKey());
 								if(w1.canLearn()){
 									dosnap = false;
@@ -872,10 +883,6 @@ public class SNetPattern implements ControllableThread {
 				
 									//now report direct outweights
 									n2.reportDirectOutWeights(n);
-
-									//remove "ghost" inweights from dead neuron
-									//the only thing that hasn't been cleared yet
-									//n2.removeAllOutWeights();
 								}
 							}
 
@@ -933,6 +940,7 @@ public class SNetPattern implements ControllableThread {
 	    	while(true){
 	    		//pause
 	    		if(!paused){
+	    			
 		    		long before = 0;
 		    		if(step%20==0){
 		    			//calculate runtime

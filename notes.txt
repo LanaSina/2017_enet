@@ -11,14 +11,14 @@ top down search, rely on predictions, mute, STM>1, continuous (non binary, not l
 
 TODO
 prediction map bug
-try it w/ simple case
 self-weights
 1) becomes gray
 2) becomes permanent
 3) reduced to 1 px
 4) stops being updated	
-add save button
-add rearrange graphh button
+be sure to delte references to object in weight maps
+iterator.remove()
+
 
 weight count
 bundle weights minimization (take the smaller?bigger? of two sets if one is included in the other?)

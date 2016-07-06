@@ -19,9 +19,7 @@ import communication.Constants;
 public class BundleWeight extends ProbaWeight {
 	
 	/** the inweights*/
-	HashMap<INeuron, ProbaWeight> bundle = new HashMap<>();
-	/** the output neuron */
-	//INeuron outn;
+	HashMap<INeuron, ProbaWeight> bundle = new HashMap<>();//<input,weight>
 
 	/**
 	 * This constructor might never be used
@@ -108,6 +106,16 @@ public class BundleWeight extends ProbaWeight {
 		}
 		return bundle.remove(key);
 	}
+	
+	/**
+	 * notify input neurons of the disparition of the output neuron
+	 */
+	public void notifyRemoval(INeuron removed) {
+		for (Iterator<INeuron> iterator = bundle.keySet().iterator(); iterator.hasNext();) {
+			INeuron n = iterator.next();
+			n.removeDirectOutWeight(removed);
+		}
+	}
 
 	/**
 	 * replace the neuron
@@ -167,8 +175,9 @@ public class BundleWeight extends ProbaWeight {
 
 	//tell to in neurons to change their outweight map
 	public void notifyChange(INeuron from, INeuron to) {
-		if(bundle.containsKey(from)){
-			from.reportDirectOutWeights(to);
+		for (Iterator<INeuron> iterator = bundle.keySet().iterator(); iterator.hasNext();) {
+			INeuron n = iterator.next();
+			n.reportDirectOutWeights(from,to);
 		}
 	}
 

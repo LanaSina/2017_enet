@@ -238,6 +238,7 @@ public class INeuron extends Neuron {
 				double w  = pw.getProba();
 				if(w>confidence & pw.isActivated()){
 					pa+=1;
+					mlog.say("****** Calculating ");
 				}
 			}
 	
@@ -249,34 +250,35 @@ public class INeuron extends Neuron {
 			
 			pro_activation = pa;
 			activationCalculated = true;
-			
-			if(isActivated()){
-				//activate direct out weights
-				activateDirectOutWeights();
-				
-				//moved from PNeuron
-				//mute down neurons
-				/*Iterator<BundleWeight> it2 = directInWeights.iterator();
-				while(it2.hasNext()){
-					BundleWeight b = it2.next();
-					if(b.bundleIsActivated()){
-						b.muteInputNeurons();
-					}
-				}
-				//unmute self just in case we had a recurrent connection
-				this.setMute(false);*/
-			}
-			
-			
 		}
 	}
 	
-	public void calculateActivation(boolean b) {
+	/** activated outweights if this neuron is activated */
+	public void propagateActivation(){
+		if(isActivated()){
+			//activate direct out weights
+			activateDirectOutWeights();
+			
+			//moved from PNeuron
+			//mute down neurons
+			/*Iterator<BundleWeight> it2 = directInWeights.iterator();
+			while(it2.hasNext()){
+				BundleWeight b = it2.next();
+				if(b.bundleIsActivated()){
+					b.muteInputNeurons();
+				}
+			}
+			//unmute self just in case we had a recurrent connection
+			this.setMute(false);*/
+		}
+	}
+	
+	/*public void calculateActivation(boolean b) {
 		if(true){
 			activationCalculated = false;
 		}
 		calculateActivation();
-	}
+	}*/
 
 
 	/**
@@ -454,11 +456,13 @@ public class INeuron extends Neuron {
 	 * @return the activation of the 1st neuron in the list of directOutWeights
 	 */
 	public double getUpperPredictedActivation() {
+		/*if(directOutWeights.size()==0){
+			return 0;//TODO bad
+		}*/
 		//should never be null	
 		Iterator<Entry<INeuron, ProbaWeight>> it = directOutWeights.entrySet().iterator();
 		Entry<INeuron, ProbaWeight> pair = it.next();
 		INeuron neuron = pair.getKey();
-	
 		return neuron.getPredictedActivation();//Predicted
 	}
 
@@ -653,6 +657,8 @@ public class INeuron extends Neuron {
 				up.replaceDirectInWeight(this, n);
 			}
 		}
+		
+		directOutWeights.clear();
 	}
 
 	/**
@@ -702,6 +708,8 @@ public class INeuron extends Neuron {
 				b.notifyChange(this,n);
 			}
 		}
+		
+		directInWeights.clear();
 	}	
 	
 	private boolean addDirectInWeight(BundleWeight bw) {		
@@ -716,7 +724,7 @@ public class INeuron extends Neuron {
 	 * remove the weight mapped to n
 	 * @param n
 	 */
-	private void removeDirectOutWeight(INeuron n) {
+	void removeDirectOutWeight(INeuron n) {
 		directOutWeights.remove(n);
 	}
 
@@ -724,9 +732,9 @@ public class INeuron extends Neuron {
 	 * delete the links from this neuron in other neurons
 	 */
 	public void removeAllOutWeights() {
-		for (Iterator<INeuron> iterator = outWeights.keySet().iterator(); iterator.hasNext();) {
-			INeuron n = iterator.next();
-			n.removeInWeight(this);
+		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = outWeights.entrySet().iterator(); iterator.hasNext();) {
+			Entry<INeuron, ProbaWeight> pair = iterator.next();
+			pair.getKey().removeInWeight(this);
 		}
 	}
 
@@ -742,6 +750,18 @@ public class INeuron extends Neuron {
 		}
 		
 		return b;
+	}
+
+	public void clearOutWeights() {
+		outWeights.clear();
+	}
+
+	public void reportDirectOutWeights(INeuron from, INeuron to) {		
+		ProbaWeight w = directOutWeights.get(from);
+		if(w!=null && !directOutWeights.containsKey(to)){
+			directOutWeights.remove(from);
+			directOutWeights.put(to, w);
+		}
 	}
 	
 }
