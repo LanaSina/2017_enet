@@ -51,9 +51,6 @@ public class INeuron extends Neuron {
 	boolean surprised = false;
 	/** used when pruning neurons*/
 	public boolean justSnapped = false;
-	/**pattern weights that input to this neuron, and output to someone else*/
-	//Vector<BundleWeight> bundleWeights = new Vector<BundleWeight>();
-
 	
 	/** whether we can get remembered in the STM or not (eq to consciousness)*/
 	boolean mute = false;
@@ -72,10 +69,6 @@ public class INeuron extends Neuron {
 	public INeuron(Vector<INeuron> from, INeuron to, int id) {//TODO make "to" as a vector
 		super(id);
 		mlog.setName("Pattern Neuron");
-
-		//BundleWeight b = new BundleWeight(from, to);
-		//as special direct inweight to this
-		//bundleWeights.add(b);
 		addDirectInWeight(from);
 		//as outweight from this to To
 		ProbaWeight p = to.addInWeight(Constants.defaultConnection, this);

@@ -49,7 +49,7 @@ public class SNetPattern implements ControllableThread {
 	int speed = 1;
 	
 	/** data recording*/
-	boolean save = true;
+	boolean save = false;
 	/** the folder for this specific run*/
 	String folderName;
 	/** network parameter series */
@@ -77,7 +77,7 @@ public class SNetPattern implements ControllableThread {
 	/**images files*/
 	String imagesPath = "/Users/lana/Desktop/prgm/JAVANeuron/JAVANeuron/src/images/";
 	/** image description (chars)*/
-	String[] images = {"ball_1","ball_2","ball_3","ball_1","ball_2_b","ball_4"}; //{"a","b","c"};		
+	String[] images = {"a_very_small","b_very_small","c_very_small"};//{"ball_1","ball_2","ball_3","ball_1","ball_2_b","ball_4"}; //{"a","b","c"};		
 	
 	//sensors w/ actuators
 	/** image sensor*/
@@ -817,7 +817,7 @@ public class SNetPattern implements ControllableThread {
 							//count how many connections are removed
 							if(dist==0){//if exact same outweights
 								//check if no direct contradiction in inweights (important)
-								HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
+								/*HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
 								HashMap<INeuron,ProbaWeight> in2 = n2.getInWeights();
 								Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
 								
@@ -864,7 +864,7 @@ public class SNetPattern implements ControllableThread {
 									//notifies output neurons too
 									n2.removeAllOutWeights();
 									
-									n2.clearDirectInWeights();
+									n2.clearDirectInWeights();									
 								}
 							}
 
@@ -876,9 +876,7 @@ public class SNetPattern implements ControllableThread {
 		}
 		
 		//count removed weights (only out weights)
-		int g = 0;
 		for(int i=0; i<remove.size();i++){	
-			g = g+remove.get(i).getOutWeights().size();
 			allINeurons.remove(remove.get(i).getId());
 		}
 		
@@ -889,11 +887,6 @@ public class SNetPattern implements ControllableThread {
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			n.justSnapped = false;
-			for(int i=0; i<remove.size();i++){
-				if(n.removeOutWeight(remove.get(i))){
-					g++;
-				}
-			}
 		}
 		
 		nw = countWeights();
