@@ -48,7 +48,7 @@ public class SNetPattern implements ControllableThread {
 	int speed = 1;
 	
 	/** data recording*/
-	boolean save = false;
+	boolean save = true;
 	/** the folder for this specific run*/
 	String folderName;
 	/** network parameter series */
@@ -366,7 +366,7 @@ public class SNetPattern implements ControllableThread {
 		int[] in = eye.buildCoarse(0,0);
 		
 		//go through sensory neurons and activate them.
-		/*int n = in.length;
+		int n = in.length;
 		int[][] n_interface = eye.getNeuralInterface();
 		for(int k = 0; k<n; k++){
 			//values in "in" start at 1, not 0
@@ -376,7 +376,7 @@ public class SNetPattern implements ControllableThread {
 			//}
 		}//*/
 
-		if(test==0){
+		/*if(test==0){
 			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
 			INeuron n2 = iterator.next().getValue();
 			n2.increaseActivation(1);
@@ -388,9 +388,9 @@ public class SNetPattern implements ControllableThread {
 			INeuron n2 = iterator.next().getValue();
 			n2.increaseActivation(1);
 			mlog.say("test is "+ test + " neuron " + n2.getId()+" is activated ");
-			test = 0;
-			//test++;
-		}/*else if (test == 2 ){
+			//test = 0;
+			test++;
+		}else if (test == 2 ){
 			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
 			INeuron n2 = iterator.next().getValue();
 			n2.increaseActivation(1);
@@ -411,8 +411,7 @@ public class SNetPattern implements ControllableThread {
 			n2.increaseActivation(1);		
 			mlog.say("test is "+ test + " neuron " + n2.getId()+" is activated ");
 			test = 0;
-		}*/
-		
+		}	
 		//*/
 		
 		//propagate instantly from eye to 1st INeurons
@@ -420,11 +419,11 @@ public class SNetPattern implements ControllableThread {
 
 		//second pass for level 1 pattern neurons (bad)
 		//TODO do this top-down after 1st sensory activation ? (maybe takes too much time??)
-		/*Iterator<INeuron> it = allINeurons.values().iterator();
+		Iterator<INeuron> it = allINeurons.values().iterator();
 		while(it.hasNext()){
 			INeuron nn =  it.next();
 			nn.makeDirectActivation();
-		}*/
+		}
 		
 		
 		//integrate previously predicted activation to actual activation
@@ -550,9 +549,9 @@ public class SNetPattern implements ControllableThread {
 			
 		calculateAndPropagateActivation();
 		//create new weights based on (+) surprise
-		if(step<20){
+		//if(step<20){
 			makeWeights();
-		}
+		//}
 		
 		//look at predictions
 		buildPredictionMap();
@@ -770,10 +769,8 @@ public class SNetPattern implements ControllableThread {
 	}
 
 	
-	/** fuses something
-	 * TODO before this: create a layer of hidden neurons linked to eye neurons;
-	 * remove eyes from allINeurons
-	 * add fixed weights from eye neurons to i neurons.
+	/** 
+	 * fuses similar neurons
 	 * */
 	private void snap() {
 		mlog.say("snapping");
@@ -883,6 +880,11 @@ public class SNetPattern implements ControllableThread {
 				
 									//now report direct outweights
 									n2.reportDirectOutWeights(n);
+									
+									//notifies output neurons too
+									n2.removeAllOutWeights();
+									
+									n2.clearDirectInWeights();
 								}
 							}
 

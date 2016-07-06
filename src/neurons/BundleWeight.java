@@ -111,9 +111,10 @@ public class BundleWeight extends ProbaWeight {
 	 * notify input neurons of the disparition of the output neuron
 	 */
 	public void notifyRemoval(INeuron removed) {
-		for (Iterator<INeuron> iterator = bundle.keySet().iterator(); iterator.hasNext();) {
-			INeuron n = iterator.next();
-			n.removeDirectOutWeight(removed);
+		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = bundle.entrySet().iterator(); iterator.hasNext();) {
+			Entry<INeuron, ProbaWeight> pair = iterator.next();
+			pair.getKey().removeDirectOutWeight(removed);
+			iterator.remove();
 		}
 	}
 

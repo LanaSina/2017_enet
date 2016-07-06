@@ -238,7 +238,6 @@ public class INeuron extends Neuron {
 				double w  = pw.getProba();
 				if(w>confidence & pw.isActivated()){
 					pa+=1;
-					mlog.say("****** Calculating ");
 				}
 			}
 	
@@ -456,9 +455,14 @@ public class INeuron extends Neuron {
 	 * @return the activation of the 1st neuron in the list of directOutWeights
 	 */
 	public double getUpperPredictedActivation() {
-		/*if(directOutWeights.size()==0){
+		if(directOutWeights.size()==0){
 			return 0;//TODO bad
+		}
+		
+		/*if(directOutWeights.size()>1){
+			mlog.say("********** wait what");
 		}*/
+		
 		//should never be null	
 		Iterator<Entry<INeuron, ProbaWeight>> it = directOutWeights.entrySet().iterator();
 		Entry<INeuron, ProbaWeight> pair = it.next();
@@ -685,15 +689,25 @@ public class INeuron extends Neuron {
 			ProbaWeight w = pair.getValue();
 			//recurrent weight
 			if(from==this){
-				from = n;
+				//add the inweight to n
+				n.addInWeight(n,w);
+				//remove the inweight from this
+				iterator.remove();
+				//clean up
+				from.removeOutWeight(this);
+				//remap
+				from.addOutWeight(n, w);			
+			} else{
+				//add the inweight to n
+				n.addInWeight(from,w);
+				//remove the inweight from this
+				iterator.remove();
+				//clean up
+				from.removeOutWeight(this);
+				//remap
+				from.addOutWeight(n, w);
 			}
-			//add the inweight to n
-			n.addInWeight(from,w);
-			//remap (are supposed to be same anyway)
-			from.addOutWeight(n, w);			
 		}
-		//remove inweights from this neuron
-		inWeights.clear();
 	}
 
 	/**
@@ -705,8 +719,13 @@ public class INeuron extends Neuron {
 		for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
 			BundleWeight b = iterator.next();		
 			if(n.addDirectInWeight(b)){
+				//b.notifyRemoval(this);
 				b.notifyChange(this,n);
+			} else{
+				//just delete it
+				b.notifyRemoval(this);
 			}
+			iterator.remove();
 		}
 		
 		directInWeights.clear();
@@ -752,16 +771,20 @@ public class INeuron extends Neuron {
 		return b;
 	}
 
-	public void clearOutWeights() {
+	/*public void clearOutWeights() {
 		outWeights.clear();
-	}
+	}*/
 
 	public void reportDirectOutWeights(INeuron from, INeuron to) {		
 		ProbaWeight w = directOutWeights.get(from);
-		if(w!=null && !directOutWeights.containsKey(to)){
-			directOutWeights.remove(from);
+		if(w!=null && !directOutWeights.containsKey(to)){ //must make it possible to have many direct outweights
 			directOutWeights.put(to, w);
 		}
+		directOutWeights.remove(from);
+	}
+
+	public void clearDirectInWeights() {
+		directInWeights.clear();
 	}
 	
 }

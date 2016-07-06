@@ -171,7 +171,11 @@ public class NetworkGraph {
 	    		v.setSpiking(false);
 	    		if(iNeuron.isActivated()){
 	    			v.setSpiking(true);
-	    		}  			
+	    		}  
+    			v.setPredicted(false);
+	    		if(iNeuron.getPredictedActivation()>0){
+	    			v.setPredicted(true);
+	    		}
 	    	}
 	    	
 	    	
@@ -269,6 +273,7 @@ public class NetworkGraph {
     class NeuronVertex {
     	 int id; 
     	 private boolean isSpiking = false;
+    	 private boolean isPredicted = false;
     	 
     	 public NeuronVertex(int id) {
     		 this.id = id;
@@ -277,7 +282,10 @@ public class NetworkGraph {
     		 isSpiking = b;
     	 }
     	 
-    	 
+    	 public void setPredicted(boolean b) {
+			isPredicted = b;
+    	 }
+    	    	 
     	 public String toString() { 
     		 return ""+id; 
     	 }
@@ -317,6 +325,7 @@ public class NetworkGraph {
 	          Point2D center = layout.transform(vertex);
 	          Shape shape = null;
 	          Color color = null;
+	          Color edgeColor = Color.black;
 	          
 	          shape = new Ellipse2D.Double(center.getX()-10+ofx, center.getY()-10+ofy, 20, 20);
 	          NeuronVertex nv = vertices.get(vertex.id);
@@ -325,7 +334,10 @@ public class NetworkGraph {
 	          } else{
 	        	  color = Color.lightGray;  	        	  
 	          }
-	          graphicsContext.setPaint(Color.black);
+	          if(nv.isPredicted){
+	        	  edgeColor = Color.red;
+	          }
+	          graphicsContext.setPaint(edgeColor);
 	          graphicsContext.draw(shape);
 	          graphicsContext.setPaint(color);
 	          graphicsContext.fill(shape);

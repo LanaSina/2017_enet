@@ -10,13 +10,6 @@ top down search, rely on predictions, mute, STM>1, continuous (non binary, not l
 
 
 TODO
-prediction map bug
-self-weights
-1) becomes gray
-2) becomes permanent
-3) reduced to 1 px
-4) stops being updated	
-be sure to delte references to object in weight maps
 iterator.remove()
 
 
