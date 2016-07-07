@@ -218,7 +218,7 @@ public class Eye {
 	 * @param fpw -1..1 (relative motion on x width)
 	 * @return activation values on sensors [gray scale id]*total resolution. High values are black.
 	 */
-	public int[] buildCoarse(int fph, int fpw){
+	public int[] buildCoarse(int fph, int fpw){//TODO dont need the arguments
 		
 		eye_input = new BufferedImage(vf_w, vf_h, BufferedImage.TYPE_INT_RGB);
 		eye_input_coarse = new BufferedImage(vf_w, vf_h, BufferedImage.TYPE_INT_RGB);
@@ -315,12 +315,13 @@ public class Eye {
 		int v_m = 0;//this could also not be reset each time (?)
 		for(int i=0; i<v_muscles.size();i++){
 			//the real action depends on the result of activating all involved muscles
-			v_m += eyemuscle_v[i];
+			v_m += eyemuscle_v[v_muscles.get(i)];
+			//mlog.say("adding the muscle "+i);
 		}
 		int h_m = 0;//this could also not be reset each time (?)
 		for(int i=0; i<h_muscles.size();i++){
 			//the real action depends on the result of activating all involved muscles
-			h_m += eyemuscle_h[i];
+			h_m += eyemuscle_h[h_muscles.get(i)];
 		}
 		
 		int[] r = {v_m,h_m};

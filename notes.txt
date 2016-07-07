@@ -11,11 +11,12 @@ top down search, rely on predictions, mute, STM>1, continuous (non binary, not l
 
 
 TODO
-
+not need h_m,v_m in net
+use proprio neurons
 
 bundle weights minimization (take the smaller?bigger? of two sets if one is included in the other?)
 dream
-noise
+noise (continuous values?)
 
 
 start with really 0 neurons;

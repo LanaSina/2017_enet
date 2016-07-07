@@ -61,7 +61,7 @@ public class NetworkGraph {
     static HashMap<Integer, NeuronVertex> vertices;
     
     /** whether to draw the frame or not*/
-    boolean paused = false;
+    boolean paused = true;
 
    /**
     * Creates a new instance of NeuronGraph 

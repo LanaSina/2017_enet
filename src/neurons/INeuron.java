@@ -215,7 +215,7 @@ public class INeuron extends Neuron {
 	 * and compares it to its direct activation.
 	 * if there is not predicted activation but we are activated, the neuron should be "surprised"*/
 	//TODO surprise: no input is not same as 0 input
-	public void calculateActivation() {
+	public void calculateActivation() { //TODO change name to calculateProbaActivation
 		if(!activationCalculated){
 			surprised = false;
 			//calculate predicted positive activation
