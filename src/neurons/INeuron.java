@@ -719,6 +719,7 @@ public class INeuron extends Neuron {
 	/**
 	 * remaps the direct in weights of this neuron so they now 
 	 * go to n. In addition, also modifies the mapping of the output neurons.
+	 * if they exist, only common inweights are kept (generalisation)
 	 * @param n
 	 */
 	public void reportDirectInWeights(INeuron n) {	
@@ -768,7 +769,7 @@ public class INeuron extends Neuron {
 		boolean b = false;
 		for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
 			BundleWeight bw = iterator.next();
-			if(bw.contains(n2)){
+			if(bw.contains(n2) & bw.getBundle().size()==1){
 				b = true;
 				break;
 			}
@@ -777,9 +778,6 @@ public class INeuron extends Neuron {
 		return b;
 	}
 
-	/*public void clearOutWeights() {
-		outWeights.clear();
-	}*/
 
 	public void reportDirectOutWeights(INeuron from, INeuron to) {		
 		ProbaWeight w = directOutWeights.get(from);

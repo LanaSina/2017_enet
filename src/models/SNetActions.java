@@ -49,7 +49,7 @@ public class SNetActions implements ControllableThread {
 	int speed = 1;
 	
 	/** data recording*/
-	boolean save = false;
+	boolean save = true;
 	/** the folder for this specific run*/
 	String folderName;
 	/** network parameter series */
@@ -460,6 +460,8 @@ public class SNetActions implements ControllableThread {
 		INeuron np = eyepro_v.get(v_m+1);
 		np.increaseActivation(1);*/
 		int h_m = proprio[1];
+		String action = " "+ h_m;
+		panel.setAction(action);
 		INeuron np = eyepro_h.get(h_m+1);
 		np.increaseActivation(1);
 	
@@ -1016,7 +1018,7 @@ public class SNetActions implements ControllableThread {
 						Set<INeuron> s1 = out1.keySet();
 						Set<INeuron> s2 = out2.keySet();
 						
-						//avoid direct recurrent connections
+						//avoid direct recurrent connections (only if bundle has unique strand)
 						if(n.directInWeightsContains(n2) || n2.directInWeightsContains(n) ||
 								//avoid different sets of outweights
 								!s1.containsAll(s2) || !s2.containsAll(s1)){
@@ -1042,7 +1044,7 @@ public class SNetActions implements ControllableThread {
 								all++;
 							}
 							
-							double dist = 0;//do snap even if there were no outweights at all
+							double dist = 1;//do/do not snap if there were no outweights at all
 							if(all!=0){
 								dist = Math.sqrt(diff)/all;					
 							}
@@ -1177,7 +1179,9 @@ public class SNetActions implements ControllableThread {
 		    			}
 		    			//calculate snap time
 		    			before = System.currentTimeMillis();
-		    			//net.snap();
+		    			//if(step>200){
+		    				net.snap();
+		    			//}
 		    			long snaptime = System.currentTimeMillis()-before;;
 		    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);
 		    		}

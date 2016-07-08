@@ -174,12 +174,45 @@ public class BundleWeight extends ProbaWeight {
 		return bundle.containsKey(n2);
 	}
 
-	//tell to in neurons to change their outweight map
+	/**tell to in neurons to change their outweights map
+	 * 
+	 * @param from
+	 * @param to
+	 */
 	public void notifyChange(INeuron from, INeuron to) {
-		for (Iterator<INeuron> iterator = bundle.keySet().iterator(); iterator.hasNext();) {
-			INeuron n = iterator.next();
+		for (Iterator<INeuron> iterator3 = bundle.keySet().iterator(); iterator3.hasNext();) {
+			INeuron n = iterator3.next();
 			n.reportDirectOutWeights(from,to);
-		}
+		}		
+				
+		//look for common points		
+		/*Vector<BundleWeight> dw = to.getDirectInWeights();
+		for (Iterator<BundleWeight> iterator = dw.iterator(); iterator.hasNext();) {
+			BundleWeight b = iterator.next();
+			Set<INeuron> ins = b.getInNeurons();
+			Vector<INeuron> notCommon = new Vector<>();
+			for (Iterator<INeuron> iterator2 = ins.iterator(); iterator2.hasNext();) {
+				INeuron in = iterator2.next();
+				if(this.getStrand(in)==null){
+					notCommon.add(in);
+				}
+			}
+			//check if nothing is common
+			if(notCommon.size()==ins.size()){
+				//report all weights
+				for (Iterator<INeuron> iterator3 = bundle.keySet().iterator(); iterator3.hasNext();) {
+					INeuron n = iterator3.next();
+					n.reportDirectOutWeights(from,to);
+				}
+			}else{
+				//remove not common neurons from new neuron
+				for (Iterator<INeuron> iterator2 = notCommon.iterator(); iterator2.hasNext();) {
+					INeuron n = iterator2.next();
+					b.removeStrand(n);
+					n.removeOutWeight(from);
+				}
+			}
+		}*/
 	}
 
 }

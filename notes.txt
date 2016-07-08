@@ -11,10 +11,12 @@ top down search, rely on predictions, mute, STM>1, continuous (non binary, not l
 
 
 TODO
-write action on ui
-do tests
-?take everything as a pattern at first? then prune strands?
-what happens when neurons have fusioned too early?
+color for pattern neurons and action neurons; maybe also write type in csv files
+how to decide the max age of weights?
+start everything as pattern?
+
+!!!! what happens when neurons have fusioned too early?  !!!!
+
 add action neurons into pool too? maybe rather after we introduce reward
 (and 2 level actions: reflexes and chosen actions)
 
