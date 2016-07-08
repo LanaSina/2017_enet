@@ -282,7 +282,7 @@ public class SNetSnap {
 		
 		//apply blur to selected portion of image
 		//get grayscale values of the image
-		int[] in = eye.buildCoarse(0,0);
+		int[] in = eye.buildCoarse();
 		
 		//go through sensory neurons and activate them.
 		int n = in.length;

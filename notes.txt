@@ -11,12 +11,18 @@ top down search, rely on predictions, mute, STM>1, continuous (non binary, not l
 
 
 TODO
-not need h_m,v_m in net
-use proprio neurons
+write action on ui
+do tests
+?take everything as a pattern at first? then prune strands?
+what happens when neurons have fusioned too early?
+add action neurons into pool too? maybe rather after we introduce reward
+(and 2 level actions: reflexes and chosen actions)
+
 
 bundle weights minimization (take the smaller?bigger? of two sets if one is included in the other?)
 dream
 noise (continuous values?)
+
 
 
 start with really 0 neurons;

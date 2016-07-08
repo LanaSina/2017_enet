@@ -268,7 +268,7 @@ public class CharSNet {
 		}
 		
 		//apply blur to selected portion of image
-		int[] in = eye.buildCoarse(v_m,h_m);
+		int[] in = eye.buildCoarse();
 		
 		//go through sensory neurons and activate them.
 		int n = in.length;

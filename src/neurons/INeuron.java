@@ -406,6 +406,7 @@ public class INeuron extends Neuron {
 				this.setMute(false);
 			}
 		}
+		
 				
 		//mute secondary patterns???
 		/*for (Iterator<BundleWeight> iterator = activated.iterator(); iterator.hasNext();) {
@@ -509,12 +510,25 @@ public class INeuron extends Neuron {
 		return r;
 	}
 
+	/**
+	 * recursively activate all direct out weight and 
+	 * neurons that have all direct in weights activated
+	 */
 	public void activateDirectOutWeights() {
 		Iterator<Entry<INeuron, ProbaWeight>> it = directOutWeights.entrySet().iterator();
 		while(it.hasNext()){
 			Map.Entry<INeuron, ProbaWeight> pair = it.next();
-			ProbaWeight pw = (ProbaWeight) pair.getValue();
+			ProbaWeight pw = pair.getValue();
 			pw.setActivation(1,this);
+			//do the same for all succesive neurons
+			//as long as we find ones that were activated by us
+			INeuron n = pair.getKey();
+			if(!n.isActivated()){//wasn't activated
+				n.makeDirectActivation();
+				if(n.isActivated()){//but now is activated
+					n.activateDirectOutWeights();
+				}			
+			}
 		}	
 	}
 

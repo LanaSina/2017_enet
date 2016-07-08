@@ -28,7 +28,6 @@ import neurons.BundleWeight;
 import neurons.INeuron;
 import neurons.ProbaWeight;
 import sensors.Eye;
-import sun.misc.VM;
 
 /**
  * 1st stage model: this network just predicts next input using probability weights.
@@ -73,14 +72,15 @@ public class SNetActions implements ControllableThread {
 	/** number of timesteps to stay on each image*/
 	//int max_timesteps = 10;
 	/** length of training phase (dring which actions are random)*/
-	int training_phase = 200;
+	int training_phase = 500;
 	
 	
 	//environment
 	/**images files*/
 	String imagesPath = "/Users/lana/Desktop/prgm/JAVANeuron/JAVANeuron/src/images/";
 	/** image description (chars)*/
-	String[] images = {"ball_motion1","ball_motion2","ball_motion3","ball_motion4"};
+	String[] images = {"ball_2"};//{"borders2"};/*{"ball_motion1","ball_motion2","ball_motion3","ball_motion4",
+					  /* "ball_motion3","ball_motion2"};*/
 	
 	//sensors 
 	/** image sensor*/
@@ -100,15 +100,10 @@ public class SNetActions implements ControllableThread {
 	HashMap<Integer, ArrayList<ProbaWeight>> action_modules = new HashMap<Integer, ArrayList<ProbaWeight>>();
 	/** pool of actions to choose from at this iteration */
 	ArrayList<INeuron> action_pool = new ArrayList<INeuron>();
-	//motion chosen by the network
-	int h_m;
-	int v_m;
-	//??
-	//eye motion: move right or move left (actually can happen at the same time, so should be separated)
-	/*int[] eyemuscle_h = {-1,0,1};//I have decided to add 0.. but the choice not to do something should be different
-	//maybe give it innate responses instead of choosing at random if no action is activated?
-	//up or down
-	int[] eyemuscle_v = {-1,0,1};//is absolute value...*/
+	/**vector of ids of activated muscles (id must correspond to motion value in Eye)*/
+	Vector<Integer> h_muscles = new Vector<Integer>();
+	/** vector of ids of activated muscles (id must correspond to motion value in Eye)*/
+	Vector<Integer> v_muscles = new Vector<Integer>();
 	
 	//proprioception
 	/** proprioceptive neurons (horizontal eye muscle)*/
@@ -158,8 +153,7 @@ public class SNetActions implements ControllableThread {
     	new Thread(new ExperimentThread(this)).start();		
 	}
 	
-	private void initDataFiles() {
-		
+	private void initDataFiles() {	
 	    //first create directory
 		File theDir = new File(folderName);
 		// if the directory does not exist, create it
@@ -284,8 +278,7 @@ public class SNetActions implements ControllableThread {
 	/**
 	 * set the sizes of arrays and lists
 	 */
-	private void createNet(){
-				
+	private void createNet(){			
 		//eye interfacing
 		for(int i=0;i<eye_neurons.length;i++){
     		eye_neurons[i] = new HashMap<Integer, INeuron>();
@@ -332,6 +325,7 @@ public class SNetActions implements ControllableThread {
 			//this neuron links to this action
 			INeuron m = new INeuron(n_id);
 			eyemotor_h.add(m);	
+			allINeurons.put(m.getId(), m);
 			n_id++;
 			
 			INeuron n = new INeuron(n_id);
@@ -340,17 +334,18 @@ public class SNetActions implements ControllableThread {
 			n_id++;			
 		}	
 		//up or down
-		for(int i=0; i< eye.getVerticalMotionResolution();i++){	
+		/*for(int i=0; i< eye.getVerticalMotionResolution();i++){	
 			//neuron links to this action
 			INeuron m = new INeuron(n_id);
 			eyemotor_v.add(m);	
+			allINeurons.put(m.getId(), m);
 			n_id++;
 				
 			INeuron n = new INeuron(n_id);
 			eyepro_v.add(n);	
 			allINeurons.put(n.getId(), n);
 			n_id++;
-		}	
+		}	*/
 	
 		mlog.say(n_id +" neurons");		
 	}
@@ -378,8 +373,11 @@ public class SNetActions implements ControllableThread {
 			String iname = images[img_id];//+"_very_small";
 			eye.readImage(iname);
 		}
-		//build
+		//build and activate
 		buildEyeInput();
+		//also activate the proprio and action neurons
+		//choose actions, act, activate proprioceptive neurons
+		findActions();
 	}
 	
 	
@@ -394,18 +392,17 @@ public class SNetActions implements ControllableThread {
 		
 		//reset activations of eye neurons and direct outweights
 		for(int i=0;i<eye_neurons.length;i++){
-			resetNeuronsActivation(eye_neurons[i]);
+			resetNeuronsActivation(eye_neurons[i].values());
 			resetDirectOutWeights(eye_neurons[i]);
 		}
 		//reset activations of ineurons
-		resetNeuronsActivation(allINeurons);
+		resetNeuronsActivation(allINeurons.values());
 		resetDirectOutWeights(allINeurons);
 
 		
 		//apply blur to selected portion of image
 		//get grayscale values of the image
-		mlog.say("v_m "+v_m+" h_m "+h_m );
-		int[] in = eye.buildCoarse(v_m,h_m);
+		int[] in = eye.buildCoarse();
 		
 		//go through sensory neurons and activate them.
 		int n = in.length;
@@ -413,9 +410,9 @@ public class SNetActions implements ControllableThread {
 		for(int k = 0; k<n; k++){
 			//values in "in" start at 1, not 0
 			int i = in[k]-1;//dont see white -1;
-			//if(i>0){//dont see white
+			if(i>0){//dont see white
 				eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
-			//}
+			}
 		}//*/
 
 		/*if(test==0){
@@ -456,16 +453,26 @@ public class SNetActions implements ControllableThread {
 		}	
 		//*/
 		
+		//activate proprioception for previous action
+		//send order to eye
+		int[] proprio = eye.contractMuscles(v_muscles, h_muscles);
+		/*int v_m = proprio[0];//middle
+		INeuron np = eyepro_v.get(v_m+1);
+		np.increaseActivation(1);*/
+		int h_m = proprio[1];
+		INeuron np = eyepro_h.get(h_m+1);
+		np.increaseActivation(1);
+	
 		//propagate instantly from eye to 1st INeurons
 		propagateFromEyeNeurons();
-
+		
 		//second pass for level 1 pattern neurons (bad)
 		//TODO do this top-down after 1st sensory activation ? (maybe takes too much time??)
-		Iterator<INeuron> it = allINeurons.values().iterator();
+		/*Iterator<INeuron> it = allINeurons.values().iterator();
 		while(it.hasNext()){
 			INeuron nn =  it.next();
 			nn.makeDirectActivation();
-		}
+		}*/
 		
 		
 		//integrate previously predicted activation to actual activation
@@ -485,12 +492,12 @@ public class SNetActions implements ControllableThread {
 			}	
 		}
 		//activate corresponding neurons
-		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
+		/*Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			n.makeDirectActivation();
-		}
+		}*/
 	}
 
 	/**
@@ -551,22 +558,6 @@ public class SNetActions implements ControllableThread {
 		}
 	}
 	
-	
-	/**
-	 * resets neurons activation to 0
-	 * TODO delete this and use function below
-	 * @param layer map of neurons to be reset.
-	 */
-	public void resetNeuronsActivation(HashMap<Integer,INeuron> layer){
-		/*Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
-		while(it.hasNext()){
-			Entry<Integer, INeuron> pair = it.next();
-			INeuron ne = (INeuron) pair.getValue();
-			ne.resetActivation();
-		}*/
-		resetNeuronsActivation(layer.values());
-	}
-	
 	/**
 	 * resets neurons activation to 0
 	 * @param layer map of neurons to be reset.
@@ -586,7 +577,6 @@ public class SNetActions implements ControllableThread {
 	 * flow: age output weights, up input weights
 	 */
 	public void updateSNet() {			
-
 		//update prediction probabilities						
 		ageOutWeights(allINeurons);
 		increaseInWeights(allINeurons);
@@ -602,15 +592,10 @@ public class SNetActions implements ControllableThread {
 		//for ineurons
 		activateOutWeights(allINeurons);	
 		
-		//here??
-		//choose actions, act, activate proprioceptive neurons
-		findActions();
 		//reset actions 
 		resetNeuronsActivation(eyemotor_h);
 		resetNeuronsActivation(eyemotor_v);
-		//TODO reset proprio 
-		resetNeuronsActivation(eyepro_h);
-		resetNeuronsActivation(eyepro_v);
+
 			
 		calculateAndPropagateActivation();
 		//create new weights based on (+) surprise
@@ -634,16 +619,14 @@ public class SNetActions implements ControllableThread {
 		ArrayList<Integer> actionsID = new ArrayList<Integer>();//dirty	
 		
 		//random while training 
-		if(step<training_phase){
+		if(true){//step<training_phase){
 			//eyes actions
 			int act =  (int) Constants.uniformDouble(0,3);//0..2
-			mlog.say("v random "+ act);
-			INeuron n = eyemotor_v.get(act);
-			n.increaseActivation(1);//artificialActivation = 2000;//why the high numbers 
-			//in.increaseActivation(1);//do this at next step, not now?
+			/*INeuron n = eyemotor_v.get(act);
+			n.increaseActivation(1);*/
 			act =  (int) Constants.uniformDouble(0,3);
-			n = eyemotor_h.get(act);
-			n.increaseActivation(1);//artificialActivation = 2000;
+			INeuron n = eyemotor_h.get(act);
+			n.increaseActivation(1);
 			mlog.say("training "+ step);
 			//for info
 			Iterator<Entry<Integer, ArrayList<ProbaWeight>>> it = action_modules.entrySet().iterator();
@@ -692,66 +675,35 @@ public class SNetActions implements ControllableThread {
 				}
 			}
 			n = eyemotor_v.get(action);
-			n.increaseActivation(1);//n.artificialActivation = 2;
+			n.increaseActivation(1);
 			mlog.say("step "+ step);
 		}
 		
 		//horizontal motion of eye first
 		//vector of ids of activated muscles (id must correspond to motion value in Eye)
-		Vector<Integer> h_muscles = new Vector<Integer>();
+		h_muscles.clear();
 		for(int i=0; i<eyemotor_h.size();i++){
 			INeuron m = eyemotor_h.get(i);
 
 			if(m.getActivation()>0){ 
-				mlog.say("m " + i + " activation "+ m.getActivation());
+				//mlog.say("m " + i + " activation "+ m.getActivation());
 				h_muscles.addElement(i);
 				actionsID.add(m.getId());
-				//TODO m.ageInWeights();//are in weights used?? Theyre not proba weights though
 			}
 			m.resetActivation();
 		}
 		
 		//vertical motion
 		//vector of ids of activated muscles (id must correspond to motion value in Eye)
-		Vector<Integer> v_muscles = new Vector<Integer>();
+		/*v_muscles.clear();
 		for(int i=0; i<eyemotor_v.size();i++){
 			INeuron m = eyemotor_v.get(i);
-			m.calculateActivation();//why did we still have results without this
-
 			if(m.getActivation()>0){
 				v_muscles.addElement(i);
-				mlog.say("added v muscle");
-				mlog.say("m " + i + " activation "+ m.getActivation());
-
-				//m.ageInWeights();
 				actionsID.add(m.getId());
 			}
 			m.resetActivation();
-		}
-		
-		//send order to eye
-		int[] proprio = eye.contractMuscles(v_muscles, h_muscles);
-		v_m = proprio[0];//middle
-		INeuron np = eyepro_v.get(v_m+1);
-		np.increaseActivation(1);
-		h_m = proprio[1];
-		np = eyepro_v.get(h_m+1);
-		np.increaseActivation(1);
-		
-		//activate proprioception (this step? next step)
-		//TODO
-						
-		//now activate the corresponding cneurons (NOT needed? (we will use group-activation patterning)
-		/*Iterator it = allINeurons.entrySet().iterator();
-		while(it.hasNext()){
-			Map.Entry pair = (Map.Entry) it.next();
-			INeuron ne = (INeuron) pair.getValue();		
-			if(ne.a_input>=0){
-				if(actionsID.contains(ne.a_input)){
-					ne.actionActivated = true;
-				}
-			}
-		}	*/
+		}*/
 	}
 
 	private double calculateCertainty(ArrayList<ProbaWeight> module){
@@ -795,7 +747,7 @@ public class SNetActions implements ControllableThread {
 		double d = 0;
 		int size = 0;
 		double u = 0;
-		//all the prediction weights to this action (live build)
+		//all the prediction weights to this action (live build) (TODO?)
 		ArrayList<ProbaWeight> module = action_modules.get(id);
 		//now go through
 		for(int i = 0;i<module.size();i++){
@@ -1094,7 +1046,6 @@ public class SNetActions implements ControllableThread {
 							if(all!=0){
 								dist = Math.sqrt(diff)/all;					
 							}
-							//count how many connections are removed
 							if(dist==0){//if exact same outweights
 								//check if no direct contradiction in inweights (important)
 								/*HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
@@ -1183,7 +1134,6 @@ public class SNetActions implements ControllableThread {
 	}
 	
 	//main thread
-	//TODO should be in different class, maybe starter
 	private class ExperimentThread implements Runnable {
 		/** log */
 		MyLog mlog = new MyLog("SNet Thread", true);
@@ -1227,7 +1177,7 @@ public class SNetActions implements ControllableThread {
 		    			}
 		    			//calculate snap time
 		    			before = System.currentTimeMillis();
-		    			net.snap();
+		    			//net.snap();
 		    			long snaptime = System.currentTimeMillis()-before;;
 		    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);
 		    		}
@@ -1236,7 +1186,6 @@ public class SNetActions implements ControllableThread {
 		    		
 		    		//UI
 				    panel.setTime(step);
-				    //Vector<INeuron> v = new Vector<INeuron>(allINeurons.values());
 				    netGraph.updateNeurons(allINeurons);				  
 	    		}
 	    		

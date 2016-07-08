@@ -69,8 +69,12 @@ public class Eye {
 	int[] eyemuscle_v = {-1,0,1};
 	/** resolution of eye  motion: how many pixels do we move at each motion?*/
 	int eye_motion_res = 10;
-	//current center of focus in the image
+	/** current center of focus in the image*/
 	int[] focus_center = new int[2];
+	/** vertical motion */
+	int v_m = 0;
+	/** horizontal motion*/
+	int h_m = 0;
 	
 	//UI
 	/** actual image from data folder*/
@@ -214,11 +218,9 @@ public class Eye {
 	/**
 	 * builds "image" of sensory input, a coarse version of the original image
 	 * from the motion of eye muscles. We use relative motion bc it takes less memory space (easier)
-	 * @param fph -1..1 (relative motion on y height)
-	 * @param fpw -1..1 (relative motion on x width)
 	 * @return activation values on sensors [gray scale id]*total resolution. High values are black.
 	 */
-	public int[] buildCoarse(int fph, int fpw){//TODO dont need the arguments
+	public int[] buildCoarse(){//TODO dont need the arguments
 		
 		eye_input = new BufferedImage(vf_w, vf_h, BufferedImage.TYPE_INT_RGB);
 		eye_input_coarse = new BufferedImage(vf_w, vf_h, BufferedImage.TYPE_INT_RGB);
@@ -228,8 +230,8 @@ public class Eye {
 		int[] coarse = new int[n];	
 		
 		//first, shift focus
-		focus_center[0] +=  fph*eye_motion_res;
-		focus_center[1] +=  fpw*eye_motion_res;
+		focus_center[0] +=  v_m*eye_motion_res;//fph
+		focus_center[1] +=  h_m*eye_motion_res;//fpw
 		
 		//limit conditions (cannot look out of image)
 		int[] limits = {im_h,im_w};
@@ -312,13 +314,13 @@ public class Eye {
 	 * [vertical, horizontal]
 	 */
 	public int[] contractMuscles(Vector<Integer> v_muscles,Vector<Integer> h_muscles){	
-		int v_m = 0;//this could also not be reset each time (?)
+		v_m = 0;//this could also not be reset each time (?)
 		for(int i=0; i<v_muscles.size();i++){
 			//the real action depends on the result of activating all involved muscles
 			v_m += eyemuscle_v[v_muscles.get(i)];
 			//mlog.say("adding the muscle "+i);
 		}
-		int h_m = 0;//this could also not be reset each time (?)
+		h_m = 0;//this could also not be reset each time (?)
 		for(int i=0; i<h_muscles.size();i++){
 			//the real action depends on the result of activating all involved muscles
 			h_m += eyemuscle_h[h_muscles.get(i)];

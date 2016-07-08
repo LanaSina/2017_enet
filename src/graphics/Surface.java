@@ -53,6 +53,8 @@ public class Surface extends JPanel{
 	BufferedImage predicted;
 	/** the input + stong prediction image*/
 	BufferedImage warped;
+	/** the action that will be tried next step*/
+	String action = "nothing";
 
 	
 	/** current center of focus in the image [x,y] (eye tracking) */
@@ -140,6 +142,9 @@ public class Surface extends JPanel{
 		g.drawString("What?", origin, y);
 		y = y+margin;
 		g.drawImage(focused, 10, y, null);
+		
+		//chosen action
+		g.drawString("Action: "+ action, origin+focused.getWidth()+margin, y);
 		
 		//prediction
 		y = y+letter.getHeight()+margin*2;
@@ -277,5 +282,9 @@ public class Surface extends JPanel{
 
 	public void setTime(int step) {
 		timeLabel.setText("Time: "+step);	
+	}
+	
+	public void setAction(String action) {
+		this.action = action;
 	}
 }

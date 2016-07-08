@@ -1,8 +1,0 @@
-Experiment with ball (3 positions)
-Max age of weights = 20
-
-Initial: 0 connections 736 neurons runtime 21 ms
-then  2718 connections 112 neurons runtime 4~6 ms
-After Snap: 3 c 4 n rt 2 to 3 ms
-
-MUST CALCULATE RUNTIME SEVERAL TIMES AND AVERAGE
