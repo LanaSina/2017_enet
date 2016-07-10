@@ -11,6 +11,9 @@ top down search, rely on predictions, mute, STM>1, continuous (non binary, not l
 
 
 TODO
+check what is "white" in build_input and what ui's "input" really means (and "what" is what?)
+see how prediction map is built too
+
 color for pattern neurons and action neurons; maybe also write type in csv files
 how to decide the max age of weights?
 start everything as pattern?

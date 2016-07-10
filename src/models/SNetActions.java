@@ -79,7 +79,7 @@ public class SNetActions implements ControllableThread {
 	/**images files*/
 	String imagesPath = "/Users/lana/Desktop/prgm/JAVANeuron/JAVANeuron/src/images/";
 	/** image description (chars)*/
-	String[] images = {"ball_2"};//{"borders2"};/*{"ball_motion1","ball_motion2","ball_motion3","ball_motion4",
+	String[] images = {"borders2"};//{"ball_2"};///*{"ball_motion1","ball_motion2","ball_motion3","ball_motion4",
 					  /* "ball_motion3","ball_motion2"};*/
 	
 	//sensors 
@@ -410,9 +410,9 @@ public class SNetActions implements ControllableThread {
 		for(int k = 0; k<n; k++){
 			//values in "in" start at 1, not 0
 			int i = in[k]-1;//dont see white -1;
-			if(i>0){//dont see white
+			//if(i>0){//dont see white
 				eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
-			}
+			//}
 		}//*/
 
 		/*if(test==0){
