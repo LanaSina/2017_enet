@@ -54,7 +54,17 @@ public class INeuron extends Neuron {
 	
 	/** whether we can get remembered in the STM or not (eq to consciousness)*/
 	boolean mute = false;
+	/** whether it can snap with other neurons or not (sensory neurons cannot)*/
+	boolean canSnap = true;
 	
+	public boolean canSnap() {
+		return canSnap;
+	}
+
+	public void setCanSnap(boolean canSnap) {
+		this.canSnap = canSnap;
+	}
+
 	public INeuron(int id) {
 		super(id);
 	}
@@ -790,5 +800,22 @@ public class INeuron extends Neuron {
 	public void clearDirectInWeights() {
 		directInWeights.clear();
 	}
+
+	/**
+	 * check if we have a direct outweight that has only one strand
+	 * @return
+	 */
+	/*public boolean hasSingleDirectOutWeight() {
+		boolean r = false;
+		for (Iterator<ProbaWeight> iterator = directOutWeights.values().iterator(); iterator.hasNext();) {
+			ProbaWeight b = iterator.next();
+			if(b.getBundle().size()==1){ not a bundlew
+				r = true;
+				break;
+			}
+		}
+		
+		return r;
+	}*/
 	
 }

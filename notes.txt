@@ -11,8 +11,11 @@ top down search, rely on predictions, mute, STM>1, continuous (non binary, not l
 
 
 TODO
+mark neurons for creation and create em at night
+make eyeneurons legit neurons that just can't be snapped
 check what is "white" in build_input and what ui's "input" really means (and "what" is what?)
-see how prediction map is built too
+check the optimization of bundles (am almost sure it does not work)
+snapping of pattern neurons might not work -> write unit tests!
 
 color for pattern neurons and action neurons; maybe also write type in csv files
 how to decide the max age of weights?

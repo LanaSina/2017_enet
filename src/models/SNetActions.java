@@ -79,7 +79,7 @@ public class SNetActions implements ControllableThread {
 	/**images files*/
 	String imagesPath = "/Users/lana/Desktop/prgm/JAVANeuron/JAVANeuron/src/images/";
 	/** image description (chars)*/
-	String[] images = {"borders2"};//{"ball_2"};///*{"ball_motion1","ball_motion2","ball_motion3","ball_motion4",
+	String[] images ={"ball_2"};// {"borders2"};///*{"ball_motion1","ball_motion2","ball_motion3","ball_motion4",
 					  /* "ball_motion3","ball_motion2"};*/
 	
 	//sensors 
@@ -301,21 +301,28 @@ public class SNetActions implements ControllableThread {
 			for(int j=0;j<gray_scales;j++){
 				//create neuron
 				INeuron n = new INeuron(n_id);
+				n_id++;	
 				//put it in list
-				eye_neurons[j].put(n_id, n);
+				eye_neurons[j].put(n.getId(), n);
 				//make it sensitive to an input
-				eye.linkNeuron(n_id,j, i);
-				n_id++;				
+				eye.linkNeuron(n.getId(),j, i);
+				
 				INeuron n2 = new INeuron(n_id);
-				n2.justSnapped = true;//avoid snapping newborn neurons
+				//avoid snapping newborn neurons
+				n2.justSnapped = true;
+				
 				//add direct in weight
 				Vector<INeuron> v = new Vector<INeuron>();
 				v.addElement(n);
 				BundleWeight b = n2.addDirectInWeight(v);
-				//ProbaWeight p = n2.addInWeight(Constants.fixedConnection, n);
+
 				n.addDirectOutWeight(n2,b);
 				allINeurons.put(n_id, n2);
-				n_id++;				
+				n_id++;	//*/
+				
+				//make it unsnappable
+				/*n.setCanSnap(false);
+				allINeurons.put(n.getId(), n);//*/
 			}
 		}	
 		
@@ -409,7 +416,7 @@ public class SNetActions implements ControllableThread {
 		int[][] n_interface = eye.getNeuralInterface();
 		for(int k = 0; k<n; k++){
 			//values in "in" start at 1, not 0
-			int i = in[k]-1;//dont see white -1;
+			int i = in[k]-1;
 			//if(i>0){//dont see white
 				eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
 			//}
@@ -466,16 +473,7 @@ public class SNetActions implements ControllableThread {
 		np.increaseActivation(1);
 	
 		//propagate instantly from eye to 1st INeurons
-		propagateFromEyeNeurons();
-		
-		//second pass for level 1 pattern neurons (bad)
-		//TODO do this top-down after 1st sensory activation ? (maybe takes too much time??)
-		/*Iterator<INeuron> it = allINeurons.values().iterator();
-		while(it.hasNext()){
-			INeuron nn =  it.next();
-			nn.makeDirectActivation();
-		}*/
-		
+		propagateFromEyeNeurons();	
 		
 		//integrate previously predicted activation to actual activation
 		//integrateActivation();	
@@ -585,13 +583,11 @@ public class SNetActions implements ControllableThread {
 		
 		//add +1 value to the inweights if they were activated at t-1 & neuron is activated
 		//increaseInWeights(allINeurons);
-		//reset activation of all w
+		//update activation of all w
 		for(int i=0;i<eye_neurons.length;i++){
 			resetOutWeights(eye_neurons[i]);
 		}		
 		resetOutWeights(allINeurons);
-		
-		//for ineurons
 		activateOutWeights(allINeurons);	
 		
 		//reset actions 
@@ -601,7 +597,7 @@ public class SNetActions implements ControllableThread {
 			
 		calculateAndPropagateActivation();
 		//create new weights based on (+) surprise
-		makeWeights();
+		makeWeights(STM);
 		
 		//look at predictions
 		buildPredictionMap();
@@ -810,8 +806,8 @@ public class SNetActions implements ControllableThread {
 	 * create weights from previously conscious neurons to current surprised neurons.
 	 * In this model there is no topological hierarchy yet, so all activated neurons are conscious.
 	 */
-	private void makeWeights() {
-		if(STM.size()==0){
+	private void makeWeights(Vector<INeuron> shortTermMemory) {
+		if(shortTermMemory.size()==0){
 			mlog.say("just woke up");
 			return;
 		}
@@ -822,36 +818,68 @@ public class SNetActions implements ControllableThread {
 		//ineurons 
 		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
 		int nw = 0;
+		//did we improve future prediction chances?
+		boolean didChange = false;
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			if(n.isSurprised()){
 				
-				//did we improve future prediction chances?
-				boolean didChange = false;
 				//go through STM
-				for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
+				for (Iterator<INeuron> iterator = shortTermMemory.iterator(); iterator.hasNext();) {
 					INeuron preneuron = iterator.next();
-					//if(n!=preneuron){//loops OK
-						//doubloons weights will not be added
-						ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
-						if(preneuron.addOutWeight(n,probaWeight)){
-							nw++;
-							didChange = true;
-						}
-					//}
+					//doubloons weights will not be added
+					ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
+					if(preneuron.addOutWeight(n,probaWeight)){
+						nw++;
+						didChange = true;
+					}
 				}
 				
 				//no change happened, try building a spatial pattern
 				if(!didChange){					
-					if(!patternExists(STM,n)){
-						INeuron neuron = new INeuron(STM,n,n_id);
+					if(!patternExists(shortTermMemory,n)){
+						INeuron neuron = new INeuron(shortTermMemory,n,n_id);
 						newn.addElement(neuron);
 						n_id++;
 						mlog.say("created pattern neuron "+neuron.getId());
+						didChange = true;
 					}
 				}
-									
+			}
+		}
+		
+		//no change happened: recreate some relevant upper neurons
+		if(!didChange){
+			for (Iterator<INeuron> iterator = shortTermMemory.iterator(); iterator.hasNext();) {
+				INeuron nn = iterator.next();
+				//look at root of this neuron
+				Vector<BundleWeight> dws = nn.getDirectInWeights();
+				if(dws.size()>0){			
+					if(dws.size()>1 || dws.get(0).getBundle().size()>1){//is not simplest configuration				
+						for (Iterator<BundleWeight> iterator2 = dws.iterator(); iterator2.hasNext();) {
+							BundleWeight bw =  iterator2.next();
+							//create neurons
+							Set<INeuron> roots = bw.getBundle().keySet();
+							for (Iterator<INeuron> iterator3 = roots.iterator(); iterator3.hasNext();) {
+								INeuron r = iterator3.next();
+								Vector<INeuron> v = new Vector<INeuron>();
+								v.addElement(r);
+								//prevent proliferation
+								//if(!r.hasSingleDirectOutWeight()){
+									//create a neuron
+									INeuron neuron = new INeuron(n_id);
+									n_id++;
+									BundleWeight b = neuron.addDirectInWeight(v);
+									r.addDirectOutWeight(neuron, b);
+									newn.addElement(neuron);
+									mlog.say("unsnapped neuron "+neuron.getId());
+									didChange = true;
+								//}
+							}
+						}
+					}
+				}
 			}
 		}
 		
@@ -861,7 +889,6 @@ public class SNetActions implements ControllableThread {
 		}
 				
 		mlog.say("added " + nw + " weights and "+ newn.size() + " neurons ");
-		//writeWeights();
 	}
 	
 	/**
@@ -931,7 +958,7 @@ public class SNetActions implements ControllableThread {
 				int n_id = n_interface[i][j];
 				INeuron neuron = eye_neurons[i].get(n_id);
 				//neuron.calculateActivation();
-				if(neuron.getUpperPredictedActivation()>0){//
+				if(neuron.getPredictedActivation()>0){//getUpperPredictedActivation()>0){//
 					//mlog.say(neuron.getId()+" inweight was activated ");
 					sum[j]=sum[j]+1;
 					//if white, dont't add anything
@@ -998,14 +1025,14 @@ public class SNetActions implements ControllableThread {
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			
-			if(!n.justSnapped){
+			if(!n.justSnapped && n.canSnap()){
 				//look for equivalent neurons (neurons with equivalent outweights)
 				Iterator<Entry<Integer, INeuron>> it2 = allINeurons.entrySet().iterator();
 				while(it2.hasNext()){
 					Map.Entry<Integer, INeuron> pair2 = it2.next();
 					INeuron n2 = pair2.getValue();
 										
-					if((n.getId()!= n2.getId()) && !n2.justSnapped){
+					if((n.getId()!= n2.getId()) && !n2.justSnapped && n2.canSnap()){
 						boolean dosnap = true;
 
 						//compare all out weights
@@ -1044,7 +1071,7 @@ public class SNetActions implements ControllableThread {
 								all++;
 							}
 							
-							double dist = 1;//do/do not snap if there were no outweights at all
+							double dist = 0;//do/do not snap if there were no outweights at all
 							if(all!=0){
 								dist = Math.sqrt(diff)/all;					
 							}
