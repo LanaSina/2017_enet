@@ -19,6 +19,8 @@ import java.util.Vector;
 
 import javax.swing.JButton;
 
+import org.omg.CORBA.DoubleSeqHelper;
+
 import communication.Constants;
 import communication.ControllableThread;
 import communication.MyLog;
@@ -590,9 +592,9 @@ public class SNetActions implements ControllableThread {
 		resetOutWeights(allINeurons);
 		activateOutWeights(allINeurons);	
 		
-		//reset actions 
-		resetNeuronsActivation(eyemotor_h);
-		resetNeuronsActivation(eyemotor_v);
+		//reset actions (if neurons not already in allINeurons
+		//resetNeuronsActivation(eyemotor_h);
+		//resetNeuronsActivation(eyemotor_v);
 
 			
 		calculateAndPropagateActivation();
@@ -759,7 +761,6 @@ public class SNetActions implements ControllableThread {
 				d+=v;
 				size++;							
 			} else{
-				//mlog.say("not activated "+n.id);
 			}
 		}
 		
@@ -781,6 +782,11 @@ public class SNetActions implements ControllableThread {
 			n.propagateActivation();
 		}
 		
+		//our actions are random now, don't predict them
+		for (Iterator<INeuron> iterator = eyemotor_h.iterator(); iterator.hasNext();) {
+			INeuron neuron = iterator.next();
+			neuron.setSurprised(false);
+		}	
 	}
 
 	/**
@@ -846,42 +852,54 @@ public class SNetActions implements ControllableThread {
 						didChange = true;
 					}
 				}
-			}
-		}
-		
-		//no change happened: recreate some relevant upper neurons
-		if(!didChange){
-			for (Iterator<INeuron> iterator = shortTermMemory.iterator(); iterator.hasNext();) {
-				INeuron nn = iterator.next();
-				//look at root of this neuron
-				Vector<BundleWeight> dws = nn.getDirectInWeights();
-				if(dws.size()>0){			
-					if(dws.size()>1 || dws.get(0).getBundle().size()>1){//is not simplest configuration				
-						for (Iterator<BundleWeight> iterator2 = dws.iterator(); iterator2.hasNext();) {
-							BundleWeight bw =  iterator2.next();
-							//create neurons
-							Set<INeuron> roots = bw.getBundle().keySet();
-							for (Iterator<INeuron> iterator3 = roots.iterator(); iterator3.hasNext();) {
-								INeuron r = iterator3.next();
-								Vector<INeuron> v = new Vector<INeuron>();
-								v.addElement(r);
-								//prevent proliferation
-								//if(!r.hasSingleDirectOutWeight()){
-									//create a neuron
-									INeuron neuron = new INeuron(n_id);
-									n_id++;
-									BundleWeight b = neuron.addDirectInWeight(v);
-									r.addDirectOutWeight(neuron, b);
-									newn.addElement(neuron);
-									mlog.say("unsnapped neuron "+neuron.getId());
-									didChange = true;
-								//}
+				
+				//no change happened: recreate some relevant upper neurons
+				//Does NOT WORK
+				/*if(!didChange){
+					for (Iterator<INeuron> iterator = shortTermMemory.iterator(); iterator.hasNext();) {
+						INeuron nn = iterator.next();
+						//look at root of this neuron
+						Vector<BundleWeight> dws = nn.getDirectInWeights();
+						if(dws.size()>1){//is not simplest configuration // || dws.get(0).getBundle().size()>1){
+							for (Iterator<BundleWeight> iterator2 = dws.iterator(); iterator2.hasNext();) {
+								BundleWeight bw =  iterator2.next();
+								//create neurons
+								Set<INeuron> roots = bw.getBundle().keySet();
+								for (Iterator<INeuron> iterator3 = roots.iterator(); iterator3.hasNext();) {
+									INeuron r = iterator3.next();
+									//root does not contain simplest conf
+									boolean hasUnsnapped = false;
+									for (Iterator<BundleWeight> iterator4 = r.getDirectOutWeights().values().iterator(); iterator4.hasNext();) {
+										BundleWeight rbw =  iterator4.next();
+										if(rbw.getBundle().size()<2){
+											hasUnsnapped = true;
+										}
+									}
+									if(!hasUnsnapped){									
+										Vector<INeuron> v = new Vector<INeuron>();
+										v.addElement(r);
+										//prevent proliferation
+										if(!r.hasSingleDirectOutWeight()){
+											//create a neuron
+											INeuron neuron = new INeuron(n_id);
+											n_id++;
+											BundleWeight b = neuron.addDirectInWeight(v);
+											r.addDirectOutWeight(neuron, b);
+											newn.addElement(neuron);
+											mlog.say("unsnapped neuron "+ r.getId());
+											didChange = true;
+										}
+									}
+								}
 							}
 						}
 					}
-				}
+				}*/
+				
 			}
 		}
+		
+		
 		
 		for (Iterator<INeuron> iterator = newn.iterator(); iterator.hasNext();) {
 			INeuron neuron = iterator.next();
@@ -958,7 +976,7 @@ public class SNetActions implements ControllableThread {
 				int n_id = n_interface[i][j];
 				INeuron neuron = eye_neurons[i].get(n_id);
 				//neuron.calculateActivation();
-				if(neuron.getPredictedActivation()>0){//getUpperPredictedActivation()>0){//
+				if(neuron.getUpperPredictedActivation()>0){//
 					//mlog.say(neuron.getId()+" inweight was activated ");
 					sum[j]=sum[j]+1;
 					//if white, dont't add anything
@@ -1071,7 +1089,7 @@ public class SNetActions implements ControllableThread {
 								all++;
 							}
 							
-							double dist = 0;//do/do not snap if there were no outweights at all
+							double dist = 1;//do/do not snap if there were no outweights at all
 							if(all!=0){
 								dist = Math.sqrt(diff)/all;					
 							}

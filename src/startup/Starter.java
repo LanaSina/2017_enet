@@ -2,12 +2,13 @@ package startup;
 
 import models.CharSNet;
 import models.SNetActions;
+import models.SNetPattern;
 
 public class Starter {	
 
 	public static void main(String[] args) {	
-		//new CharSNet();
 		new SNetActions();	
+		//new SNetPattern();
 	}
 
 }

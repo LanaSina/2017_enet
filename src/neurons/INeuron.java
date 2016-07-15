@@ -32,7 +32,7 @@ public class INeuron extends Neuron {
 	/**direct instantaneous weights*/
 	Vector<BundleWeight> directInWeights = new Vector<BundleWeight>();
 
-	HashMap<INeuron, ProbaWeight> directOutWeights = new HashMap<INeuron, ProbaWeight>();
+	HashMap<INeuron, BundleWeight> directOutWeights = new HashMap<INeuron, BundleWeight>();
 
 	/** (id of out neuron, weight) probabilistic outweights*/
 	HashMap<INeuron, ProbaWeight> outWeights = new HashMap<INeuron, ProbaWeight>();
@@ -48,7 +48,7 @@ public class INeuron extends Neuron {
 	/** has activation been calculated since the last reset or not*/
 	boolean predictedActCalculated = false;
 	/** does the prediction corresponds to any kind of input*/
-	boolean surprised = false;
+	private boolean surprised = false;
 	/** used when pruning neurons*/
 	public boolean justSnapped = false;
 	
@@ -227,7 +227,7 @@ public class INeuron extends Neuron {
 	//TODO surprise: no input is not same as 0 input
 	public void calculateActivation() { //TODO change name to calculateProbaActivation
 		if(!activationCalculated){
-			surprised = false;
+			setSurprised(false);
 			//calculate predicted positive activation
 			double pa = 0;
 
@@ -245,7 +245,7 @@ public class INeuron extends Neuron {
 	
 	
 			if(pro_activation==0 & activation>0){
-				surprised = true;
+				setSurprised(true);
 			}
 			
 			
@@ -458,56 +458,24 @@ public class INeuron extends Neuron {
 	 * @return the activation of the 1st neuron in the list of directOutWeights
 	 */
 	public double getUpperPredictedActivation() {
-		if(directOutWeights.size()==0){
+		/*if(directOutWeights.size()==0){
 			return 0;//TODO bad
-		}
-		
-		/*if(directOutWeights.size()>1){
-			mlog.say("********** wait what");
 		}*/
-		
 		//should never be null	
-		Iterator<Entry<INeuron, ProbaWeight>> it = directOutWeights.entrySet().iterator();
-		Entry<INeuron, ProbaWeight> pair = it.next();
+		Iterator<Entry<INeuron, BundleWeight>> it = directOutWeights.entrySet().iterator();
+		Entry<INeuron, BundleWeight> pair = it.next();
 		INeuron neuron = pair.getKey();
-		return neuron.getPredictedActivation();//Predicted
+		return neuron.getPredictedActivation();
 	}
 
-
-	/**
-	 * 
-	 * @param p
-	 * @param n2
-	 * @return true if the weight was added, false if it already existed
-	 */
-	/*public boolean addDirectOutWeight(ProbaWeight b, INeuron n2) {
-		boolean b2 = false;
-		if(directOutWeights.containsKey(n2)){
-			
-		}else{
-			directOutWeights.put(n2, b);
-			b2 = true;
-		}		
-		return b2;
-	}*/
-
-	/**
-	 * TODO do not use this directly (because "clear" is dangerous)
-	 * @param n key: output neuron
-	 * @param p value: weight
-	 */
-	/*public void setDirectOutWeight(INeuron n, ProbaWeight p){
-		directOutWeights.clear();
-		directOutWeights.put(n, p);
-	}*/
 	
 	/**
 	 * @param n key: output neuron
 	 * @param p value: weight
 	 * @return existing or added probaweight; null if recurrent connection
 	 */
-	public ProbaWeight addDirectOutWeight(INeuron n, ProbaWeight p){
-		ProbaWeight r;
+	public BundleWeight addDirectOutWeight(INeuron n, BundleWeight p){
+		BundleWeight r;
 		if(n == this){
 			return null;
 		}
@@ -525,9 +493,9 @@ public class INeuron extends Neuron {
 	 * neurons that have all direct in weights activated
 	 */
 	public void activateDirectOutWeights() {
-		Iterator<Entry<INeuron, ProbaWeight>> it = directOutWeights.entrySet().iterator();
+		Iterator<Entry<INeuron, BundleWeight>> it = directOutWeights.entrySet().iterator();
 		while(it.hasNext()){
-			Map.Entry<INeuron, ProbaWeight> pair = it.next();
+			Entry<INeuron, BundleWeight> pair = it.next();
 			ProbaWeight pw = pair.getValue();
 			pw.setActivation(1,this);
 			//do the same for all succesive neurons
@@ -544,8 +512,8 @@ public class INeuron extends Neuron {
 
 
 	public void resetDirectOutWeights() {
-		for (Iterator<ProbaWeight> iterator = directOutWeights.values().iterator(); iterator.hasNext();) {
-			ProbaWeight p = iterator.next();
+		for (Iterator<BundleWeight> iterator = directOutWeights.values().iterator(); iterator.hasNext();) {
+			BundleWeight p = iterator.next();
 			p.resetActivation();
 		}	
 	}
@@ -572,8 +540,8 @@ public class INeuron extends Neuron {
 	}
 
 
-	public HashMap<INeuron, ProbaWeight> getDirectOutWeights() {
-		return (HashMap<INeuron, ProbaWeight>) directOutWeights.clone();		
+	public HashMap<INeuron, BundleWeight> getDirectOutWeights() {
+		return (HashMap<INeuron, BundleWeight>) directOutWeights.clone();		
 	}
 
 
@@ -666,10 +634,10 @@ public class INeuron extends Neuron {
 	 */
 	public void reportDirectOutWeights(INeuron n){
 		//go over the dout weights 
-		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = directOutWeights.entrySet().iterator(); iterator.hasNext();) {
-			Entry<INeuron, ProbaWeight> pair = iterator.next();
+		for (Iterator<Entry<INeuron, BundleWeight>> iterator = directOutWeights.entrySet().iterator(); iterator.hasNext();) {
+			Entry<INeuron, BundleWeight> pair = iterator.next();
 			//add doutw to n
-			ProbaWeight p = n.addDirectOutWeight(pair.getKey(), pair.getValue());
+			BundleWeight p = n.addDirectOutWeight(pair.getKey(), pair.getValue());
 			//not a one-strand recurrent connection
 			if(p != null){
 				//remap output neuron
@@ -790,7 +758,7 @@ public class INeuron extends Neuron {
 
 
 	public void reportDirectOutWeights(INeuron from, INeuron to) {		
-		ProbaWeight w = directOutWeights.get(from);
+		BundleWeight w = directOutWeights.get(from);
 		if(w!=null && !directOutWeights.containsKey(to)){ //must make it possible to have many direct outweights
 			directOutWeights.put(to, w);
 		}
@@ -805,17 +773,20 @@ public class INeuron extends Neuron {
 	 * check if we have a direct outweight that has only one strand
 	 * @return
 	 */
-	/*public boolean hasSingleDirectOutWeight() {
+	public boolean hasSingleDirectOutWeight() {
 		boolean r = false;
-		for (Iterator<ProbaWeight> iterator = directOutWeights.values().iterator(); iterator.hasNext();) {
-			ProbaWeight b = iterator.next();
-			if(b.getBundle().size()==1){ not a bundlew
+		for (Iterator<BundleWeight> iterator = directOutWeights.values().iterator(); iterator.hasNext();) {
+			BundleWeight b = iterator.next();
+			if(b.getBundle().size()==1){
 				r = true;
 				break;
 			}
-		}
-		
+		}		
 		return r;
-	}*/
+	}
+
+	public void setSurprised(boolean surprised) {
+		this.surprised = surprised;
+	}
 	
 }
