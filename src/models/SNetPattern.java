@@ -52,7 +52,7 @@ public class SNetPattern implements ControllableThread {
 	int speed = 1;
 	
 	/** data recording*/
-	boolean save = false;
+	boolean save = true;
 	/** the folder for this specific run*/
 	String folderName;
 	/** network parameter series */
@@ -61,6 +61,8 @@ public class SNetPattern implements ControllableThread {
 	FileWriter weightsWriter;
 	/** bundle weights*/
 	FileWriter bWeightsWriter;
+	/** performance (surprise)*/
+	FileWriter perfWriter;
 	
 	/**number of presentations for current image*/
 	int presentations = 0;
@@ -72,6 +74,9 @@ public class SNetPattern implements ControllableThread {
 	int img_id = 0;
 	/** time step (simulation time) */
 	int step = 0;
+	
+	/** phase */
+	boolean dreaming = false;
 	
 	
 	//environment
@@ -156,6 +161,13 @@ public class SNetPattern implements ControllableThread {
         	String str = "iteration,neurons,connections\n";
         	paramWriter.append(str);
         	paramWriter.flush();
+        	
+        	//surprise 
+        	perfWriter = new FileWriter(folderName+"/"+Constants.PerfFileName);
+			mlog.say("stream opened "+Constants.PerfFileName);
+        	str = "iteration,surprise\n";
+        	perfWriter.append(str);
+        	perfWriter.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}		
@@ -247,6 +259,16 @@ public class SNetPattern implements ControllableThread {
     	try {
 			paramWriter.append(str);
 	    	paramWriter.flush();	
+		} catch (IOException e) {
+			e.printStackTrace();
+		}					
+	}
+	
+	private void writeSurprise(int n) {
+		String str = step+","+ n +"\n";
+    	try {
+			perfWriter.append(str);
+	    	perfWriter.flush();	
 		} catch (IOException e) {
 			e.printStackTrace();
 		}					
@@ -347,20 +369,33 @@ public class SNetPattern implements ControllableThread {
 		resetDirectOutWeights(allINeurons);
 
 		
-		//apply blur to selected portion of image
-		//get grayscale values of the image
-		int[] in = eye.buildCoarse();
-		
-		//go through sensory neurons and activate them.
-		int n = in.length;
-		int[][] n_interface = eye.getNeuralInterface();
-		for(int k = 0; k<n; k++){
-			//values in "in" start at 1, not 0
-			int i = in[k]-1;//dont see white -1;
-			//if(i>0){//dont see white
-				eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
-			//}
-		}//*/
+		if(!dreaming){
+			//apply blur to selected portion of image
+			//get grayscale values of the image
+			int[] in = eye.buildCoarse();
+			
+			//go through sensory neurons and activate them.
+			int n = in.length;
+			int[][] n_interface = eye.getNeuralInterface();
+			for(int k = 0; k<n; k++){
+				//values in "in" start at 1, not 0
+				int i = in[k]-1;//dont see white -1;
+				//if(i>0){//dont see white
+					eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
+				//}
+			}//*/
+		}else{
+			//make dreams: activate 60 sensors at random (total number of non overlapping sensors = 184
+			int[][] n_interface = eye.getNeuralInterface();
+			for(int i=0; i<60; i++){
+				//four layers of sensors (greyscale)
+				int l =  (int) Constants.uniformDouble(0,4);//0..3
+				//184 positions
+				int p =  (int) Constants.uniformDouble(0,184);//0..3
+				eye_neurons[l].get(n_interface[l][p]).increaseActivation(1);			
+			}
+			
+		}
 
 		/*if(test==0){
 			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
@@ -413,7 +448,9 @@ public class SNetPattern implements ControllableThread {
 		
 		
 		//integrate previously predicted activation to actual activation
-		//integrateActivation();	
+		if(dreaming){
+			integrateActivation();	
+		}
 	}
 	
 
@@ -502,12 +539,6 @@ public class SNetPattern implements ControllableThread {
 	 * @param layer map of neurons to be reset.
 	 */
 	public void resetNeuronsActivation(HashMap<Integer,INeuron> layer){
-		/*Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
-		while(it.hasNext()){
-			Entry<Integer, INeuron> pair = it.next();
-			INeuron ne = (INeuron) pair.getValue();
-			ne.resetActivation();
-		}*/
 		resetNeuronsActivation(layer.values());
 	}
 	
@@ -536,8 +567,6 @@ public class SNetPattern implements ControllableThread {
 		ageOutWeights(allINeurons);
 		increaseInWeights(allINeurons);
 		
-		//add +1 value to the inweights if they were activated at t-1 & neuron is activated
-		//increaseInWeights(allINeurons);
 		//reset activation of all w
 		for(int i=0;i<eye_neurons.length;i++){
 			resetOutWeights(eye_neurons[i]);
@@ -593,8 +622,12 @@ public class SNetPattern implements ControllableThread {
 	 * In this model there is no topological hierarchy yet, so all activated neurons are conscious.
 	 */
 	private void makeWeights() {
+		//number of surprised neurons at this timestep
+		int n_surprised = 0;
+		
 		if(STM.size()==0){
 			mlog.say("just woke up");
+			writeSurprise(n_surprised);
 			return;
 		}
 		
@@ -608,7 +641,7 @@ public class SNetPattern implements ControllableThread {
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			if(n.isSurprised()){
-				
+				n_surprised++;
 				//did we improve future prediction chances?
 				boolean didChange = false;
 				//go through STM
@@ -643,7 +676,9 @@ public class SNetPattern implements ControllableThread {
 		}
 				
 		mlog.say("added " + nw + " weights and "+ newn.size() + " neurons ");
-		//writeWeights();
+		writeSurprise(n_surprised);
+		mlog.say("surprised: " + n_surprised);
+
 	}
 	
 	/**
@@ -826,7 +861,7 @@ public class SNetPattern implements ControllableThread {
 								all++;
 							}
 							
-							double dist = 0;//do snap even if there were no outweights at all
+							double dist = 1;//do/don t snap even if there were no outweights at all
 							if(all!=0){
 								dist = Math.sqrt(diff)/all;					
 							}
@@ -966,7 +1001,19 @@ public class SNetPattern implements ControllableThread {
 		    			net.snap();
 		    			long snaptime = System.currentTimeMillis()-before;;
 		    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);
+		    			
+		    			//sleep for 20 steps, every 20 steps
+		    			if(step>1){
+			    			if(!dreaming){
+			    				dreaming = true;
+			    				mlog.say("dreaming");
+			    			}else{	    				
+			    				dreaming = false;
+			    				mlog.say("not dreaming");
+			    			}
+		    			}
 		    		}
+		    		
 		    		
 		    		step++;
 		    		

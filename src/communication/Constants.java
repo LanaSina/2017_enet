@@ -32,6 +32,9 @@ public class Constants {
 	public static final String DataPath = "/Users/lana/Development/SNET_data/";
 	/** network parameters file*/
 	public static final String ParamFileName = "parameters.csv";
+
+
+	public static final String PerfFileName = "performance.csv";
 	
 	
 	
