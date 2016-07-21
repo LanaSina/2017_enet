@@ -14,9 +14,9 @@ public class Constants {
 
 
 	/** age at which probabilistic connections stop learning */
-	public static final int weight_max_age = 20;
+	public static final int weight_max_age = 40;//20
 	/** confidence threshold for predictions */
-	public static final double confidence_threshold = 0.9;//90%
+	public static final double confidence_threshold = 0.8;//90%
 	
 	/** sensitivity of the image sensor */
 	public static final int gray_scales = 4;
@@ -35,6 +35,9 @@ public class Constants {
 
 
 	public static final String PerfFileName = "performance.csv";
+
+	/** how much error is tolerated to call 2 neurons "same"*/
+	public static double w_error = 0.1;
 	
 	
 	

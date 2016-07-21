@@ -18,6 +18,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.media.j3d.WakeupAnd;
 import javax.swing.JButton;
 
 import communication.Constants;
@@ -77,13 +78,15 @@ public class SNetPattern implements ControllableThread {
 	
 	/** phase */
 	boolean dreaming = false;
+	//
+	int activated =0;
 	
 	
 	//environment
 	/**images files*/
 	String imagesPath = "/Users/lana/Desktop/prgm/JAVANeuron/JAVANeuron/src/images/";
 	/** image description (chars)*/
-	String[] images = {"ball_1","ball_2","ball_3","ball_1","ball_2_b","ball_4"}; 
+	String[] images = {"ball_1","ball_2","ball_3"};//,"ball_1","ball_2_b","ball_4"}; 
 	//{"a_very_small","b_very_small","c_very_small"};		
 	
 	//sensors 
@@ -380,19 +383,34 @@ public class SNetPattern implements ControllableThread {
 			for(int k = 0; k<n; k++){
 				//values in "in" start at 1, not 0
 				int i = in[k]-1;//dont see white -1;
-				//if(i>0){//dont see white
+				if(i>0){//dont see white
 					eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
-				//}
+				}
 			}//*/
 		}else{
 			//make dreams: activate 60 sensors at random (total number of non overlapping sensors = 184
-			int[][] n_interface = eye.getNeuralInterface();
+			/*int[][] n_interface = eye.getNeuralInterface();
 			for(int i=0; i<60; i++){
 				//four layers of sensors (greyscale)
 				int l =  (int) Constants.uniformDouble(0,4);//0..3
 				//184 positions
 				int p =  (int) Constants.uniformDouble(0,184);//0..3
 				eye_neurons[l].get(n_interface[l][p]).increaseActivation(1);			
+			}*/
+			
+			if(step%10==0){
+				//unactivate all neurons (just in case we are overloaded)
+				deactivateAll();
+				activated = 0;
+			}
+			
+			Object[] neurons = allINeurons.values().toArray();
+			int max = neurons.length;
+			int total = (max/20) - activated;//don't overload net
+			mlog.say("total "+ total + " activated "+ activated);
+			for(int i=0; i<total; i++){
+				int l =  (int) Constants.uniformDouble(0,max);
+				((INeuron) neurons[l]).increaseActivation(1);
 			}
 			
 		}
@@ -435,22 +453,44 @@ public class SNetPattern implements ControllableThread {
 		}	
 		//*/
 		
-		//propagate instantly from eye to 1st INeurons
+		//propagate instantly from eyes
 		propagateFromEyeNeurons();
-
-		//second pass for level 1 pattern neurons (bad)
-		//TODO do this top-down after 1st sensory activation ? (maybe takes too much time??)
-		Iterator<INeuron> it = allINeurons.values().iterator();
-		while(it.hasNext()){
-			INeuron nn =  it.next();
-			nn.makeDirectActivation();
-		}
-		
 		
 		//integrate previously predicted activation to actual activation
 		if(dreaming){
+			Iterator<INeuron> it = allINeurons.values().iterator();
+			while(it.hasNext()){
+				INeuron n  = it.next();
+				if(n.getActivation()>0){
+					n.activateDirectOutWeights();
+				}			
+			}	
 			integrateActivation();	
+			activated = getActivated();
 		}
+	}
+	
+	private void deactivateAll() {
+		for (Iterator<INeuron> iterator = allINeurons.values().iterator(); iterator.hasNext();) {
+			INeuron n = iterator.next();
+			n.resetActivation();
+			n.resetDirectOutWeights();
+			n.resetOutWeights();
+			//shouldnt be needed but is?
+			n.resetInWeights();
+		}
+	}
+	
+	private int getActivated(){
+		int t = 0;
+		for (Iterator<INeuron> iterator = allINeurons.values().iterator(); iterator.hasNext();) {
+			INeuron n = iterator.next();
+			n.calculateActivation();
+			if(n.isActivated()){
+				t++;
+			}
+		}
+		return t;
 	}
 	
 
@@ -464,13 +504,6 @@ public class SNetPattern implements ControllableThread {
 					n.activateDirectOutWeights();
 				}
 			}	
-		}
-		//activate corresponding neurons
-		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
-		while(it.hasNext()){
-			Map.Entry<Integer, INeuron> pair = it.next();
-			INeuron n = pair.getValue();
-			n.makeDirectActivation();
 		}
 	}
 
@@ -658,7 +691,7 @@ public class SNetPattern implements ControllableThread {
 				}
 				
 				//no change happened, try building a spatial pattern
-				if(!didChange){					
+				if(!didChange & !dreaming){					
 					if(!patternExists(STM,n)){
 						INeuron neuron = new INeuron(STM,n,n_id);
 						newn.addElement(neuron);
@@ -866,7 +899,7 @@ public class SNetPattern implements ControllableThread {
 								dist = Math.sqrt(diff)/all;					
 							}
 							//count how many connections are removed
-							if(dist==0){//if exact same outweights
+							if(dist<=Constants.w_error){//if exact same outweights
 								//check if no direct contradiction in inweights (important)
 								/*HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
 								HashMap<INeuron,ProbaWeight> in2 = n2.getInWeights();
@@ -953,6 +986,11 @@ public class SNetPattern implements ControllableThread {
 		return nw;
 	}
 	
+	private void cleanAll() {
+		STM.clear();
+		deactivateAll();
+	}
+	
 	//main thread
 	//TODO should be in different class, maybe starter
 	private class ExperimentThread implements Runnable {
@@ -1006,9 +1044,11 @@ public class SNetPattern implements ControllableThread {
 		    			if(step>1){
 			    			if(!dreaming){
 			    				dreaming = true;
+			    				cleanAll();
 			    				mlog.say("dreaming");
 			    			}else{	    				
 			    				dreaming = false;
+			    				cleanAll();
 			    				mlog.say("not dreaming");
 			    			}
 		    			}
