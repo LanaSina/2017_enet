@@ -43,8 +43,6 @@ public class Eye {
 	int vf_h = 50, vf_w = 50;
 	/** size of focused area */
 	int ef_s = 20;
-	/** matrix of exact balck and white values for the image */
-	//double[][] bw;//black and white
 	/** what the net sees */
 	double[][] visual_field;//focus
 	/** resolution of focused area = px/side of square */ 
@@ -55,7 +53,7 @@ public class Eye {
 	/** sensitivity resolution; number of distinct groups of sensory neurons*/
 	int gray_scales = Constants.gray_scales;
 	/**interface for sensory neurons linked to this sensor. [discrete grayscale value][neuron id] */
-	int[][] s_neurons; //was eye_v
+	int[][] s_neurons;
 	/** matrix of exact black and white values for the image [row][col] = grayscale value */
 	double[][] bw;
 	/** maps actual values in world to sensors (square sensory field, can be overlapping) 
@@ -89,9 +87,6 @@ public class Eye {
 		//init
 		this.imagesPath = imagesPath;
 		this.panel = panel;
-		
-		//graphics
-    	/*panel = new Surface();*/
     	
     	//number of neurons in focused area
     	n = ef_s*ef_s/(eres_f*eres_f);
@@ -170,7 +165,6 @@ public class Eye {
 	 * @return buffer of black and white values bw[h][w]
 	 */
 	public double[][] readImage(String name){
-		//mlog.say("called");
 		
 		try {
 			image_input = ImageIO.read(new File(imagesPath+name+".png"));
@@ -206,11 +200,7 @@ public class Eye {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		//mlog.say("read "+ focus_center[0]);
 
-		
-		
 		return bw;
 	}
 	
@@ -334,7 +324,7 @@ public class Eye {
 	/**
 	 * use to build interface between eye and net.
 	 * 
-	 * @param nid id fo the neuron that will receive input
+	 * @param nid id of the neuron that will receive input
 	 * @param scale the greyscale value this neuron is sensitive to
 	 * @param index position of the neuron in the list of neurons sensitive to same greyscale value
 	 */

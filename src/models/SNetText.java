@@ -77,14 +77,14 @@ public class SNetText implements ControllableThread {
 	
 	//environment
 	/**text files path*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/text";
+	String textPath = "/Users/lana/Desktop/prgm/SNet/text";
 	/** file name*/
-	String fileName = "input_0.txt";//,"ball_1","ball_2_b","ball_4"}; 
+	String fileName = "input_0.txt";
 	
 	//sensors 
 	/** byrte reader*/
 	ByteSensor eye;
-	/** sensory neurons: [layer for this grayscale][id, neuron at different positions in the image] */
+	/** sensory neurons: 8 bits, 2 states = 16 neurons <id, neuron> */
 	HashMap<Integer, INeuron> eye_neurons = new HashMap<Integer, INeuron>();
 
 	//neurons
@@ -96,6 +96,9 @@ public class SNetText implements ControllableThread {
 	/**short term memory, contains conscious neurons */
 	Vector<INeuron> STM = new Vector<INeuron>();
 	
+	/** input */
+	int[] input = new int[8];
+	
 	public SNetText(){
 		//graphics
     	panel = new Surface();
@@ -103,12 +106,8 @@ public class SNetText implements ControllableThread {
     	
 		
     	//sensor init
-    	eye = new Eye(imagesPath,panel);
-		String iname = images[img_id];//+"_very_small";
-    	eye.readImage(iname);
-    	
-    	//net creation
-    	createNet();	
+    	eye = new ByteSensor(textPath+"/"+fileName, panel);
+
     	//net initialization
     	initNet();
     	//graphics
@@ -268,40 +267,26 @@ public class SNetText implements ControllableThread {
 			e.printStackTrace();
 		}					
 	}
-
-	/**
-	 * set the sizes of arrays and lists
-	 */
-	private void createNet(){
-				
-		//eye interfacing
-		for(int i=0;i<eye_neurons.length;i++){
-    		eye_neurons[i] = new HashMap<Integer, INeuron>();
-    	}
-		
-		int n = eye.getPartialNeuronsNumber();
-		mlog.say("eye has "+ n + " sensors");
-	}
 	
 	
 	/**
 	 * fills list with neurons
 	 */
 	private void initNet(){
-		int n_n = eye.getPartialNeuronsNumber();
-		int gray_scales = Constants.gray_scales;
+		//possible values of inputs
 		
-		//eye sensory neurons
-		for(int i=0; i< n_n;i++){				
-			for(int j=0;j<gray_scales;j++){
+		//number of simulatenous values
+		for(int i=0; i<2; i++){
+			for(int j=0;j<8;j++){
 				//create neuron
 				INeuron n = new INeuron(n_id);
-				//put it in list
-				eye_neurons[j].put(n_id, n);
-				//make it sensitive to an input
-				eye.linkNeuron(n_id,j, i);
 				n_id++;				
+				//put it in list
+				eye_neurons.put(n.getId(), n);		
+				//make it sensitive to an input
+				eye.linkNeuron(n_id,i,j);
 				INeuron n2 = new INeuron(n_id);
+				n_id++;				
 				n2.justSnapped = true;//avoid snapping newborn neurons
 				//add direct in weight
 				Vector<INeuron> v = new Vector<INeuron>();
@@ -309,11 +294,10 @@ public class SNetText implements ControllableThread {
 				BundleWeight b = n2.addDirectInWeight(v);
 				//ProbaWeight p = n2.addInWeight(Constants.fixedConnection, n);
 				n.addDirectOutWeight(n2,b);
-				allINeurons.put(n_id, n2);
-				n_id++;				
+				allINeurons.put(n2.getId(), n2);
 			}
-		}	
-
+		}
+		
 		mlog.say(n_id +" neurons");		
 	}
 	
@@ -322,30 +306,19 @@ public class SNetText implements ControllableThread {
 	 * resets all neurons activations,
 	 * then builds the sensory inputs 
 	 * and activate all outside weights and action_weights accordingly.
+	 * @return false if reached EoF
 	 */
-	public void buildInputs(){
-		presentations++;
-		if(presentations>=max_presentations){
-    		nextImage = true;	
+	public boolean buildInputs(){
+		//next byte
+		if(eye.readInput(input)){
+			buildEyeInput();
+			return true;
 		}
 		
-		if(nextImage){
-			presentations = 0;
-			nextImage = false;
-    		//change char
-    		img_id++;
-			if(img_id>=images.length){
-				img_id=0;
-			}
-			String iname = images[img_id];//+"_very_small";
-			eye.readImage(iname);
-		}
-		//build
-		buildEyeInput();
+		return false;
 	}
 	
 	
-	int test = 0;
 	/**
 	 * Resets eye neurons activation to 0;
 	 * builds the sensory input from the focused image,
@@ -355,30 +328,22 @@ public class SNetText implements ControllableThread {
 	private void buildEyeInput(){	 
 		
 		//reset activations of eye neurons and direct outweights
-		for(int i=0;i<eye_neurons.length;i++){
-			resetNeuronsActivation(eye_neurons[i]);
-			resetDirectOutWeights(eye_neurons[i]);
-		}
+		resetNeuronsActivation(eye_neurons);
+		resetDirectOutWeights(eye_neurons);
 		//reset activations of ineurons
 		resetNeuronsActivation(allINeurons);
 		resetDirectOutWeights(allINeurons);
 
-		
-		if(!dreaming){
-			//apply blur to selected portion of image
-			//get grayscale values of the image
-			int[] in = eye.buildCoarse();
-			
+		if(!dreaming){		
 			//go through sensory neurons and activate them.
-			int n = in.length;
 			int[][] n_interface = eye.getNeuralInterface();
-			for(int k = 0; k<n; k++){
-				//values in "in" start at 1, not 0
-				int i = in[k]-1;//dont see white -1;
-				if(i>0){//dont see white
-					eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
+
+			for(int i=0; i<2;i++){
+				for(int j=0; j<8; j++){
+					eye_neurons.get(n_interface[i][j]).increaseActivation(1);
 				}
-			}//*/
+			}
+
 		}else{
 			//make dreams: activate 60 sensors at random (total number of non overlapping sensors = 184
 			/*int[][] n_interface = eye.getNeuralInterface();
@@ -403,47 +368,8 @@ public class SNetText implements ControllableThread {
 			for(int i=0; i<total; i++){
 				int l =  (int) Constants.uniformDouble(0,max);
 				((INeuron) neurons[l]).increaseActivation(1);
-			}
-			
+			}			
 		}
-
-		/*if(test==0){
-			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
-			INeuron n2 = iterator.next().getValue();
-			n2.increaseActivation(1);
-			mlog.say("test is "+ test + " neuron " + n2.getId()+" is activated ");
-			test++;
-		}else if (test ==1 ){
-			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
-			iterator.next();
-			INeuron n2 = iterator.next().getValue();
-			n2.increaseActivation(1);
-			mlog.say("test is "+ test + " neuron " + n2.getId()+" is activated ");
-			//test = 0;
-			test++;
-		}else if (test == 2 ){
-			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
-			INeuron n2 = iterator.next().getValue();
-			n2.increaseActivation(1);
-			mlog.say("test is "+ test + " neuron " + n2.getId()+" and other are activated ");
-			iterator.next();
-			n2 = iterator.next().getValue();
-			n2.increaseActivation(1);	
-			mlog.say("test is "+ test + " neuron " + n2.getId()+" and other are activated ");
-			test++;
-		} else if (test == 3) {
-			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
-			iterator.next();
-			iterator.next();
-			iterator.next();
-			iterator.next();
-			iterator.next();
-			INeuron n2 = iterator.next().getValue();
-			n2.increaseActivation(1);		
-			mlog.say("test is "+ test + " neuron " + n2.getId()+" is activated ");
-			test = 0;
-		}	
-		//*/
 		
 		//propagate instantly from eyes
 		propagateFromEyeNeurons();
