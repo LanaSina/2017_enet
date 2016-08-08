@@ -13,7 +13,6 @@ top down search, rely on predictions, mute, STM>1, continuous (non binary, not l
 TODO
 dream: only strenghten w towards neurons that were highly certain, not towards those we activated by ourselves...
 
-bug where middle prediction disappeasrs
 unsnapping
 deleting really old pattern neurons? or small probas? or what? (get created by dreams...)
 
@@ -27,7 +26,6 @@ color for pattern neurons and action neurons; maybe also write type in csv files
 how to decide the max age of weights?
 start everything as pattern?
 
-!!!! what happens when neurons have fusioned too early?  !!!!
 
 add action neurons into pool too? maybe rather after we introduce reward
 (and 2 level actions: reflexes and chosen actions)
@@ -38,12 +36,6 @@ dream
 noise (continuous values?)
 
 
-
-start with really 0 neurons;
-sync of direct activations: how
-
-to activate pattern neurons we might need too many pass of “doDirect activation” so we really need deysnc activation w/o special treatment for “direct weights”.
-
 with attention we can avoid trying to predict each neuron...
 
 We don’t actually need instantaneous weights — complete parallelism is more important than instant reaction times
@@ -51,5 +43,3 @@ We don’t actually need instantaneous weights — complete parallelism is more 
 
 when we have space, we can avoid too big search in snap statement.
 also higher levels should get closer and closer to each other while sensory levels are separated: sensory out surface of brain, high level inside with trunk linking hemispheres??
-
-snap: outweights globally the same, inweights individually not contradicting.

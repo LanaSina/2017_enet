@@ -45,7 +45,7 @@ public class SNetText implements ControllableThread {
 	MyLog mlog = new MyLog("SNet", true);
 	
 	/** graphics*/
-	Surface panel;
+	//Surface panel;
 	/** net visualization */
 	NetworkGraph netGraph;
 	/** controls from UI */
@@ -101,12 +101,12 @@ public class SNetText implements ControllableThread {
 	
 	public SNetText(){
 		//graphics
-    	panel = new Surface();
-    	panel.addControllable(this);
+    	/*panel = new Surface();
+    	panel.addControllable(this);*/
     	
 		
     	//sensor init
-    	eye = new ByteSensor(textPath+"/"+fileName, panel);
+    	eye = new ByteSensor(textPath+"/"+fileName);//, panel);
 
     	//net initialization
     	initNet();
@@ -413,16 +413,14 @@ public class SNetText implements ControllableThread {
 	
 
 	private void propagateFromEyeNeurons() {
-		for (int i = 0; i < eye_neurons.length; i++) {
-			Iterator<Entry<Integer, INeuron>> it = eye_neurons[i].entrySet().iterator();
-			while(it.hasNext()){
-				Map.Entry<Integer, INeuron> pair = it.next();
-				INeuron n = pair.getValue();
-				if(n.getActivation()>0){
-					n.activateDirectOutWeights();
-				}
-			}	
-		}
+		Iterator<Entry<Integer, INeuron>> it = eye_neurons.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<Integer, INeuron> pair = it.next();
+			INeuron n = pair.getValue();
+			if(n.getActivation()>0){
+				n.activateDirectOutWeights();
+			}
+		}	
 	}
 
 	/**
@@ -493,6 +491,7 @@ public class SNetText implements ControllableThread {
 		resetNeuronsActivation(layer.values());
 	}
 	
+	
 	/**
 	 * resets neurons activation to 0
 	 * @param layer map of neurons to be reset.
@@ -503,8 +502,7 @@ public class SNetText implements ControllableThread {
 			INeuron n = it.next();
 			n.resetActivation();
 		}
-	}
-	
+	}	
 	
 
 	/**
@@ -519,9 +517,8 @@ public class SNetText implements ControllableThread {
 		increaseInWeights(allINeurons);
 		
 		//reset activation of all w
-		for(int i=0;i<eye_neurons.length;i++){
-			resetOutWeights(eye_neurons[i]);
-		}		
+		resetOutWeights(eye_neurons);
+				
 		resetOutWeights(allINeurons);
 		
 		//for ineurons
@@ -694,10 +691,10 @@ public class SNetText implements ControllableThread {
 		int[] sum = new int[n_interface[0].length];
 
 		//go through interface and build levels of gray
-		for(int i=0; i<n_interface.length; i++){// i = gray scale
-			for (int j = 0; j < n_interface[0].length; j++) {//j = position in image
+		for(int i=0; i<n_interface.length; i++){
+			for (int j = 0; j < n_interface[0].length; j++) {
 				int n_id = n_interface[i][j];
-				INeuron neuron = eye_neurons[i].get(n_id);
+				INeuron neuron = eye_neurons.get(n_id);
 				//neuron.calculateActivation();
 				if(neuron.getUpperPredictedActivation()>0){//
 					//mlog.say(neuron.getId()+" inweight was activated ");
@@ -719,7 +716,7 @@ public class SNetText implements ControllableThread {
 		}
 
 		//then put into image
-		eye.setPredictedBuffer(coarse);		
+		//eye.setPredictedBuffer(coarse);		
 	}
 	
 	/**

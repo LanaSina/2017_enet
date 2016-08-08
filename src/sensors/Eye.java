@@ -210,7 +210,7 @@ public class Eye {
 	 * from the motion of eye muscles. We use relative motion bc it takes less memory space (easier)
 	 * @return activation values on sensors [gray scale id]*total resolution. High values are black.
 	 */
-	public int[] buildCoarse(){//TODO dont need the arguments
+	public int[] buildCoarse(){
 		
 		eye_input = new BufferedImage(vf_w, vf_h, BufferedImage.TYPE_INT_RGB);
 		eye_input_coarse = new BufferedImage(vf_w, vf_h, BufferedImage.TYPE_INT_RGB);

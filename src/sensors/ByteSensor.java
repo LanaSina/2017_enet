@@ -12,7 +12,7 @@ public class ByteSensor {
 	/** log */
 	MyLog mlog = new MyLog("Eye", true);
 	/** graphics*/
-	Surface panel;
+	//Surface panel;
 	/**where to find images files*/
 	String textPath;
 	
@@ -23,10 +23,10 @@ public class ByteSensor {
 	/**interface for sensory neurons linked to this sensor. [bit value(0,1)][neuron id] */
 	int[][] s_neurons; 
 	
-	public ByteSensor(String textPath, Surface panel){
+	public ByteSensor(String textPath){//, Surface panel){
 		//init
 		this.textPath = textPath;
-		this.panel = panel;
+		//this.panel = panel;
     	
 		//sensory neurons
 		s_neurons = new int[2][8];
