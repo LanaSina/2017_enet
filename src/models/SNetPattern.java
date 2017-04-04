@@ -53,7 +53,7 @@ public class SNetPattern implements ControllableThread {
 	int speed = 1;
 	
 	/** data recording*/
-	boolean save = true;
+	boolean save = false;
 	/** the folder for this specific run*/
 	String folderName;
 	/** network parameter series */
@@ -660,7 +660,9 @@ public class SNetPattern implements ControllableThread {
 		
 		if(STM.size()==0){
 			mlog.say("just woke up");
-			writeSurprise(n_surprised);
+			if(save){
+				writeSurprise(n_surprised);
+			}
 			return;
 		}
 		
@@ -709,7 +711,9 @@ public class SNetPattern implements ControllableThread {
 		}
 				
 		mlog.say("added " + nw + " weights and "+ newn.size() + " neurons ");
-		writeSurprise(n_surprised);
+		if(save){
+			writeSurprise(n_surprised);
+		}
 		mlog.say("surprised: " + n_surprised);
 
 	}

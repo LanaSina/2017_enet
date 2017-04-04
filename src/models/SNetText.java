@@ -54,7 +54,7 @@ public class SNetText implements ControllableThread {
 	int speed = 1;
 	
 	/** data recording*/
-	boolean save = true;
+	boolean save = false;
 	/** the folder for this specific run*/
 	String folderName;
 	/** network parameter series */
@@ -973,7 +973,7 @@ public class SNetText implements ControllableThread {
 		    		step++;
 		    		
 		    		//UI
-				    panel.setTime(step);
+				    //panel.setTime(step);
 				    //Vector<INeuron> v = new Vector<INeuron>(allINeurons.values());
 				    netGraph.updateNeurons(allINeurons);				  
 	    		}
