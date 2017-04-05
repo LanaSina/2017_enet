@@ -71,14 +71,23 @@ public class Surface extends JPanel{
 	/** boolean linked to stop/start button*/
 	boolean paused = false;
 	
-	
-	public Surface(){
-		letter = new BufferedImage(50,50,BufferedImage.TYPE_INT_RGB);
+	/**
+	 * 
+	 * @param vh visual field h
+	 * @param vw visual field w
+	 * @param fh focus h
+	 * @param fw focus w
+	 */
+	public Surface(int vh, int vw, int fh, int fw){
+		setVisualFieldSize(vh, vw);
+		setFocusSize(fh, fw);
+		
+		letter = new BufferedImage(visualField_w,visualField_h,BufferedImage.TYPE_INT_RGB);
 		focused = letter;
 		seen = letter;
 		
-		predicted = new BufferedImage(50,50,BufferedImage.TYPE_INT_RGB);
-		warped = new BufferedImage(50,50,BufferedImage.TYPE_INT_RGB);
+		predicted = new BufferedImage(visualField_w,visualField_h,BufferedImage.TYPE_INT_RGB);
+		warped = new BufferedImage(visualField_w,visualField_h,BufferedImage.TYPE_INT_RGB);
 		
 		buildFrame(this);
 	}
@@ -124,13 +133,13 @@ public class Surface extends JPanel{
 		g.setColor(Color.red);
 		int th = (eyeFocusSize_h)/2;
 		int tw = (eyeFocusSize_w)/2;
-		g.drawRect(origin+track[1]-th, y+track[0]-tw, eyeFocusSize_h, eyeFocusSize_w);
+		g.drawRect(origin+track[1]-tw, y+track[0]-th, eyeFocusSize_w, eyeFocusSize_h);
 		
 		//focus center
 		//offset to focused area top left corner
 		th = (visualField_h)/2;
 		tw = (visualField_w)/2;
-		g.drawRect(origin+track[1]-th, y+track[0]-tw, visualField_w, visualField_h);
+		g.drawRect(origin+track[1]-tw, y+track[0]-th, visualField_w, visualField_h);
 		   
 		g.setColor(Color.black);
 		

@@ -91,8 +91,8 @@ public class SNetPattern implements ControllableThread {
 	/** number of images if not using names*/
 	int n_images = 80;
 	/** image dimensions */
-	int ih = 51;
-	int iw = 139;
+	int ih = 50;
+	int iw = 138;
 	
 	//sensors 
 	/** image sensor*/
@@ -111,15 +111,13 @@ public class SNetPattern implements ControllableThread {
 	
 	public SNetPattern(){
 		//graphics
-    	panel = new Surface();
+    	panel = new Surface(ih,iw, ih,iw);
     	panel.addControllable(this);   
-    	panel.setFocusSize(ih,iw);
-    	panel.setVisualFieldSize(ih,iw);
 		
     	//sensor init
     	eye = new Eye(imagesPath,panel,ih,iw,ih,iw);
     	//leading zeros
-		String iname =  String.format("%012d", img_id); //images[img_id];
+		String iname =  String.format("%010d", img_id); //images[img_id];
     	eye.readImage(iname);
     	
     	//net creation
@@ -364,7 +362,7 @@ public class SNetPattern implements ControllableThread {
 			if(img_id>=n_images){
 				img_id=0;
 			}
-			String iname = String.format("%012d", img_id);;
+			String iname = String.format("%010d", img_id);;
 			eye.readImage(iname);
 		}
 		//build

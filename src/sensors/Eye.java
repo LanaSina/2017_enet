@@ -109,8 +109,10 @@ public class Eye {
     	
     	//number of neurons in focused area
     	n = ef_h*ef_w/(eres_f*eres_f);
+    	mlog.say("n focus"+ n);
 		//number of neurons in non-focused area
 		n+= ((vf_w*vf_h) - (ef_h*ef_w))/(eres_nf*eres_nf);//total n of pixels - focused pixels, / resolution
+		mlog.say("n plus non focus "+ n);
 		
 		//sensory neurons
 		s_neurons = new int[gray_scales][n];
@@ -126,6 +128,11 @@ public class Eye {
 		//height
 		int h = 0;
 		
+		/*int cw = ((vf_w-ef_w)/2)+ef_w;
+		mlog.say("condition w "+ cw);
+		int ch = ((vf_h-ef_h)/2)+ef_h;
+		mlog.say("condition h "+ ch);*/
+
 		//do in focus first,left to right
 		h = (vf_h-ef_h)/2;
 		w = (vf_w-ef_w)/2;
@@ -139,6 +146,7 @@ public class Eye {
 				//next row
 				h+=eres_f;
 				w=(vf_w-ef_w)/2;
+				//mlog.say("next "+ h);
 			}		
 			if(h >= ((vf_h-ef_h)/2)+ef_h){
 				next = false;
@@ -184,10 +192,12 @@ public class Eye {
 	 * @return buffer of black and white values bw[h][w]
 	 */
 	public double[][] readImage(String name){
-		
-		try {
-			image_input = ImageIO.read(new File(imagesPath+name+".png"));
 			
+		try {
+			String imagepath = imagesPath+name+".png";
+			mlog.say("reading " + imagepath);
+
+			image_input = ImageIO.read(new File(imagepath));
 			im_h = image_input.getHeight();
 			im_w = image_input.getWidth();	
 			
