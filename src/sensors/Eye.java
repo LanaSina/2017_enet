@@ -44,9 +44,10 @@ public class Eye {
 	/** size of current image we're looking at*/
 	int im_h,im_w;
 	/** visual field size */
-	int vf_h = 50, vf_w = 50;
+	int vf_h = 51, vf_w = 139;
 	/** size of focused area */
-	int ef_s = 20;
+	int ef_h = 51;
+	int ef_w = 139;
 	/** what the net sees */
 	double[][] visual_field;//focus
 	/** resolution of focused area = px/side of square */ 
@@ -86,16 +87,30 @@ public class Eye {
 	/** actual eye input with coarse outfocus zone*/
 	BufferedImage eye_input_coarse;
 	
-	
-	public Eye(String imagesPath, Surface panel){
+	/**
+	 * 
+	 * @param imagesPath
+	 * @param panel
+	 * @param vh visual field h
+	 * @param vw visual field w
+	 * @param eh focus size h
+	 * @param ew focus size w
+	 */
+	public Eye(String imagesPath, Surface panel, int vh, int vw, int eh, int ew){
 		//init
 		this.imagesPath = imagesPath;
 		this.panel = panel;
+		/** visual field size */
+		vf_h = vh;
+		vf_w = vw;
+		/** size of focused area */
+		ef_h = eh;
+		ef_w = ew;
     	
     	//number of neurons in focused area
-    	n = ef_s*ef_s/(eres_f*eres_f);
+    	n = ef_h*ef_w/(eres_f*eres_f);
 		//number of neurons in non-focused area
-		n+= ((vf_w*vf_h) - (ef_s*ef_s))/(eres_nf*eres_nf);//total n of pixels - focused pixels, / resolution
+		n+= ((vf_w*vf_h) - (ef_h*ef_w))/(eres_nf*eres_nf);//total n of pixels - focused pixels, / resolution
 		
 		//sensory neurons
 		s_neurons = new int[gray_scales][n];
@@ -112,20 +127,20 @@ public class Eye {
 		int h = 0;
 		
 		//do in focus first,left to right
-		h = (vf_h-ef_s)/2;
-		w = (vf_w-ef_s)/2;
+		h = (vf_h-ef_h)/2;
+		w = (vf_w-ef_w)/2;
 		boolean next = true;
 		while(next){
 			eye_interface[nn][0] = h;//row
 			eye_interface[nn][1] = w;//col
 			eye_interface[nn][2] = eres_f;//size
 			w+=eres_f;//next column
-			if(w >= ((vf_w-ef_s)/2)+ef_s){
+			if(w >= ((vf_w-ef_w)/2)+ef_w){
 				//next row
 				h+=eres_f;
-				w=(vf_w-ef_s)/2;
+				w=(vf_w-ef_w)/2;
 			}		
-			if(h >= ((vf_h-ef_s)/2)+ef_s){
+			if(h >= ((vf_h-ef_h)/2)+ef_h){
 				next = false;
 			}
 			nn++;
@@ -137,7 +152,7 @@ public class Eye {
 		//go down to next row
 		next = true;
 		while(next){
-			boolean infocus = ( h>=(vf_h-ef_s)/2 & h<((vf_h-ef_s)/2)+ef_s) & (w>=(vf_w-ef_s)/2 & w<((vf_w-ef_s)/2)+ef_s);
+			boolean infocus = ( h>=(vf_h-ef_h)/2 & h<((vf_h-ef_h)/2)+ef_h) & (w>=(vf_w-ef_w)/2 & w<((vf_w-ef_w)/2)+ef_w);
 			if(!infocus){
 				eye_interface[nn][0] = h;//row
 				eye_interface[nn][1] = w;
@@ -145,7 +160,7 @@ public class Eye {
 				w+=eres_nf;//next column
 				nn++;
 			} else{
-				w+=ef_s;
+				w+=ef_w;
 			}
 			if(w >= vf_w){
 				//next row

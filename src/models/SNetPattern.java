@@ -35,7 +35,7 @@ import sensors.Eye;
 
 /**
  * 1st stage model: this network just predicts next input using probability weights.
- * Focus cannot change, no action occurs. Has short term memo
+ * Focus cannot change, no action occurs. Has short term memory
  * @author lana
  *
  */
@@ -85,10 +85,14 @@ public class SNetPattern implements ControllableThread {
 	
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/JAVANeuron/JAVANeuron/src/images/";
-	/** image description (chars)*/
-	String[] images = {"ball_1","ball_2","ball_3"};//,"ball_1","ball_2_b","ball_4"}; 
-	//{"a_very_small","b_very_small","c_very_small"};		
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Dataset_01/"; //"/Users/lana/Desktop/prgm/JAVANeuron/JAVANeuron/src/images/";
+	/** image names (chars)*/
+	//String[] images = {"ball_1","ball_2","ball_3"};//,"ball_1","ball_2_b","ball_4"}; 
+	/** number of images if not using names*/
+	int n_images = 80;
+	/** image dimensions */
+	int ih = 51;
+	int iw = 139;
 	
 	//sensors 
 	/** image sensor*/
@@ -108,11 +112,14 @@ public class SNetPattern implements ControllableThread {
 	public SNetPattern(){
 		//graphics
     	panel = new Surface();
-    	panel.addControllable(this);   	
+    	panel.addControllable(this);   
+    	panel.setFocusSize(ih,iw);
+    	panel.setVisualFieldSize(ih,iw);
 		
     	//sensor init
-    	eye = new Eye(imagesPath,panel);
-		String iname = images[img_id];//+"_very_small";
+    	eye = new Eye(imagesPath,panel,ih,iw,ih,iw);
+    	//leading zeros
+		String iname =  String.format("%012d", img_id); //images[img_id];
     	eye.readImage(iname);
     	
     	//net creation
@@ -161,10 +168,12 @@ public class SNetPattern implements ControllableThread {
 			//run parameters
 			FileWriter param_writer = new FileWriter(folderName+"/"+Constants.Param_file_name);
 			mlog.say("stream opened "+Constants.Param_file_name);
-        	String str = "max_presentations,image_files,sensory_neurons,hidden_neurons,stm\n";
+        	String str = "max_presentations,image_files,sensory_neurons,hidden_neurons,stm,"
+        			+ "eye_noise,noise_range,noise_rate\n";
         	param_writer.append(str);
-        	str = ""+max_presentations + "," +  images.length + "," +  eye_neurons.length*eye_neurons[0].size() +
-        			"," + allINeurons.size() + "\n";
+        	str = ""+max_presentations + "," +  n_images + "," +  eye_neurons.length*eye_neurons[0].size() +
+        			"," + allINeurons.size() + "," + STM.size() + 
+        			"," + eye.has_noise + "," + eye.noise_rate + "," + eye.noise_rate + "\n";
         	param_writer.flush();
         	param_writer.close();
         	
@@ -352,10 +361,10 @@ public class SNetPattern implements ControllableThread {
 			nextImage = false;
     		//change char
     		img_id++;
-			if(img_id>=images.length){
+			if(img_id>=n_images){
 				img_id=0;
 			}
-			String iname = images[img_id];//+"_very_small";
+			String iname = String.format("%012d", img_id);;
 			eye.readImage(iname);
 		}
 		//build

@@ -60,10 +60,11 @@ public class Surface extends JPanel{
 	/** current center of focus in the image [x,y] (eye tracking) */
 	int[] track = {100,100};
 	
-	/** Size of the eye focus (a square surface) */
-	int eyeFocusSize = 20;
+	/** Size of the eye focus*/
+	int eyeFocusSize_h = 20;
+	int eyeFocusSize_w = 20;
 	/** size of the complete visual field: height */
-	int visualFiedl_h = 50;
+	int visualField_h = 50;
 	/** size of the complete visual field: width */
 	int visualField_w = 50;
 	
@@ -121,13 +122,15 @@ public class Surface extends JPanel{
 		//focus field outline
 		//complete visual field
 		g.setColor(Color.red);
-		int t = (eyeFocusSize)/2;
-		g.drawRect(origin+track[1]-t, y+track[0]-t, eyeFocusSize, eyeFocusSize);
+		int th = (eyeFocusSize_h)/2;
+		int tw = (eyeFocusSize_w)/2;
+		g.drawRect(origin+track[1]-th, y+track[0]-tw, eyeFocusSize_h, eyeFocusSize_w);
 		
 		//focus center
 		//offset to focused area top left corner
-		t = (visualField_w)/2;
-		g.drawRect(origin+track[1]-t, y+track[0]-t, visualField_w, visualFiedl_h);
+		th = (visualField_h)/2;
+		tw = (visualField_w)/2;
+		g.drawRect(origin+track[1]-th, y+track[0]-tw, visualField_w, visualField_h);
 		   
 		g.setColor(Color.black);
 		
@@ -286,5 +289,15 @@ public class Surface extends JPanel{
 	
 	public void setAction(String action) {
 		this.action = action;
+	}
+
+	public void setFocusSize(int ih, int iw) {
+		eyeFocusSize_h = ih;
+		eyeFocusSize_w = iw;
+	}
+
+	public void setVisualFieldSize(int ih, int iw) {
+		visualField_h = ih;
+		visualField_w = iw;
 	}
 }
