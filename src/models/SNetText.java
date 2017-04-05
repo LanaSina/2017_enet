@@ -150,8 +150,8 @@ public class SNetText implements ControllableThread {
 		//now create csv files
 		try {			
 			//parameters
-			paramWriter = new FileWriter(folderName+"/"+Constants.ParamFileName);
-			mlog.say("stream opened "+Constants.ParamFileName);
+			paramWriter = new FileWriter(folderName+"/"+Constants.Net_param_file_name);
+			mlog.say("stream opened "+Constants.Net_param_file_name);
         	String str = "iteration,neurons,connections\n";
         	paramWriter.append(str);
         	paramWriter.flush();

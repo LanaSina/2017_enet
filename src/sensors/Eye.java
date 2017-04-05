@@ -33,6 +33,10 @@ public class Eye {
 	/** becomes true after eye has been 1st initialized with an image*/
 	boolean init = false;
 	
+	public boolean has_noise = false;
+	public int noise_range = 50;
+	public double noise_rate = 0.1;
+	
 	/** total number of neurons sensitive to one grayscale value*/
 	int n;
 	/**where to find images files*/
@@ -185,6 +189,16 @@ public class Eye {
 			        int r = color.getRed();
 			        //convert to bw
 			        double mean = (b+g+r)/(255*3.0);
+			        if(has_noise){
+			        	if(Constants.uniformDouble(0, 1)<noise_rate){
+			        		mlog.say("NOISE original "+mean);
+			        		mean = Constants.uniformDouble(mean-(noise_range/255.0), mean+(noise_range/255.0));
+			        		if(mean<0) mean = 0;
+			        		if(mean>1) mean = 1;
+			        		mlog.say("after "+mean);
+
+			        	}
+			        }
 			        //high value is black
 			        double b2 = (1-mean);
 			        bw[i][j] = b2;

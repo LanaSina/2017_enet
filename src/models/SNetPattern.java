@@ -43,6 +43,9 @@ public class SNetPattern implements ControllableThread {
 	/** log */
 	MyLog mlog = new MyLog("SNet", true);
 	
+	/** data recording*/
+	boolean save = true;
+	
 	/** graphics*/
 	Surface panel;
 	/** net visualization */
@@ -51,13 +54,11 @@ public class SNetPattern implements ControllableThread {
 	boolean paused = false;
 	/** speed*/
 	int speed = 1;
-	
-	/** data recording*/
-	boolean save = false;
+
 	/** the folder for this specific run*/
 	String folderName;
 	/** network parameter series */
-	FileWriter paramWriter;
+	FileWriter net_param_writer;
 	/** neurons weights */
 	FileWriter weightsWriter;
 	/** bundle weights*/
@@ -107,8 +108,7 @@ public class SNetPattern implements ControllableThread {
 	public SNetPattern(){
 		//graphics
     	panel = new Surface();
-    	panel.addControllable(this);
-    	
+    	panel.addControllable(this);   	
 		
     	//sensor init
     	eye = new Eye(imagesPath,panel);
@@ -157,13 +157,23 @@ public class SNetPattern implements ControllableThread {
 		}
 		
 		//now create csv files
-		try {			
+		try {
+			//run parameters
+			FileWriter param_writer = new FileWriter(folderName+"/"+Constants.Param_file_name);
+			mlog.say("stream opened "+Constants.Param_file_name);
+        	String str = "max_presentations,image_files,sensory_neurons,hidden_neurons,stm\n";
+        	param_writer.append(str);
+        	str = ""+max_presentations + "," +  images.length + "," +  eye_neurons.length*eye_neurons[0].size() +
+        			"," + allINeurons.size() + "\n";
+        	param_writer.flush();
+        	param_writer.close();
+        	
 			//parameters
-			paramWriter = new FileWriter(folderName+"/"+Constants.ParamFileName);
-			mlog.say("stream opened "+Constants.ParamFileName);
-        	String str = "iteration,neurons,connections\n";
-        	paramWriter.append(str);
-        	paramWriter.flush();
+			net_param_writer = new FileWriter(folderName+"/"+Constants.Net_param_file_name);
+			mlog.say("stream opened "+Constants.Net_param_file_name);
+        	str = "iteration,neurons,connections\n";
+        	net_param_writer.append(str);
+        	net_param_writer.flush();
         	
         	//surprise 
         	perfWriter = new FileWriter(folderName+"/"+Constants.PerfFileName);
@@ -260,8 +270,8 @@ public class SNetPattern implements ControllableThread {
 		//"iteration,neurons,connections\n";
 		String str = step+","+allINeurons.size()+","+nw+"\n";
     	try {
-			paramWriter.append(str);
-	    	paramWriter.flush();	
+			net_param_writer.append(str);
+	    	net_param_writer.flush();	
 		} catch (IOException e) {
 			e.printStackTrace();
 		}					
@@ -1045,7 +1055,7 @@ public class SNetPattern implements ControllableThread {
 		    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);
 		    			
 		    			//sleep for 20 steps, every 20 steps
-		    			if(step>1){
+		    			/*if(step>1){
 			    			if(!dreaming){
 			    				dreaming = true;
 			    				cleanAll();
@@ -1055,7 +1065,7 @@ public class SNetPattern implements ControllableThread {
 			    				cleanAll();
 			    				mlog.say("not dreaming");
 			    			}
-		    			}
+		    			}*/
 		    		}
 		    		
 		    		

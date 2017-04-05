@@ -31,15 +31,15 @@ public class Constants {
 	/** where data files will be created*/
 	public static final String DataPath = "/Users/lana/Development/SNET_data/";
 	/** network parameters file*/
-	public static final String ParamFileName = "parameters.csv";
+	public static final String Net_param_file_name = "net_parameters.csv";
+	public static String Param_file_name = "parameters.csv";
 
 
 	public static final String PerfFileName = "performance.csv";
 
 	/** how much error is tolerated to call 2 neurons "same"*/
 	public static double w_error = 0.1;
-	
-	
+
 	
 	//functions
 	
