@@ -133,13 +133,14 @@ public class Surface extends JPanel{
 		g.setColor(Color.red);
 		int th = (eyeFocusSize_h)/2;
 		int tw = (eyeFocusSize_w)/2;
-		g.drawRect(origin+track[1]-tw, y+track[0]-th, eyeFocusSize_w, eyeFocusSize_h);
+		g.drawRect(origin+track[0]-tw, y+track[1]-th, eyeFocusSize_w, eyeFocusSize_h);
+		//g.drawRect(origin, y, eyeFocusSize_w, eyeFocusSize_h);
 		
 		//focus center
 		//offset to focused area top left corner
 		th = (visualField_h)/2;
 		tw = (visualField_w)/2;
-		g.drawRect(origin+track[1]-tw, y+track[0]-th, visualField_w, visualField_h);
+		//g.drawRect(origin+track[1]-tw, y+track[0]-th, visualField_w, visualField_h);
 		   
 		g.setColor(Color.black);
 		
@@ -151,7 +152,7 @@ public class Surface extends JPanel{
 		
 		//input to the eye (partial and blurry)
 		y = y+seen.getHeight()+margin*2;
-		g.drawString("What?", origin, y);
+		g.drawString("Before coarse graining", origin, y);
 		y = y+margin;
 		g.drawImage(focused, 10, y, null);
 		

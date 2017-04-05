@@ -91,8 +91,8 @@ public class SNetPattern implements ControllableThread {
 	/** number of images if not using names*/
 	int n_images = 80;
 	/** image dimensions */
-	int ih = 50;
-	int iw = 138;
+	int ih = (50/5)*5;//round down depending on focus resolution
+	int iw = (138/5)*5;
 	
 	//sensors 
 	/** image sensor*/

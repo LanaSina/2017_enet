@@ -51,7 +51,7 @@ public class Eye {
 	/** what the net sees */
 	double[][] visual_field;//focus
 	/** resolution of focused area = px/side of square */ 
-	int eres_f = 2;
+	int eres_f = 5;
 	/** resolution of non focused area = px/side of square */ 
 	int eres_nf = 5;
 		
@@ -109,7 +109,7 @@ public class Eye {
     	
     	//number of neurons in focused area
     	n = ef_h*ef_w/(eres_f*eres_f);
-    	mlog.say("n focus"+ n);
+    	mlog.say("n focus "+ n);
 		//number of neurons in non-focused area
 		n+= ((vf_w*vf_h) - (ef_h*ef_w))/(eres_nf*eres_nf);//total n of pixels - focused pixels, / resolution
 		mlog.say("n plus non focus "+ n);
@@ -128,10 +128,10 @@ public class Eye {
 		//height
 		int h = 0;
 		
-		/*int cw = ((vf_w-ef_w)/2)+ef_w;
+		int cw = ((vf_w-ef_w)/2)+ef_w;
 		mlog.say("condition w "+ cw);
 		int ch = ((vf_h-ef_h)/2)+ef_h;
-		mlog.say("condition h "+ ch);*/
+		mlog.say("condition h "+ ch);
 
 		//do in focus first,left to right
 		h = (vf_h-ef_h)/2;
@@ -142,16 +142,19 @@ public class Eye {
 			eye_interface[nn][1] = w;//col
 			eye_interface[nn][2] = eres_f;//size
 			w+=eres_f;//next column
-			if(w >= ((vf_w-ef_w)/2)+ef_w){
+			if(w >= ((vf_w-ef_w)/2)+ef_w){//
 				//next row
 				h+=eres_f;
 				w=(vf_w-ef_w)/2;
-				//mlog.say("next "+ h);
+				mlog.say("next h "+ h);
 			}		
 			if(h >= ((vf_h-ef_h)/2)+ef_h){
 				next = false;
 			}
 			nn++;
+			if(nn>=n){
+				next = false;
+			}
 		}
 	
 		//now do outfocus
@@ -160,7 +163,7 @@ public class Eye {
 		//go down to next row
 		next = true;
 		while(next){
-			boolean infocus = ( h>=(vf_h-ef_h)/2 & h<((vf_h-ef_h)/2)+ef_h) & (w>=(vf_w-ef_w)/2 & w<((vf_w-ef_w)/2)+ef_w);
+			boolean infocus = (h>=(vf_h-ef_h)/2 & h<((vf_h-ef_h)/2)+ef_h) & (w>=(vf_w-ef_w)/2 & w<((vf_w-ef_w)/2)+ef_w);
 			if(!infocus){
 				eye_interface[nn][0] = h;//row
 				eye_interface[nn][1] = w;
@@ -231,9 +234,9 @@ public class Eye {
 			}
 			//reset focus point only when eye first created
 			if(init == false){
-				focus_center[0] =  im_w/2;
-				focus_center[1] = im_h/2; //{25,25}
-				//mlog.say("center "+ focus_center[0]);
+				focus_center[0] = im_w/2;
+				focus_center[1] = im_h/2; 
+				mlog.say("3. track[0] "+focus_center[0]);
 				init = true;
 			}				
 		} catch (IOException e) {
@@ -259,11 +262,11 @@ public class Eye {
 		int[] coarse = new int[n];	
 		
 		//first, shift focus
-		focus_center[0] +=  v_m*eye_motion_res;//fph
-		focus_center[1] +=  h_m*eye_motion_res;//fpw
+		focus_center[0] +=  h_m*eye_motion_res;//fpw
+		focus_center[1] +=  v_m*eye_motion_res;//fph
 		
 		//limit conditions (cannot look out of image)
-		int[] limits = {im_h,im_w};
+		int[] limits = {im_w,im_h};
 		for(int i = 0; i<2 ; i++){
 			if(focus_center[i]<0) focus_center[i] = 0;
 			if(focus_center[i]>limits[i]) focus_center[i] = limits[i];
