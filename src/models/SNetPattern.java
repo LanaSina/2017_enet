@@ -44,7 +44,7 @@ public class SNetPattern implements ControllableThread {
 	MyLog mlog = new MyLog("SNet", true);
 	
 	/** data recording*/
-	boolean save = true;
+	boolean save = false;
 	
 	/** graphics*/
 	Surface panel;
@@ -54,6 +54,9 @@ public class SNetPattern implements ControllableThread {
 	boolean paused = false;
 	/** speed*/
 	int speed = 1;
+	boolean draw_net = false;
+	/** max number of new connections per step*/
+	int max_new_connections = 10000;
 
 	/** the folder for this specific run*/
 	String folderName;
@@ -81,6 +84,7 @@ public class SNetPattern implements ControllableThread {
 	boolean dreaming = false;
 	//
 	int activated =0;
+	int max_layers = 10;//6
 	
 	
 	//environment
@@ -90,9 +94,11 @@ public class SNetPattern implements ControllableThread {
 	//String[] images = {"ball_1","ball_2","ball_3"};//,"ball_1","ball_2_b","ball_4"}; 
 	/** number of images if not using names*/
 	int n_images = 80;
+	/** resolution of focused area of eye*/
+	int eye_res = 1;
 	/** image dimensions */
-	int ih = (50/5)*5;//round down depending on focus resolution
-	int iw = (138/5)*5;
+	int ih = (51/eye_res)*eye_res;//round down depending on focus resolution
+	int iw = (79/eye_res)*eye_res;
 	
 	//sensors 
 	/** image sensor*/
@@ -125,8 +131,10 @@ public class SNetPattern implements ControllableThread {
     	//net initialization
     	initNet();
     	//graphics
-    	netGraph = new NetworkGraph((HashMap<Integer, INeuron>) allINeurons.clone());
-	    netGraph.show();  
+    	if(draw_net){
+	    	netGraph = new NetworkGraph((HashMap<Integer, INeuron>) allINeurons.clone());
+		    netGraph.show(); 
+    	}
     	
 	    //init potential folder name
 	    //get current date
@@ -167,11 +175,13 @@ public class SNetPattern implements ControllableThread {
 			FileWriter param_writer = new FileWriter(folderName+"/"+Constants.Param_file_name);
 			mlog.say("stream opened "+Constants.Param_file_name);
         	String str = "max_presentations,image_files,sensory_neurons,hidden_neurons,stm,"
-        			+ "eye_noise,noise_range,noise_rate\n";
+        			+ "eye_noise,noise_range,noise_rate, max_layers,"
+        			+ "focus_resolution,grayscales,max_new_connections\n";
         	param_writer.append(str);
         	str = ""+max_presentations + "," +  n_images + "," +  eye_neurons.length*eye_neurons[0].size() +
         			"," + allINeurons.size() + "," + STM.size() + 
-        			"," + eye.has_noise + "," + eye.noise_rate + "," + eye.noise_rate + "\n";
+        			"," + eye.has_noise + "," + eye.noise_rate + "," + eye.noise_rate + "," + max_layers +","+
+        			+ eye_res + "," + Constants.gray_scales +","+ max_new_connections + "\n";
         	param_writer.flush();
         	param_writer.close();
         	
@@ -699,19 +709,19 @@ public class SNetPattern implements ControllableThread {
 				//go through STM
 				for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
 					INeuron preneuron = iterator.next();
-					//if(n!=preneuron){//loops OK
+					if(nw<max_new_connections){
 						//doubloons weights will not be added
 						ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
 						if(preneuron.addOutWeight(n,probaWeight)){
 							nw++;
 							didChange = true;
 						}
-					//}
+					}
 				}
 				
 				//no change happened, try building a spatial pattern
 				if(!didChange & !dreaming){					
-					if(!patternExists(STM,n)){
+					if(!patternExists(STM,n) && !hasMaxLayer(STM)){
 						INeuron neuron = new INeuron(STM,n,n_id);
 						newn.addElement(neuron);
 						n_id++;
@@ -735,6 +745,23 @@ public class SNetPattern implements ControllableThread {
 
 	}
 	
+	/**
+	 * checks if STM has a neuron from the maximum authorized layer
+	 * @param sTM2
+	 * @return
+	 */
+	private boolean hasMaxLayer(Vector<INeuron> sTM2) {
+		boolean has = false;
+		for (Iterator<INeuron> iterator = sTM2.iterator(); iterator.hasNext();) {
+			INeuron iNeuron = iterator.next();
+			if(iNeuron.level>=max_layers){
+				has = true;
+				//mlog.say("layer limit");
+			}
+		}
+		return has;
+	}
+
 	/**
 	 * 
 	 * @param neurons list of neurons
@@ -1080,8 +1107,9 @@ public class SNetPattern implements ControllableThread {
 		    		
 		    		//UI
 				    panel.setTime(step);
-				    //Vector<INeuron> v = new Vector<INeuron>(allINeurons.values());
-				    netGraph.updateNeurons(allINeurons);				  
+				    if(draw_net){
+				    	netGraph.updateNeurons(allINeurons);	
+				    }
 	    		}
 	    		
 	    		try {
@@ -1124,7 +1152,9 @@ public class SNetPattern implements ControllableThread {
 
 	@Override
 	public void refresh() {
-		netGraph.redraw((HashMap<Integer, INeuron>) allINeurons.clone());
+		if(draw_net){
+			netGraph.redraw((HashMap<Integer, INeuron>) allINeurons.clone());
+		}
 	}
 
 }

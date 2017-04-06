@@ -51,7 +51,7 @@ public class Eye {
 	/** what the net sees */
 	double[][] visual_field;//focus
 	/** resolution of focused area = px/side of square */ 
-	int eres_f = 5;
+	int eres_f = 1;
 	/** resolution of non focused area = px/side of square */ 
 	int eres_nf = 5;
 		
@@ -219,12 +219,11 @@ public class Eye {
 			        double mean = (b+g+r)/(255*3.0);
 			        if(has_noise){
 			        	if(Constants.uniformDouble(0, 1)<noise_rate){
-			        		mlog.say("NOISE original "+mean);
+			        		//mlog.say("NOISE original "+mean);
 			        		mean = Constants.uniformDouble(mean-(noise_range/255.0), mean+(noise_range/255.0));
 			        		if(mean<0) mean = 0;
 			        		if(mean>1) mean = 1;
-			        		mlog.say("after "+mean);
-
+			        		//mlog.say("after "+mean);
 			        	}
 			        }
 			        //high value is black
@@ -297,12 +296,15 @@ public class Eye {
 			sums[k] = sums[k]/(size*size);
 			
 			//low sensitivity to darker shades
+			double d = 0;
 			if(sums[k]==1){//very black
-				coarse[k] = gray_scales;
+				d = gray_scales;
 			} else{
-				double d = sums[k]/(1.0/gray_scales);
-				coarse[k] = (int)(d)+1;// dont see white //even "no stim" will be treated as white
+				d = sums[k]/(1.0/gray_scales);
+				d = d+1;// dont see white //even "no stim" will be treated as white
 			}	
+			coarse[k] = (int)d;
+
 				
 			//build visualisation for UI
 			int b = (int) (((1-sums[k])*255)+0.5);
@@ -442,6 +444,7 @@ public class Eye {
 				}
 			}
 		}
+		
 		panel.setPredicted(prediction);
 	}
 	

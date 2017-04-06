@@ -57,6 +57,8 @@ public class INeuron extends Neuron {
 	/** whether it can snap with other neurons or not (sensory neurons cannot)*/
 	boolean canSnap = true;
 	
+	public int level = 0;
+
 	public boolean canSnap() {
 		return canSnap;
 	}
@@ -80,6 +82,12 @@ public class INeuron extends Neuron {
 		super(id);
 		mlog.setName("Pattern Neuron");
 		addDirectInWeight(from);
+		for (Iterator<INeuron> iterator = from.iterator(); iterator.hasNext();) {
+			INeuron iNeuron = iterator.next();
+			if(iNeuron.level>=level){
+				level = iNeuron.level++;
+			}			
+		}
 		//as outweight from this to To
 		ProbaWeight p = to.addInWeight(Constants.defaultConnection, this);
 		outWeights.put(to, p);
