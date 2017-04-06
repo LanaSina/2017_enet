@@ -697,6 +697,7 @@ public class SNetPattern implements ControllableThread {
 		Vector<INeuron> newn = new Vector<INeuron>();
 		
 		//ineurons 
+		//todo make order random
 		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
 		int nw = 0;
 		while(it.hasNext()){
@@ -706,10 +707,10 @@ public class SNetPattern implements ControllableThread {
 				n_surprised++;
 				//did we improve future prediction chances?
 				boolean didChange = false;
-				//go through STM
-				for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
-					INeuron preneuron = iterator.next();
-					if(nw<max_new_connections){
+				if(nw<max_new_connections){
+					//go through STM
+					for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
+						INeuron preneuron = iterator.next();
 						//doubloons weights will not be added
 						ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
 						if(preneuron.addOutWeight(n,probaWeight)){
@@ -717,18 +718,17 @@ public class SNetPattern implements ControllableThread {
 							didChange = true;
 						}
 					}
-				}
-				
-				//no change happened, try building a spatial pattern
-				if(!didChange & !dreaming){					
-					if(!patternExists(STM,n) && !hasMaxLayer(STM)){
-						INeuron neuron = new INeuron(STM,n,n_id);
-						newn.addElement(neuron);
-						n_id++;
-						mlog.say("created pattern neuron "+neuron.getId());
+					
+					//no change happened, try building a spatial pattern
+					if(!didChange & !dreaming){					
+						if(!patternExists(STM,n) && !hasMaxLayer(STM)){
+							INeuron neuron = new INeuron(STM,n,n_id);
+							newn.addElement(neuron);
+							n_id++;
+							mlog.say("created pattern neuron "+neuron.getId());
+						}
 					}
-				}
-									
+				}					
 			}
 		}
 		
@@ -1075,7 +1075,7 @@ public class SNetPattern implements ControllableThread {
 		    		int nw = countWeights();
 		    		mlog.say("step " + step +" weights "+nw);
 			
-		    		if(step%20==0){
+		    		if(step%100==0){
 		    			long runtime = System.currentTimeMillis()-before;
 		    			//save
 		    			if(save){
