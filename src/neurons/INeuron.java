@@ -796,5 +796,9 @@ public class INeuron extends Neuron {
 	public void setSurprised(boolean surprised) {
 		this.surprised = surprised;
 	}
+
+	public int countInWeights() {
+		return inWeights.size();
+	}
 	
 }

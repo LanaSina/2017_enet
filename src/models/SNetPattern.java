@@ -57,6 +57,9 @@ public class SNetPattern implements ControllableThread {
 	boolean draw_net = false;
 	/** max number of new connections per step*/
 	int max_new_connections = 10000;
+	/** max inweights per neuron */
+	int max_in_weights = 500;
+	int max_total_connections = 150000;
 
 	/** the folder for this specific run*/
 	String folderName;
@@ -176,12 +179,12 @@ public class SNetPattern implements ControllableThread {
 			mlog.say("stream opened "+Constants.Param_file_name);
         	String str = "max_presentations,image_files,sensory_neurons,hidden_neurons,stm,"
         			+ "eye_noise,noise_range,noise_rate, max_layers,"
-        			+ "focus_resolution,grayscales,max_new_connections\n";
+        			+ "focus_resolution,grayscales,max_new_connections,max_in_weights\n";
         	param_writer.append(str);
         	str = ""+max_presentations + "," +  n_images + "," +  eye_neurons.length*eye_neurons[0].size() +
         			"," + allINeurons.size() + "," + STM.size() + 
         			"," + eye.has_noise + "," + eye.noise_rate + "," + eye.noise_rate + "," + max_layers +","+
-        			+ eye_res + "," + Constants.gray_scales +","+ max_new_connections + "\n";
+        			+ eye_res + "," + Constants.gray_scales +","+ max_new_connections + "," + max_in_weights + "\n";
         	param_writer.flush();
         	param_writer.close();
         	
@@ -700,6 +703,7 @@ public class SNetPattern implements ControllableThread {
 		//todo make order random
 		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
 		int nw = 0;
+		int total = countWeights();
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
@@ -707,15 +711,17 @@ public class SNetPattern implements ControllableThread {
 				n_surprised++;
 				//did we improve future prediction chances?
 				boolean didChange = false;
-				if(nw<max_new_connections){
+				if((nw<max_new_connections) && (total+nw<max_total_connections)){
 					//go through STM
 					for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
 						INeuron preneuron = iterator.next();
 						//doubloons weights will not be added
-						ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
-						if(preneuron.addOutWeight(n,probaWeight)){
-							nw++;
-							didChange = true;
+						if(n.countInWeights()<max_in_weights){
+							ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
+							if(preneuron.addOutWeight(n,probaWeight)){
+								nw++;
+								didChange = true;
+							}
 						}
 					}
 					
@@ -890,13 +896,17 @@ public class SNetPattern implements ControllableThread {
 		
 		ArrayList<INeuron> remove = new ArrayList<INeuron>();
 		//go through net
+		int count = 0;
 		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
 		while(it.hasNext()){
 			
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
+			//mlog.say("n "+count);
 			
-			if(!n.justSnapped){
+			if(!n.justSnapped & count<10000){
+				count++;
+
 				//look for equivalent neurons (neurons with equivalent outweights)
 				Iterator<Entry<Integer, INeuron>> it2 = allINeurons.entrySet().iterator();
 				while(it2.hasNext()){
@@ -1075,7 +1085,7 @@ public class SNetPattern implements ControllableThread {
 		    		int nw = countWeights();
 		    		mlog.say("step " + step +" weights "+nw);
 			
-		    		if(step%100==0){
+		    		if(step%50==0){
 		    			long runtime = System.currentTimeMillis()-before;
 		    			//save
 		    			if(save){
