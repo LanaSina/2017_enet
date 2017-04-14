@@ -28,7 +28,6 @@ import neurons.MotorNeuron;
 public class Eye {
 	/** log */
 	MyLog mlog = new MyLog("Eye", true);
-	String image_format = ".bmp";
 	/** graphics*/
 	Surface panel;
 	/** becomes true after eye has been 1st initialized with an image*/
@@ -47,14 +46,14 @@ public class Eye {
 	/** visual field size */
 	int vf_h = 51, vf_w = 139;
 	/** size of focused area */
-	int ef_h = 51;
-	int ef_w = 139;
+	int ef_h = Constants.ef_h;
+	int ef_w = Constants.ef_h;
 	/** what the net sees */
 	double[][] visual_field;//focus
 	/** resolution of focused area = px/side of square */ 
-	int eres_f = 1;
+	int eres_f = Constants.eres_f;
 	/** resolution of non focused area = px/side of square */ 
-	int eres_nf = 5;
+	int eres_nf = Constants.eres_nf;
 		
 	/** sensitivity resolution; number of distinct groups of sensory neurons*/
 	int gray_scales = Constants.gray_scales;
@@ -97,16 +96,14 @@ public class Eye {
 	 * @param eh focus size h
 	 * @param ew focus size w
 	 */
-	public Eye(String imagesPath, Surface panel, int vh, int vw, int eh, int ew){
+	public Eye(String imagesPath, Surface panel){
 		//init
 		this.imagesPath = imagesPath;
 		this.panel = panel;
 		/** visual field size */
-		vf_h = vh;
-		vf_w = vw;
-		/** size of focused area */
-		ef_h = eh;
-		ef_w = ew;
+		vf_h = Constants.ih;
+		vf_w = Constants.iw;
+
     	
     	//number of neurons in focused area
     	n = ef_h*ef_w/(eres_f*eres_f);
@@ -198,7 +195,7 @@ public class Eye {
 	public double[][] readImage(String name){
 			
 		try {
-			String imagepath = imagesPath+name+image_format;
+			String imagepath = imagesPath+name+Constants.image_format;
 			mlog.say("reading " + imagepath);
 
 			image_input = ImageIO.read(new File(imagepath));

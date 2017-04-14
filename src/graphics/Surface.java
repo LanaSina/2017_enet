@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
 
+import communication.Constants;
 import communication.ControllableThread;
 import communication.MyLog;
 
@@ -61,8 +62,8 @@ public class Surface extends JPanel{
 	int[] track = {100,100};
 	
 	/** Size of the eye focus*/
-	int eyeFocusSize_h = 20;
-	int eyeFocusSize_w = 20;
+	int eyeFocusSize_h = 25;
+	int eyeFocusSize_w = 25;
 	/** size of the complete visual field: height */
 	int visualField_h = 50;
 	/** size of the complete visual field: width */
@@ -78,9 +79,9 @@ public class Surface extends JPanel{
 	 * @param fh focus h
 	 * @param fw focus w
 	 */
-	public Surface(int vh, int vw, int fh, int fw){
-		setVisualFieldSize(vh, vw);
-		setFocusSize(fh, fw);
+	public Surface(){
+		setVisualFieldSize(Constants.ih, Constants.iw);
+		setFocusSize(Constants.ef_h, Constants.ef_h);
 		
 		letter = new BufferedImage(visualField_w,visualField_h,BufferedImage.TYPE_INT_RGB);
 		focused = letter;
@@ -129,18 +130,16 @@ public class Surface extends JPanel{
 		g.drawImage(letter, origin, y, null);
 		
 		//focus field outline
-		//complete visual field
 		g.setColor(Color.red);
 		int th = (eyeFocusSize_h)/2;
 		int tw = (eyeFocusSize_w)/2;
 		g.drawRect(origin+track[0]-tw, y+track[1]-th, eyeFocusSize_w, eyeFocusSize_h);
 		//g.drawRect(origin, y, eyeFocusSize_w, eyeFocusSize_h);
 		
-		//focus center
-		//offset to focused area top left corner
+		//complete visual field
 		th = (visualField_h)/2;
 		tw = (visualField_w)/2;
-		//g.drawRect(origin+track[1]-tw, y+track[0]-th, visualField_w, visualField_h);
+		g.drawRect(origin+track[1]-tw, y+track[0]-th, visualField_w, visualField_h);
 		   
 		g.setColor(Color.black);
 		

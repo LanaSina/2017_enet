@@ -12,14 +12,29 @@ public class Constants {
 	/** controls output of all loggers. Set true for verbose mode, false for dry mode.*/
 	public static final boolean shouldLog = true;
 
+	public static final String image_format = ".png";
 
 	/** age at which probabilistic connections stop learning */
-	public static final int weight_max_age = 40;//20
+	public static final int weight_max_age = 20;//20
 	/** confidence threshold for predictions */
 	public static final double confidence_threshold = 0.8;//90%
 	
 	/** sensitivity of the image sensor */
-	public static final int gray_scales = 4;
+	public static final int gray_scales = 6;
+	/** resolution of focused area of eye*/
+	public static final int eres_f = 2;
+	public static final int eres_nf = 5;
+	/**size of focused area*/
+	public static final int ef_h = 30;
+	public static final int ef_w = 30;
+	/** image dimensions */
+	public static final int ih = (50/eres_f)*eres_f;//round down depending on focus resolution
+	public static final int iw = (50/eres_f)*eres_f;
+	public static final int n_images = 6;
+
+	
+	/** snap every x timesteps*/
+	public static final int snap_freq = 50;
 
 
 	//weight types

@@ -44,7 +44,7 @@ public class SNetPattern implements ControllableThread {
 	MyLog mlog = new MyLog("SNet", true);
 	
 	/** data recording*/
-	boolean save = false;
+	boolean save = true;
 	
 	/** graphics*/
 	Surface panel;
@@ -87,21 +87,19 @@ public class SNetPattern implements ControllableThread {
 	boolean dreaming = false;
 	//
 	int activated =0;
-	int max_layers = 10;//6
+	//int max_layers = 10;//6
 	
 	
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Oswald/walk/small/"; //"/Users/lana/Desktop/prgm/JAVANeuron/JAVANeuron/src/images/";
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/cue/"; 
 	/** image names (chars)*/
 	//String[] images = {"ball_1","ball_2","ball_3"};//,"ball_1","ball_2_b","ball_4"}; 
 	/** number of images if not using names*/
-	int n_images = 13;
-	/** resolution of focused area of eye*/
-	int eye_res = 1;
+	int n_images = Constants.n_images;
 	/** image dimensions */
-	int ih = (38/eye_res)*eye_res;//round down depending on focus resolution
-	int iw = (50/eye_res)*eye_res;
+	int ih = Constants.ih;
+	int iw = Constants.iw;
 	
 	//sensors 
 	/** image sensor*/
@@ -120,11 +118,12 @@ public class SNetPattern implements ControllableThread {
 	
 	public SNetPattern(){
 		//graphics
-    	panel = new Surface(ih,iw, ih,iw);
+		//todo read this from constants file
+    	panel = new Surface();
     	panel.addControllable(this);   
 		
     	//sensor init
-    	eye = new Eye(imagesPath,panel,ih,iw,ih,iw);
+    	eye = new Eye(imagesPath,panel);
     	//leading zeros
 		String iname =  String.format("%02d", img_id); //images[img_id];//"%010d"
     	eye.readImage(iname);
@@ -179,12 +178,12 @@ public class SNetPattern implements ControllableThread {
 			mlog.say("stream opened "+Constants.Param_file_name);
         	String str = "max_presentations,image_files,sensory_neurons,hidden_neurons,stm,"
         			+ "eye_noise,noise_range,noise_rate, max_layers,"
-        			+ "focus_resolution,grayscales,max_new_connections,max_in_weights\n";
+        			+ "focus_resolution, nonfocus_resolution, grayscales,max_new_connections,max_in_weights\n";
         	param_writer.append(str);
         	str = ""+max_presentations + "," +  n_images + "," +  eye_neurons.length*eye_neurons[0].size() +
         			"," + allINeurons.size() + "," + STM.size() + 
-        			"," + eye.has_noise + "," + eye.noise_rate + "," + eye.noise_rate + "," + max_layers +","+
-        			+ eye_res + "," + Constants.gray_scales +","+ /*max_new_connections*/ "infinite" + "," + /*max_in_weights*/ "infinite" + "\n";
+        			"," + eye.has_noise + "," + eye.noise_rate + "," + eye.noise_rate + ",max_layers,"+
+        			+ Constants.eres_f + "," + Constants.eres_nf + "," + Constants.gray_scales +","+ /*max_new_connections*/ "infinite" + "," + /*max_in_weights*/ "infinite" + "\n";
         	param_writer.flush();
         	param_writer.close();
         	
@@ -760,10 +759,10 @@ public class SNetPattern implements ControllableThread {
 		boolean has = false;
 		for (Iterator<INeuron> iterator = sTM2.iterator(); iterator.hasNext();) {
 			INeuron iNeuron = iterator.next();
-			if(iNeuron.level>=max_layers){
+			//if(iNeuron.level>=max_layers){
 				has = true;
 				//mlog.say("layer limit");
-			}
+			//}
 		}
 		return has;
 	}
@@ -904,7 +903,7 @@ public class SNetPattern implements ControllableThread {
 			INeuron n = pair.getValue();
 			//mlog.say("n "+count);
 			
-			if(!n.justSnapped & count<10000){
+			if(!n.justSnapped){ //& count<10000){
 				count++;
 
 				//look for equivalent neurons (neurons with equivalent outweights)
@@ -952,7 +951,7 @@ public class SNetPattern implements ControllableThread {
 								all++;
 							}
 							
-							double dist = 1;//do/don t snap even if there were no outweights at all
+							double dist = 0;//do/don t snap even if there were no outweights at all
 							if(all!=0){
 								dist = Math.sqrt(diff)/all;					
 							}
@@ -1085,7 +1084,7 @@ public class SNetPattern implements ControllableThread {
 		    		int nw = countWeights();
 		    		mlog.say("step " + step +" weights "+nw);
 			
-		    		if(step%50==0){
+		    		if(step%Constants.snap_freq==0){
 		    			long runtime = System.currentTimeMillis()-before;
 		    			//save
 		    			if(save){
