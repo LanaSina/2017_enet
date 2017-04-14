@@ -139,7 +139,7 @@ public class Surface extends JPanel{
 		//complete visual field
 		th = (visualField_h)/2;
 		tw = (visualField_w)/2;
-		g.drawRect(origin+track[1]-tw, y+track[0]-th, visualField_w, visualField_h);
+		g.drawRect(origin+track[0]-tw, y+track[1]-th, visualField_w, visualField_h);
 		   
 		g.setColor(Color.black);
 		

@@ -28,9 +28,9 @@ public class Constants {
 	public static final int ef_h = 30;
 	public static final int ef_w = 30;
 	/** image dimensions */
+	public static final int iw = (80/eres_f)*eres_f;
 	public static final int ih = (50/eres_f)*eres_f;//round down depending on focus resolution
-	public static final int iw = (50/eres_f)*eres_f;
-	public static final int n_images = 6;
+	public static final int n_images = 83;
 
 	
 	/** snap every x timesteps*/
