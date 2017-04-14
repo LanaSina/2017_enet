@@ -28,6 +28,7 @@ import neurons.MotorNeuron;
 public class Eye {
 	/** log */
 	MyLog mlog = new MyLog("Eye", true);
+	String image_format = ".bmp";
 	/** graphics*/
 	Surface panel;
 	/** becomes true after eye has been 1st initialized with an image*/
@@ -129,9 +130,9 @@ public class Eye {
 		int h = 0;
 		
 		int cw = ((vf_w-ef_w)/2)+ef_w;
-		mlog.say("condition w "+ cw);
+		//mlog.say("condition w "+ cw);
 		int ch = ((vf_h-ef_h)/2)+ef_h;
-		mlog.say("condition h "+ ch);
+		//mlog.say("condition h "+ ch);
 
 		//do in focus first,left to right
 		h = (vf_h-ef_h)/2;
@@ -146,7 +147,7 @@ public class Eye {
 				//next row
 				h+=eres_f;
 				w=(vf_w-ef_w)/2;
-				mlog.say("next h "+ h);
+				//mlog.say("next h "+ h);
 			}		
 			if(h >= ((vf_h-ef_h)/2)+ef_h){
 				next = false;
@@ -197,7 +198,7 @@ public class Eye {
 	public double[][] readImage(String name){
 			
 		try {
-			String imagepath = imagesPath+name+".png";
+			String imagepath = imagesPath+name+image_format;
 			mlog.say("reading " + imagepath);
 
 			image_input = ImageIO.read(new File(imagepath));

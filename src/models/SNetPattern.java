@@ -54,12 +54,12 @@ public class SNetPattern implements ControllableThread {
 	boolean paused = false;
 	/** speed*/
 	int speed = 1;
-	boolean draw_net = false;
+	boolean draw_net = true;
 	/** max number of new connections per step*/
-	int max_new_connections = 10000;
+	//int max_new_connections = 10000;
 	/** max inweights per neuron */
-	int max_in_weights = 500;
-	int max_total_connections = 150000;
+	//int max_in_weights = 500;
+	//int max_total_connections = 150000;
 
 	/** the folder for this specific run*/
 	String folderName;
@@ -92,16 +92,16 @@ public class SNetPattern implements ControllableThread {
 	
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Dataset_01/"; //"/Users/lana/Desktop/prgm/JAVANeuron/JAVANeuron/src/images/";
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Oswald/walk/small/"; //"/Users/lana/Desktop/prgm/JAVANeuron/JAVANeuron/src/images/";
 	/** image names (chars)*/
 	//String[] images = {"ball_1","ball_2","ball_3"};//,"ball_1","ball_2_b","ball_4"}; 
 	/** number of images if not using names*/
-	int n_images = 80;
+	int n_images = 13;
 	/** resolution of focused area of eye*/
 	int eye_res = 1;
 	/** image dimensions */
-	int ih = (51/eye_res)*eye_res;//round down depending on focus resolution
-	int iw = (79/eye_res)*eye_res;
+	int ih = (38/eye_res)*eye_res;//round down depending on focus resolution
+	int iw = (50/eye_res)*eye_res;
 	
 	//sensors 
 	/** image sensor*/
@@ -126,7 +126,7 @@ public class SNetPattern implements ControllableThread {
     	//sensor init
     	eye = new Eye(imagesPath,panel,ih,iw,ih,iw);
     	//leading zeros
-		String iname =  String.format("%010d", img_id); //images[img_id];
+		String iname =  String.format("%02d", img_id); //images[img_id];//"%010d"
     	eye.readImage(iname);
     	
     	//net creation
@@ -184,7 +184,7 @@ public class SNetPattern implements ControllableThread {
         	str = ""+max_presentations + "," +  n_images + "," +  eye_neurons.length*eye_neurons[0].size() +
         			"," + allINeurons.size() + "," + STM.size() + 
         			"," + eye.has_noise + "," + eye.noise_rate + "," + eye.noise_rate + "," + max_layers +","+
-        			+ eye_res + "," + Constants.gray_scales +","+ max_new_connections + "," + max_in_weights + "\n";
+        			+ eye_res + "," + Constants.gray_scales +","+ /*max_new_connections*/ "infinite" + "," + /*max_in_weights*/ "infinite" + "\n";
         	param_writer.flush();
         	param_writer.close();
         	
@@ -375,7 +375,7 @@ public class SNetPattern implements ControllableThread {
 			if(img_id>=n_images){
 				img_id=0;
 			}
-			String iname = String.format("%010d", img_id);;
+			String iname =  String.format("%02d", img_id); 
 			eye.readImage(iname);
 		}
 		//build
@@ -711,19 +711,19 @@ public class SNetPattern implements ControllableThread {
 				n_surprised++;
 				//did we improve future prediction chances?
 				boolean didChange = false;
-				if((nw<max_new_connections) && (total+nw<max_total_connections)){
+				//if((nw<max_new_connections) && (total+nw<max_total_connections)){
 					//go through STM
 					for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
 						INeuron preneuron = iterator.next();
 						//doubloons weights will not be added
-						if(n.countInWeights()<max_in_weights){
+						//if(n.countInWeights()<max_in_weights){
 							ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
 							if(preneuron.addOutWeight(n,probaWeight)){
 								nw++;
 								didChange = true;
 							}
-						}
-					}
+						//}
+					//}
 					
 					//no change happened, try building a spatial pattern
 					if(!didChange & !dreaming){					
