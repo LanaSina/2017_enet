@@ -34,8 +34,8 @@ public class Eye {
 	boolean init = false;
 	
 	public boolean has_noise = true;
-	public int noise_range = 50;
-	public double noise_rate = 0.1;
+	public int noise_range = 255;
+	public double noise_rate = 1;
 	
 	/** total number of neurons sensitive to one grayscale value*/
 	int n;
