@@ -154,6 +154,8 @@ public class SNetPattern implements ControllableThread {
     		initDataFiles();
     	}
     	
+    	netGraph.setName(strDate);
+    	
 		//main thread
     	new Thread(new ExperimentThread(this)).start();		
 	}
