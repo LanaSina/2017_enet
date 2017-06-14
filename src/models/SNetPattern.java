@@ -21,6 +21,8 @@ import java.util.Vector;
 import javax.media.j3d.WakeupAnd;
 import javax.swing.JButton;
 
+import com.sun.xml.internal.bind.v2.model.core.ID;
+
 import communication.Constants;
 import communication.ControllableThread;
 import communication.MyLog;
@@ -90,6 +92,7 @@ public class SNetPattern implements ControllableThread {
 	//int max_layers = 10;//6
 	
 	
+	
 	//environment
 	/**images files*/
 	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Dataset_01/"; 
@@ -111,6 +114,9 @@ public class SNetPattern implements ControllableThread {
 	/**all neurons except eyes (sensory) so this is like "hidden layer"
 	 * id, neuron*/
 	HashMap<Integer, INeuron> allINeurons = new HashMap<Integer, INeuron>();
+	/** id range of initial (sensory) INeurons (used to calculate surprise)*/
+	int si_start = 0;
+	int si_end = 0;
 	/** total number of neuron ids*/
 	int n_id = 0;
 	/**short term memory, contains conscious neurons */
@@ -296,7 +302,7 @@ public class SNetPattern implements ControllableThread {
 		}					
 	}
 	
-	private void writeSurprise(int n) {
+	private void writeSurprise(double n) {
 		String str = step+","+ n +"\n";
     	try {
 			perfWriter.append(str);
@@ -327,6 +333,7 @@ public class SNetPattern implements ControllableThread {
 	private void initNet(){
 		int n_n = eye.getPartialNeuronsNumber();
 		int gray_scales = Constants.gray_scales;
+		si_start = n_id;
 		
 		//eye sensory neurons
 		for(int i=0; i< n_n;i++){				
@@ -350,7 +357,9 @@ public class SNetPattern implements ControllableThread {
 				n_id++;				
 			}
 		}	
+		si_end = n_id-1;
 
+		mlog.say("Initila INeurons: id "+ si_start + " to "+ si_end);
 		mlog.say(n_id +" neurons");		
 	}
 	
@@ -686,11 +695,19 @@ public class SNetPattern implements ControllableThread {
 	private void makeWeights() {
 		//number of surprised neurons at this timestep
 		int n_surprised = 0;
+		//number of remaining sensory neurons after snapping
+		int n_all = 0;
+		//number of sensory activates
+		int n_activated = 0;
+		//predicted, not activated
+		int n_illusion = 0;
+		//(maybe we should make this for all, not sensory neurons)
+		//suprise = suprised sensory neurons / number of activated sensory neurons
 		
 		if(STM.size()==0){
 			mlog.say("just woke up");
 			if(save){
-				writeSurprise(n_surprised);
+				writeSurprise(0);
 			}
 			return;
 		}
@@ -702,12 +719,26 @@ public class SNetPattern implements ControllableThread {
 		//todo make order random
 		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
 		int nw = 0;
-		int total = countWeights();
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
+
+			if(n.getId()>=si_start && n.getId()<=si_end){
+				n_all++;
+				if(n.isActivated()){
+					n_activated++;
+				} else {
+					double pr = n.getPredictedActivation();
+					//false positive
+					if(pr>0){
+						n_illusion++;
+					}
+				}
+			}
 			if(n.isSurprised()){
-				n_surprised++;
+				if(n.getId()>=si_start && n.getId()<=si_end){
+					n_surprised++;
+				}
 				//did we improve future prediction chances?
 				boolean didChange = false;
 				//if((nw<max_new_connections) && (total+nw<max_total_connections)){
@@ -744,9 +775,11 @@ public class SNetPattern implements ControllableThread {
 				
 		mlog.say("added " + nw + " weights and "+ newn.size() + " neurons ");
 		if(save){
-			writeSurprise(n_surprised);
+			double perf = (n_surprised*1.0/n_activated) //false negatives
+					+ (n_illusion*1.0/n_activated); //false positives
+			writeSurprise(perf);
 		}
-		mlog.say("surprised: " + n_surprised);
+		mlog.say(" surprised: " + n_surprised + " illusions " + n_illusion);
 
 	}
 	

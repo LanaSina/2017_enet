@@ -358,7 +358,6 @@ public class INeuron extends Neuron {
 
 	/**
 	 * call this before integrating predictions!
-	 * (cpu intensive. call once or store value)
 	 */
 	public double getPredictedActivation() {		
 		return pro_activation;
