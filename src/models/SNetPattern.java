@@ -697,8 +697,6 @@ public class SNetPattern implements ControllableThread {
 	private void makeWeights() {
 		//number of surprised neurons at this timestep
 		int n_surprised = 0;
-		//number of remaining sensory neurons after snapping
-		int n_all = 0;
 		//number of sensory activates
 		int n_activated = 0;
 		//predicted, not activated
@@ -726,7 +724,6 @@ public class SNetPattern implements ControllableThread {
 			INeuron n = pair.getValue();
 
 			if(n.getId()>=si_start && n.getId()<=si_end){
-				n_all++;
 				if(n.isActivated()){
 					n_activated++;
 				} else {
@@ -737,7 +734,8 @@ public class SNetPattern implements ControllableThread {
 					}
 				}
 			}
-			if(n.isSurprised()){
+			
+			if(n.isSurprised() && !n.isMute()){
 				if(n.getId()>=si_start && n.getId()<=si_end){
 					n_surprised++;
 				}

@@ -410,13 +410,13 @@ public class INeuron extends Neuron {
 	public void makeDirectActivation() {
 		Iterator<BundleWeight> it = directInWeights.iterator();
 		// pattern contained inside other patterns should be muted
-		Vector<BundleWeight> activated = new Vector<BundleWeight>();
+		//Vector<BundleWeight> activated = new Vector<BundleWeight>();
 				
 		while(it.hasNext()){
 			BundleWeight b = it.next();
 			if(b.bundleIsActivated()){
 				this.increaseActivation(1);
-				activated.addElement(b);
+				//activated.addElement(b);
 				//mute bundle
 				b.muteInputNeurons();
 				//unmute self just in case we had a recurrent connection
