@@ -22,3 +22,5 @@ mogrify -chop 30x0+0+0 -gravity West *.png
 
 
 Lanas-MacBook-Pro:small lana$ convert '*.bmp' ppm/%02d.ppm
+
+御請求書
