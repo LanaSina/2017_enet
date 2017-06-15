@@ -99,7 +99,7 @@ public class SNetPattern implements ControllableThread {
 	/** leading zeros*/
 	String name_format = "%02d";
 	/** number of images if not using names*/
-	int n_images = 6;//Constants.n_images;
+	int n_images = 8;//Constants.n_images;
 	/** image dimensions */
 	//int ih = Constants.ih;
 	//int iw = Constants.iw;

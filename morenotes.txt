@@ -12,6 +12,11 @@ mogrify -resize 10% *.png  Lanas-MacBook-Pro:Dataset_01
 mogrify -chop 4x0+0+0 -gravity East *.png
 mogrify -chop 30x0+0+0 -gravity West *.png 
 
+//chop x pixels starting southeast
+chop 5x10 -gravity Southeast x.JPG  
+
+mogrify -resize 40% *.png
+mogrify -chop 4x12 -gravity Northeast *.png
 
 
     ffmpeg -i Oswald_the_Lucky_Rabbit.mp4 -ss 01:47 -r 5/1 walk/$filename%03d.bmp
