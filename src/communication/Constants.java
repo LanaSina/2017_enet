@@ -25,12 +25,15 @@ public class Constants {
 	public static final int eres_f = 2;
 	public static final int eres_nf = 5;
 	/**size of focused area*/
-	public static final int ef_h = 30;
-	public static final int ef_w = 30;
+	public static final int ef_h = 20;
+	public static final int ef_w = 20;
+	/** size of visual field */
+	public static final int vf_h = 50;
+	public static final int vf_w = 50;
 	/** image dimensions */
 	public static final int iw = (80/eres_f)*eres_f;
 	public static final int ih = (50/eres_f)*eres_f;//round down depending on focus resolution
-	public static final int n_images = 83;
+	//public static final int n_images = 83;
 
 	
 	/** snap every x timesteps*/

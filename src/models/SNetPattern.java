@@ -46,7 +46,7 @@ public class SNetPattern implements ControllableThread {
 	MyLog mlog = new MyLog("SNet", true);
 	
 	/** data recording*/
-	boolean save = true;
+	boolean save = false;
 	
 	/** graphics*/
 	Surface panel;
@@ -95,14 +95,14 @@ public class SNetPattern implements ControllableThread {
 	
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Dataset_01/"; 
-	/** image names (chars)*/
-	//String[] images = {"ball_1","ball_2","ball_3"};//,"ball_1","ball_2_b","ball_4"}; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/frames/small/"; 
+	/** leading zeros*/
+	String name_format = "%02d";
 	/** number of images if not using names*/
-	int n_images = Constants.n_images;
+	int n_images = 6;//Constants.n_images;
 	/** image dimensions */
-	int ih = Constants.ih;
-	int iw = Constants.iw;
+	//int ih = Constants.ih;
+	//int iw = Constants.iw;
 	
 	//sensors 
 	/** image sensor*/
@@ -131,7 +131,7 @@ public class SNetPattern implements ControllableThread {
     	//sensor init
     	eye = new Eye(imagesPath,panel);
     	//leading zeros
-		String iname =  String.format("%010d", img_id); //images[img_id];//"%010d"
+		String iname =  String.format(name_format, img_id); //images[img_id];//"%010d"
     	eye.readImage(iname);
     	
     	//net creation
@@ -385,7 +385,7 @@ public class SNetPattern implements ControllableThread {
 			if(img_id>=n_images){
 				img_id=0;
 			}
-			String iname =  String.format("%010d", img_id); 
+			String iname =  String.format(name_format, img_id); 
 			eye.readImage(iname);
 		}
 		//build
@@ -1155,7 +1155,9 @@ public class SNetPattern implements ControllableThread {
 	    		}
 	    		
 	    		try {
-					Thread.sleep(3000/speed);
+	    			if(draw_net){
+	    				Thread.sleep(3000/speed);
+	    			}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}    			    		

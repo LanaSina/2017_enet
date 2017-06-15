@@ -44,7 +44,8 @@ public class Eye {
 	/** size of current image we're looking at*/
 	int im_h,im_w;
 	/** visual field size */
-	int vf_h = 51, vf_w = 139;
+	int vf_h = Constants.vf_h, vf_w = Constants.vf_w;
+	//int vf_h = 50, vf_w = 50;
 	/** size of focused area */
 	int ef_h = Constants.ef_h;
 	int ef_w = Constants.ef_h;
@@ -100,11 +101,7 @@ public class Eye {
 		//init
 		this.imagesPath = imagesPath;
 		this.panel = panel;
-		/** visual field size */
-		vf_h = Constants.ih;
-		vf_w = Constants.iw;
-
-    	
+	
     	//number of neurons in focused area
     	n = ef_h*ef_w/(eres_f*eres_f);
     	mlog.say("n focus "+ n);

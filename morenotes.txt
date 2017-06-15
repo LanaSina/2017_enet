@@ -9,7 +9,7 @@ add actual computing time
 
 
 mogrify -resize 10% *.png  Lanas-MacBook-Pro:Dataset_01
-mogrify -chop 30x0+0+0 -gravity East *.png
+mogrify -chop 4x0+0+0 -gravity East *.png
 mogrify -chop 30x0+0+0 -gravity West *.png 
 
 

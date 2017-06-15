@@ -62,12 +62,12 @@ public class Surface extends JPanel{
 	int[] track = {100,100};
 	
 	/** Size of the eye focus*/
-	int eyeFocusSize_h = 25;
-	int eyeFocusSize_w = 25;
+	int eyeFocusSize_h = Constants.ef_h;
+	int eyeFocusSize_w = Constants.ef_w;
 	/** size of the complete visual field: height */
-	int visualField_h = 50;
+	int visualField_h = Constants.vf_h;
 	/** size of the complete visual field: width */
-	int visualField_w = 50;
+	int visualField_w = Constants.vf_w;
 	
 	/** boolean linked to stop/start button*/
 	boolean paused = false;
@@ -80,7 +80,7 @@ public class Surface extends JPanel{
 	 * @param fw focus w
 	 */
 	public Surface(){
-		setVisualFieldSize(Constants.ih, Constants.iw);
+		//setVisualFieldSize(Constants.ih, Constants.iw);
 		setFocusSize(Constants.ef_h, Constants.ef_h);
 		
 		letter = new BufferedImage(visualField_w,visualField_h,BufferedImage.TYPE_INT_RGB);
@@ -305,8 +305,8 @@ public class Surface extends JPanel{
 		eyeFocusSize_w = iw;
 	}
 
-	public void setVisualFieldSize(int ih, int iw) {
+	/*public void setVisualFieldSize(int ih, int iw) {
 		visualField_h = ih;
 		visualField_w = iw;
-	}
+	}*/
 }
