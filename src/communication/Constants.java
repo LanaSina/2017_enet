@@ -30,9 +30,12 @@ public class Constants {
 	/** size of visual field */
 	public static final int vf_h = 50;
 	public static final int vf_w = 50;
-	/** image dimensions */
-	public static final int iw = (80/eres_f)*eres_f;
-	public static final int ih = (50/eres_f)*eres_f;//round down depending on focus resolution
+	/** image dimensions*/
+	public static final int w = 141;
+	public static final int h = 134;
+	/** image dimensions (viewed from eye) */
+	public static final int iw = (w/eres_f)*eres_f;
+	public static final int ih = (h/eres_f)*eres_f;//round down depending on focus resolution
 	//public static final int n_images = 83;
 
 	

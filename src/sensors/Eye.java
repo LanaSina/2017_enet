@@ -260,11 +260,11 @@ public class Eye {
 		focus_center[1] +=  v_m*eye_motion_res;//fph
 		
 		//limit conditions (cannot look out of image)
-		int[] limits = {im_w,im_h};
-		for(int i = 0; i<2 ; i++){
-			if(focus_center[i]<0) focus_center[i] = 0;
-			if(focus_center[i]>limits[i]) focus_center[i] = limits[i];
-		}
+		if((focus_center[0]-(vf_h/2))<0) focus_center[0] = 0;
+		if((focus_center[0]+(vf_h/2))>Constants.h) focus_center[0] = Constants.h;
+		if((focus_center[1]-(vf_w/2))<0) focus_center[1] = 0;
+		if((focus_center[1]+(vf_w/2))>Constants.w) focus_center[1] = Constants.w;
+		
 		
 		//top left corner
 		int of_i = focus_center[0]-(vf_w/2);
@@ -343,16 +343,30 @@ public class Eye {
 	 * [vertical, horizontal]
 	 */
 	public int[] contractMuscles(Vector<Integer> v_muscles,Vector<Integer> h_muscles){	
-		v_m = 0;//this could also not be reset each time (?)
+		v_m = 0;
 		for(int i=0; i<v_muscles.size();i++){
 			//the real action depends on the result of activating all involved muscles
 			v_m += eyemuscle_v[v_muscles.get(i)];
-			//mlog.say("adding the muscle "+i);
+			
+			//check if action possible
+			//see focus
+			int a = focus_center[1] + v_m*eye_motion_res;//fph
+			//limit conditions (cannot look out of image)
+			if((a-(vf_w/2))<0) v_m = 0;
+			if((a+(vf_w/2))>Constants.w) v_m = 0;
+		
 		}
-		h_m = 0;//this could also not be reset each time (?)
+		h_m = 0;
 		for(int i=0; i<h_muscles.size();i++){
 			//the real action depends on the result of activating all involved muscles
 			h_m += eyemuscle_h[h_muscles.get(i)];
+			
+			//check if action possible
+			//see focus
+			int a = focus_center[0] + h_m*eye_motion_res;//fpw
+			//limit conditions (cannot look out of image)
+			if((a-(vf_h/2))<0) h_m = 0;
+			if((a+(vf_h/2))>Constants.h) h_m = 0;
 		}
 		
 		int[] r = {v_m,h_m};
