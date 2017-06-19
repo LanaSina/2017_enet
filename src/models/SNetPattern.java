@@ -1,7 +1,6 @@
 package models;
 
 
-import java.awt.List;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -17,21 +16,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
-
-import javax.media.j3d.WakeupAnd;
 import javax.swing.JButton;
-
-import com.sun.xml.internal.bind.v2.model.core.ID;
-
 import communication.Constants;
 import communication.ControllableThread;
 import communication.MyLog;
 import graphics.NetworkGraph;
 import graphics.Surface;
-import javafx.scene.shape.FillRule;
 import neurons.BundleWeight;
 import neurons.INeuron;
-import neurons.MotorNeuron;
 import neurons.ProbaWeight;
 import sensors.Eye;
 
@@ -90,9 +82,7 @@ public class SNetPattern implements ControllableThread {
 	//
 	int activated =0;
 	//int max_layers = 10;//6
-	
-	
-	
+
 	//environment
 	/**images files*/
 	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/frames/small/"; 
@@ -121,6 +111,22 @@ public class SNetPattern implements ControllableThread {
 	int n_id = 0;
 	/**short term memory, contains conscious neurons */
 	Vector<INeuron> STM = new Vector<INeuron>();
+	
+	
+	//actions
+	/**vector of ids of activated muscles (id must correspond to motion value in Eye)*/
+	Vector<Integer> h_muscles = new Vector<Integer>();
+	/** vector of ids of activated muscles (id must correspond to motion value in Eye)*/
+	Vector<Integer> v_muscles = new Vector<Integer>();
+	//proprioception
+	/** proprioceptive neurons (horizontal eye muscle)*/
+	ArrayList<INeuron> eyepro_h = new ArrayList<INeuron>();
+	/** proprioceptive neurons (vertical eye muscle)*/
+	ArrayList<INeuron> eyepro_v = new ArrayList<INeuron>();
+	/** id range of propriocetptive INeurons \*/
+	int pi_start = 0;
+	int pi_end = 0;
+
 	
 	public SNetPattern(){
 		//graphics
@@ -361,7 +367,39 @@ public class SNetPattern implements ControllableThread {
 		}	
 		si_end = n_id-1;
 
-		mlog.say("Initila INeurons: id "+ si_start + " to "+ si_end);
+		mlog.say("Initial INeurons: id "+ si_start + " to "+ si_end);
+		
+		pi_start = n_id;
+		//move right or left 
+		for(int i=0; i< eye.getHorizontalMotionResolution();i++){	
+			//this neuron links to this action
+			/*INeuron m = new INeuron(n_id);
+			eyemotor_h.add(m);	
+			allINeurons.put(m.getId(), m);
+			n_id++;*/
+			
+			INeuron n = new INeuron(n_id);
+			eyepro_h.add(n);	
+			allINeurons.put(n.getId(), n);
+			n_id++;			
+		}	
+		//up or down
+		for(int i=0; i< eye.getVerticalMotionResolution();i++){	
+			//neuron links to this action
+			/*INeuron m = new INeuron(n_id);
+			eyemotor_v.add(m);	
+			allINeurons.put(m.getId(), m);
+			n_id++;*/
+				
+			INeuron n = new INeuron(n_id);
+			eyepro_v.add(n);	
+			allINeurons.put(n.getId(), n);
+			n_id++;
+		}
+		pi_end = n_id-1;
+		
+		mlog.say("Proprioception INeurons: id "+ pi_start + " to "+ pi_end + "-1");
+		
 		mlog.say(n_id +" neurons");		
 	}
 	
@@ -390,6 +428,8 @@ public class SNetPattern implements ControllableThread {
 		}
 		//build
 		buildEyeInput();
+		//choose actions, activate "proprioceptive" neurons, act at next step
+		findActions();
 	}
 	
 	
@@ -454,45 +494,28 @@ public class SNetPattern implements ControllableThread {
 			}
 			
 		}
-
-		/*if(test==0){
-			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
-			INeuron n2 = iterator.next().getValue();
-			n2.increaseActivation(1);
-			mlog.say("test is "+ test + " neuron " + n2.getId()+" is activated ");
-			test++;
-		}else if (test ==1 ){
-			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
-			iterator.next();
-			INeuron n2 = iterator.next().getValue();
-			n2.increaseActivation(1);
-			mlog.say("test is "+ test + " neuron " + n2.getId()+" is activated ");
-			//test = 0;
-			test++;
-		}else if (test == 2 ){
-			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
-			INeuron n2 = iterator.next().getValue();
-			n2.increaseActivation(1);
-			mlog.say("test is "+ test + " neuron " + n2.getId()+" and other are activated ");
-			iterator.next();
-			n2 = iterator.next().getValue();
-			n2.increaseActivation(1);	
-			mlog.say("test is "+ test + " neuron " + n2.getId()+" and other are activated ");
-			test++;
-		} else if (test == 3) {
-			Iterator<Entry<Integer, INeuron>> iterator = eye_neurons[2].entrySet().iterator();
-			iterator.next();
-			iterator.next();
-			iterator.next();
-			iterator.next();
-			iterator.next();
-			INeuron n2 = iterator.next().getValue();
-			n2.increaseActivation(1);		
-			mlog.say("test is "+ test + " neuron " + n2.getId()+" is activated ");
-			test = 0;
-		}	
-		//*/
 		
+		//proprioception here works before actual contraction
+		//useful bc behaviour is random, but in the future proprioception can happen
+		//during motion as normal
+		//send order to eye
+		int[] proprio = eye.contractMuscles(v_muscles, h_muscles);
+		int v_m = proprio[0];
+		int h_m = proprio[1];
+
+		//"do nothing" does not count as action
+		if(v_m>0){
+			INeuron np = eyepro_v.get(v_m+1);
+			np.increaseActivation(1);
+		}
+		if(h_m>0){
+			INeuron np = eyepro_h.get(h_m+1);
+			np.increaseActivation(1);
+		}
+		
+		String action = "h "+ h_m + " v " + v_m;
+		panel.setAction(action);
+
 		//propagate instantly from eyes
 		propagateFromEyeNeurons();
 		
@@ -722,8 +745,13 @@ public class SNetPattern implements ControllableThread {
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
+			int id = n.getId();
+			//do not try to predict proprioception: action choice is random for now
+			if(id>=pi_start && id<=pi_end){
+				continue;
+			}
 
-			if(n.getId()>=si_start && n.getId()<=si_end){
+			if(id>=si_start && id<=si_end){
 				if(n.isActivated()){
 					n_activated++;
 				} else {
@@ -736,7 +764,7 @@ public class SNetPattern implements ControllableThread {
 			}
 			
 			if(n.isSurprised() && !n.isMute()){
-				if(n.getId()>=si_start && n.getId()<=si_end){
+				if(id>=si_start && id<=si_end){
 					n_surprised++;
 				}
 				//did we improve future prediction chances?
@@ -1079,6 +1107,29 @@ public class SNetPattern implements ControllableThread {
 	private void cleanAll() {
 		STM.clear();
 		deactivateAll();
+	}
+	
+	
+	/**
+	 * decide of the next action to do
+	 */
+	private void findActions() {
+		//array of "intentions"
+		//in the end, actions will be "flavored" to allow choice
+		//ArrayList<Integer> actionsID = new ArrayList<Integer>();//dirty	
+		
+		//random eye actions
+		h_muscles.clear();
+		int act =  (int) Constants.uniformDouble(0,3);//0..2
+		h_muscles.addElement(act);
+		//INeuron n = eyemotor_v.get(act);
+		//n.increaseActivation(1);
+		
+		v_muscles.clear();
+		act =  (int) Constants.uniformDouble(0,3);
+		v_muscles.addElement(act);
+		//n = eyemotor_h.get(act);
+		//n.increaseActivation(1);		
 	}
 	
 	//main thread
