@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
 import javax.swing.JButton;
+
 import communication.Constants;
 import communication.ControllableThread;
 import communication.MyLog;
@@ -802,7 +803,7 @@ public class SNetPattern implements ControllableThread {
 		}
 				
 		mlog.say("added " + nw + " weights and "+ newn.size() + " neurons ");
-		if(save){
+		if(save){		
 			double perf = (n_surprised*1.0/n_activated) //false negatives
 					+ (n_illusion*1.0/n_activated); //false positives
 			writeSurprise(perf);
@@ -869,14 +870,11 @@ public class SNetPattern implements ControllableThread {
 					break;
 				}
 			}
-		}
-		
+		}		
 		
 		return b;
 	}
 
-	//TODO maybe we should use "certainty" as a predictor
-	//and be surprised when we predicted stim but there was none??? (and somehow the neuron was not muted)
 	//or just let it like this. We have 0.5 predictions that we don't know what will happen next.
 	private void buildPredictionMap() {
 		int n = Constants.gray_scales;
@@ -894,13 +892,30 @@ public class SNetPattern implements ControllableThread {
 			for (int j = 0; j < n_interface[0].length; j++) {//j = position in image
 				int n_id = n_interface[i][j];
 				INeuron neuron = eye_neurons[i].get(n_id);
-				//neuron.calculateActivation();
-				if(neuron.getUpperPredictedActivation()>0){//
-					//mlog.say(neuron.getId()+" inweight was activated ");
-					sum[j]=sum[j]+1;
-					//if white, dont't add anything
-					// gray
-					coarse[j] = coarse[j] + i;
+				//if the neuron is not muted, get its prediction
+				if(!neuron.isMute()){
+					if(neuron.getUpperPredictedActivation()>0){//
+						sum[j]=sum[j]+1;
+						//if white, dont't add anything
+						// gray
+						coarse[j] = coarse[j] + i;
+					}
+				} else {
+					//get the prediction of its pattern neuron
+					HashMap<INeuron, BundleWeight> out_iw = neuron.getDirectOutWeights();
+					//iterate and check activation
+					Iterator<Entry<INeuron, BundleWeight>> it = out_iw.entrySet().iterator();
+					while(it.hasNext()){
+						Map.Entry<INeuron, BundleWeight> pair = it.next();
+						//check pattern neuron activation
+						INeuron in = pair.getKey();
+						//if activated, get its prediction as our prediction
+						if(in.getPredictedActivation()>0){
+							sum[j]=sum[j]+1;
+							coarse[j] = coarse[j] + i;
+							break;
+						}
+					}
 				}
 			}
 		}		
@@ -913,7 +928,7 @@ public class SNetPattern implements ControllableThread {
 				coarse[i] = coarse[i]/sum[i];
 			}
 		}
-
+		
 		//then put into image
 		eye.setPredictedBuffer(coarse);		
 	}
@@ -1176,10 +1191,10 @@ public class SNetPattern implements ControllableThread {
 		    				writeParameters();
 		    			}
 		    			//calculate snap time
-		    			before = System.currentTimeMillis();
+		    			/*before = System.currentTimeMillis();
 		    			net.snap();
 		    			long snaptime = System.currentTimeMillis()-before;;
-		    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);
+		    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);*/
 		    			
 		    			//sleep for 20 steps, every 20 steps
 		    			/*if(step>1){

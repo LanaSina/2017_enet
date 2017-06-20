@@ -1,3 +1,8 @@
+test a small bundle system "prediction map"
+test non moving ball
+test without snapping
+image/input bug: ???
+
 1:48
 
 ffmpeg -i Oswald_the_Lucky_Rabbit.mp4 -ss 01:47 -r 5/1 walk/$filename%03d.bmp
@@ -28,4 +33,3 @@ mogrify -chop 4x12 -gravity Northeast *.png
 
 Lanas-MacBook-Pro:small lana$ convert '*.bmp' ppm/%02d.ppm
 
-御請求書

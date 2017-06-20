@@ -31,7 +31,7 @@ public class INeuron extends Neuron {
 	HashMap<INeuron, ProbaWeight> inWeights = new HashMap<INeuron, ProbaWeight>();
 	/**direct instantaneous weights*/
 	Vector<BundleWeight> directInWeights = new Vector<BundleWeight>();
-
+	/** direct instantaneous weights to pattern neuron*/
 	HashMap<INeuron, BundleWeight> directOutWeights = new HashMap<INeuron, BundleWeight>();
 
 	/** (id of out neuron, weight) probabilistic outweights*/
@@ -231,7 +231,10 @@ public class INeuron extends Neuron {
 	/**
 	 * calculates the probabilistic activation of this neuron
 	 * and compares it to its direct activation.
-	 * if there is not predicted activation but we are activated, the neuron should be "surprised"*/
+	 * if there is not predicted activation but we are activated, the neuron should be "surprised"
+	 * we don't count this as surprised if an upper pattern is activated 
+	 * 
+	 * */
 	//TODO surprise: no input is not same as 0 input
 	public void calculateActivation() { //TODO change name to calculateProbaActivation
 		if(!activationCalculated){
@@ -249,13 +252,11 @@ public class INeuron extends Neuron {
 				if(w>confidence & pw.isActivated()){
 					pa+=1;
 				}
-			}
-	
+			}			
 	
 			if(pro_activation==0 & activation>0){
 				setSurprised(true);
-			}
-			
+			}			
 			
 			pro_activation = pa;
 			activationCalculated = true;
@@ -266,29 +267,10 @@ public class INeuron extends Neuron {
 	public void propagateActivation(){
 		if(isActivated()){
 			//activate direct out weights
-			activateDirectOutWeights();
-			
-			//moved from PNeuron
-			//mute down neurons
-			/*Iterator<BundleWeight> it2 = directInWeights.iterator();
-			while(it2.hasNext()){
-				BundleWeight b = it2.next();
-				if(b.bundleIsActivated()){
-					b.muteInputNeurons();
-				}
-			}
-			//unmute self just in case we had a recurrent connection
-			this.setMute(false);*/
+			activateDirectOutWeights();			
 		}
 	}
 	
-	/*public void calculateActivation(boolean b) {
-		if(true){
-			activationCalculated = false;
-		}
-		calculateActivation();
-	}*/
-
 
 	/**
 	 * reset output weights activation to 0.
@@ -416,28 +398,12 @@ public class INeuron extends Neuron {
 			BundleWeight b = it.next();
 			if(b.bundleIsActivated()){
 				this.increaseActivation(1);
-				//activated.addElement(b);
 				//mute bundle
 				b.muteInputNeurons();
 				//unmute self just in case we had a recurrent connection
 				this.setMute(false);
 			}
 		}
-		
-				
-		//mute secondary patterns???
-		/*for (Iterator<BundleWeight> iterator = activated.iterator(); iterator.hasNext();) {
-			BundleWeight b = iterator.next();		
-			for (Iterator<BundleWeight> iterator2 =  directInWeights.iterator(); iterator2.hasNext();) {
-				BundleWeight b2 = iterator2.next();
-				if(!b.equals(b2) && b.getInNeurons().containsAll(b2.getInNeurons())){
-					//b2.setActivation(0);//muting only is not enough
-					//mlog.say("deactivated secondary pattern");
-				}
-			}
-			
-		}*/
-
 	}
 
 
@@ -447,34 +413,18 @@ public class INeuron extends Neuron {
 
 
 	/**
-	 * @param pair
-	 * @return true if the weight was added, false if it already existed
-	 */
-	/*public boolean addDirectInWeight(Entry<INeuron, ProbaWeight> pair) {
-		boolean b = false;
-		if(!directInWeights.containsKey(pair.getKey())){
-			directInWeights.put(pair.getKey(), pair.getValue());
-			b = true;
-		}
-		return b;
-	}*/
-
-
-	/**
 	 * used to build the prediction map (called by eye sensors on eye neurons)
+	 * the "upper neuron" is the neuron which has the same receptive field, or a snapped neuron
 	 * @return the activation of the 1st neuron in the list of directOutWeights
 	 */
 	public double getUpperPredictedActivation() {
-		/*if(directOutWeights.size()==0){
-			return 0;//TODO bad
-		}*/
 		//should never be null	
 		Iterator<Entry<INeuron, BundleWeight>> it = directOutWeights.entrySet().iterator();
 		Entry<INeuron, BundleWeight> pair = it.next();
 		INeuron neuron = pair.getKey();
 		return neuron.getPredictedActivation();
 	}
-
+	
 	
 	/**
 	 * @param n key: output neuron
