@@ -86,11 +86,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/frames/small/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/cue/";//frames/small/"; 
 	/** leading zeros*/
 	String name_format = "%02d";
 	/** number of images if not using names*/
-	int n_images = 8;//Constants.n_images;
+	int n_images = 6;//Constants.n_images;
 	/** image dimensions */
 	//int ih = Constants.ih;
 	//int iw = Constants.iw;
@@ -414,7 +414,7 @@ public class SNetPattern implements ControllableThread {
 		presentations++;
 		if(presentations>=max_presentations){
     		nextImage = true;	
-		}
+		}//*/
 		
 		if(nextImage){
 			presentations = 0;
@@ -430,7 +430,7 @@ public class SNetPattern implements ControllableThread {
 		//build
 		buildEyeInput();
 		//choose actions, activate "proprioceptive" neurons, act at next step
-		findActions();
+		//findActions();
 	}
 	
 	
@@ -463,7 +463,7 @@ public class SNetPattern implements ControllableThread {
 			int[][] n_interface = eye.getNeuralInterface();
 			for(int k = 0; k<n; k++){
 				//values in "in" start at 1, not 0
-				int i = in[k]-1;//dont see white -1;
+				int i = in[k];//dont see white: add -1;
 				if(i>0){//dont see white
 					eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
 				}
@@ -913,7 +913,7 @@ public class SNetPattern implements ControllableThread {
 						if(in.getPredictedActivation()>0){
 							sum[j]=sum[j]+1;
 							coarse[j] = coarse[j] + i;
-							break;
+							//break;
 						}
 					}
 				}

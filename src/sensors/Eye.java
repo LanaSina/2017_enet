@@ -296,7 +296,7 @@ public class Eye {
 				d = gray_scales;
 			} else{
 				d = sums[k]/(1.0/gray_scales);
-				d = d+1;// dont see white //even "no stim" will be treated as white
+				d = d+1;
 			}	
 			coarse[k] = (int)d;
 
@@ -438,7 +438,7 @@ public class Eye {
 		for(int k=0; k<n; k++){
 			int size = eye_interface[k][2];//size of the zone for this sensor
 			//build visualisation for UI
-			int b = (int) (((1-coarse[k])*255)+0.5);
+			int b = (int) (((1-coarse[k])*255)+0.5);//+1 if eye sees white?
 			Color color2;
 			if(coarse[k]<0){
 				color2 = new Color(0,0,200);//blue = no prediction
