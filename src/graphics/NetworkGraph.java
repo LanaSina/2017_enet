@@ -242,7 +242,7 @@ public class NetworkGraph {
 		frame.setLayout(new BoxLayout(frame.getContentPane(),BoxLayout.Y_AXIS));
 		
 		//pause button
-		JButton pauseButton = new JButton("Pause"); 		
+		JButton pauseButton = new JButton("Start"); 		
 		pauseButton.addActionListener(new ActionListener() {
 	         public void actionPerformed(ActionEvent e) {
 	        	 if(!paused){
@@ -352,34 +352,4 @@ public class NetworkGraph {
 		populateGraph(neurons);
 		vv.repaint();
 	}
-    
-    /**
-     * Custom label visualization. TODO
-     * @author lana
-     *
-     */
-   /* static class MyLabelRenderer implements Vertex<NeuronVertex, SynapseEdge> {    	
-    	Color blue = new Color(102, 153, 204);
-    	int ofx = 0;
-    	int ofy = 0;
-
-		public void paintVertex(RenderContext<NeuronVertex, SynapseEdge> rc, Layout<NeuronVertex, SynapseEdge> layout, NeuronVertex vertex) {
-			GraphicsDecorator graphicsContext = rc.getGraphicsContext();
-	          Point2D center = layout.transform(vertex);
-	          Shape shape = null;
-	          Color color = null;
-	          
-	          shape = new Ellipse2D.Double(center.getX()-10+ofx, center.getY()-10+ofy, 20, 20);
-	          NeuronVertex nv = vertices.get(vertex.id);
-	          if(nv.isSpiking) {	    
-	        	  color = blue;	         
-	          } else{
-	        	  color = Color.lightGray;  	        	  
-	          }
-	          graphicsContext.setPaint(Color.black);
-	          graphicsContext.draw(shape);
-	          graphicsContext.setPaint(color);
-	          graphicsContext.fill(shape);
-		}
-     }*/
 }

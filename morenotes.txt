@@ -3,7 +3,7 @@ image/input bug: ???
 need a betting thing than "age"
 test prediction map on cue dataset
 *save and load functions for network
-could not see white in ecal?
+could not see white in ecal
 
 1:48
 
