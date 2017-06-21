@@ -154,7 +154,7 @@ public class NetworkGraph {
      */
     public void updateNeurons(HashMap<Integer, INeuron> neurons) {
     	
-    	//if(!paused){
+    	if(!paused){
 	    	//remove neurons
 	    	Vector<NeuronVertex> toBeRemoved = new Vector<NeuronVertex>();
 	    	for (Iterator<Integer> iterator = vertices.keySet().iterator(); iterator.hasNext();) {
@@ -177,7 +177,6 @@ public class NetworkGraph {
 				NeuronVertex neuronVertex = iterator.next();
 				vertices.remove(neuronVertex.id);
 			}
-	    	
 	    	
 	    	// Add neurons
 	    	for (Iterator<INeuron> iterator = neurons.values().iterator(); iterator.hasNext();) {
@@ -236,8 +235,7 @@ public class NetworkGraph {
 	        };
 	
 	        (new Thread(code)).start();
-	        done_centering++;
-    	//}
+    	}
     }
         
     
@@ -258,7 +256,7 @@ public class NetworkGraph {
 	         public void actionPerformed(ActionEvent e) {
 	        	 if(!paused){
 	        		 paused = true;
-	        		 pauseButton.setText("Startuyuyyu");
+	        		 pauseButton.setText("Start");
 	        	 }else{
 	        		 paused = false;
 	        		 pauseButton.setText("Pause");

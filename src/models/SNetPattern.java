@@ -1215,7 +1215,7 @@ public class SNetPattern implements ControllableThread {
 		    		
 		    		//UI
 				    panel.setTime(step);
-				    if(draw_net & !paused){
+				    if(draw_net){
 				    	netGraph.updateNeurons(allINeurons);	
 				    }
 	    		}
