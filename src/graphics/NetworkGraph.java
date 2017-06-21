@@ -245,7 +245,7 @@ public class NetworkGraph {
      */
     public void show() {
     	squareLayout(false); 
-        frame.getContentPane().add(vv, BorderLayout.CENTER); 
+        //frame.getContentPane().add(vv, BorderLayout.CENTER); 
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BoxLayout(frame.getContentPane(),BoxLayout.Y_AXIS));
@@ -298,7 +298,8 @@ public class NetworkGraph {
                 
                 frame.getContentPane().add(vv, BorderLayout.CENTER); 
                 vv.repaint();
-                frame.repaint();
+                frame.revalidate();
+                //frame.repaint();
             }
         };
         cb.addActionListener(cbActionListener);
