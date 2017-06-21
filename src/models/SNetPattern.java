@@ -147,7 +147,7 @@ public class SNetPattern implements ControllableThread {
     	initNet();
     	//graphics
     	if(draw_net){
-	    	netGraph = new NetworkGraph((HashMap<Integer, INeuron>) allINeurons.clone());
+	    	netGraph = new NetworkGraph((HashMap<Integer, INeuron>) allINeurons.clone(), eye_neurons);
 		    netGraph.show(); 
     	}
     	

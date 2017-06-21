@@ -17,10 +17,12 @@ import java.util.Vector;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 
 import org.apache.commons.collections15.Transformer;
 
+import communication.Constants;
 import communication.ControllableThread;
 import communication.MyLog;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
@@ -36,6 +38,7 @@ import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import neurons.INeuron;
 import neurons.ProbaWeight;
+import sensors.Eye;
 
 
 
@@ -53,23 +56,30 @@ public class NetworkGraph {
     /** visualizer*/
     BasicVisualizationServer<NeuronVertex,SynapseEdge> vv;
     /** number of neurons*/
-    int n;
+    int n;    
     /** only connections above this weight will be displayed*/
     double minWeight = 0.9;
-    //static NeuronVertex[] vertices;  
     /** id, graphical object */
     static HashMap<Integer, NeuronVertex> vertices;
     
     /** whether to draw the frame or not*/
     boolean paused = true;
+    
+    /** sensors */
+    HashMap<Integer, INeuron>[] eye_neurons;
+    /**neurons*/
+    HashMap<Integer, INeuron> neurons;
+    
 
    /**
     * Creates a new instance of NeuronGraph 
     * @param size number of neurons
     * @param weights weights of the network [from][to]
     */
-    public NetworkGraph(HashMap<Integer, INeuron> neurons){
-    	populateGraph(neurons);      
+    public NetworkGraph(HashMap<Integer, INeuron> neurons, HashMap<Integer, INeuron>[] eye_neurons){
+    	this.neurons = neurons;
+    	this.eye_neurons = eye_neurons;
+    	populateGraph(neurons); 
     }
     
     private void populateGraph(HashMap<Integer, INeuron> neurons){
@@ -129,6 +139,7 @@ public class NetworkGraph {
     }
     
     /**
+     * updates displayed neurons
      * @param ne
      */
     public void updateNeurons(HashMap<Integer, INeuron> neurons) {
@@ -256,8 +267,34 @@ public class NetworkGraph {
 	    });
 		frame.add(pauseButton);
 		
-		
-		
+		//dropdown list of sensor layers / hidden modules
+		String[] choices = { "Neurons","White", "Gray 1","Gray 2","Gray 3","Gray 4", "Black"};
+	
+	    final JComboBox<String> cb = new JComboBox<String>(choices);
+	    ActionListener cbActionListener = new ActionListener() {//add actionlistner to listen for change
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String s = (String) cb.getSelectedItem();//get the selected item
+                HashMap<Integer, INeuron> ne = neurons;
+                
+                switch (s) {
+                    case "Neurons":
+                    	//default value ne = neurons;
+                        break;
+                    case "White":
+                    	ne = eye_neurons[0];
+                        break;
+                    case "Black":
+                    	ne = eye_neurons[Constants.gray_scales-1];
+                        break;
+                }
+                
+                redraw(ne);
+            }
+        };
+        cb.addActionListener(cbActionListener);
+	    cb.setVisible(true);
+	    frame.add(cb);
 		
         frame.setLocation(310, 150);
         frame.getContentPane().add(vv, BorderLayout.CENTER); 

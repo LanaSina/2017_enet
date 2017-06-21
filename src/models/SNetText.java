@@ -111,7 +111,7 @@ public class SNetText implements ControllableThread {
     	//net initialization
     	initNet();
     	//graphics
-    	netGraph = new NetworkGraph((HashMap<Integer, INeuron>) allINeurons.clone());
+    	netGraph = new NetworkGraph((HashMap<Integer, INeuron>) allINeurons.clone(), null);
 	    netGraph.show();  
     	
 	    //init potential folder name
