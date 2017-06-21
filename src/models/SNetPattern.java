@@ -660,7 +660,6 @@ public class SNetPattern implements ControllableThread {
 	public void updateSNet() {			
 
 		//update prediction probabilities		
-				
 		ageOutWeights(allINeurons);
 		increaseInWeights(allINeurons);
 		
@@ -1177,7 +1176,6 @@ public class SNetPattern implements ControllableThread {
 		    		}
 		    		
 		    		net.buildInputs();
-		    		
 					    
 		    		net.updateSNet();
 		    		int nw = countWeights();
@@ -1216,7 +1214,7 @@ public class SNetPattern implements ControllableThread {
 		    		//UI
 				    panel.setTime(step);
 				    if(draw_net){
-				    	netGraph.updateNeurons(allINeurons);	
+				    	netGraph.updateNeurons();//allINeurons);	
 				    }
 	    		}
 	    		
@@ -1263,7 +1261,7 @@ public class SNetPattern implements ControllableThread {
 	@Override
 	public void refresh() {
 		if(draw_net){
-			netGraph.redraw((HashMap<Integer, INeuron>) allINeurons.clone());
+			netGraph.redraw();
 		}
 	}
 

@@ -104,11 +104,7 @@ public class NetworkGraph {
     	eye_interface = eye.getEyeInterface();
     	populateGraph(displayed_neurons); 
     }
-    
-    public void setSensorParameters(int focus_first, int focus_last, int outfocus_first, int outfocus_last, int size){
-
-    }
-    
+  
     private void populateGraph(HashMap<Integer, INeuron> neurons){
     	n = neurons.size();
         vertices = new HashMap<>();
@@ -169,14 +165,14 @@ public class NetworkGraph {
      * updates displayed neurons
      * @param ne
      */
-    public void updateNeurons(HashMap<Integer, INeuron> neurons) {
+    public void updateNeurons(){//HashMap<Integer, INeuron> neurons) {
     	
     	if(!paused){
 	    	//remove neurons
 	    	Vector<NeuronVertex> toBeRemoved = new Vector<NeuronVertex>();
 	    	for (Iterator<Integer> iterator = vertices.keySet().iterator(); iterator.hasNext();) {
 				Integer id = iterator.next();
-				if(!neurons.containsKey(id)){
+				if(!displayed_neurons.containsKey(id)){
 					NeuronVertex nv = vertices.get(id);
 					//delete outdated edges first
 					Vector<SynapseEdge> edges = new Vector<SynapseEdge>(g.getOutEdges(nv));
@@ -196,7 +192,7 @@ public class NetworkGraph {
 			}
 	    	
 	    	// Add neurons
-	    	for (Iterator<INeuron> iterator = neurons.values().iterator(); iterator.hasNext();) {
+	    	for (Iterator<INeuron> iterator = displayed_neurons.values().iterator(); iterator.hasNext();) {
 	    		INeuron iNeuron = iterator.next();
 	    		if(!vertices.containsKey(iNeuron.getId())){
 	    			NeuronVertex nv = new NeuronVertex(iNeuron.getId());   		
@@ -217,7 +213,7 @@ public class NetworkGraph {
 	    	
 	    	
 	    	 //add edges
-	        for (Iterator<INeuron> iterator = neurons.values().iterator(); iterator.hasNext();) {
+	        for (Iterator<INeuron> iterator = displayed_neurons.values().iterator(); iterator.hasNext();) {
 				INeuron from = iterator.next();
 				//iterate over outweights
 				HashMap<INeuron, ProbaWeight> weights = from.getOutWeights();
@@ -334,7 +330,6 @@ public class NetworkGraph {
     private void squareLayout(boolean square){
     	int w = 600, h = 600;
     	Layout<NeuronVertex, SynapseEdge>  layout;
-
 		
 		if(square){
 			layout = new StaticLayout<NeuronVertex, SynapseEdge>(g);
@@ -470,7 +465,11 @@ public class NetworkGraph {
     /** 
      * refreshes the graph as to get better alignment of the vertices
      */
-	public void redraw(HashMap<Integer, INeuron> neurons) {
+	public void redraw() {
+		vv.repaint();
+	}
+	
+	public void rebuildGraph(){
 		emptyGraph();
 		populateGraph(displayed_neurons);
 		vv.repaint();
