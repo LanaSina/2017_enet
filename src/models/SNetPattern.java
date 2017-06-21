@@ -464,7 +464,7 @@ public class SNetPattern implements ControllableThread {
 			for(int k = 0; k<n; k++){
 				//values in "in" start at 1, not 0
 				int i = in[k]-1;
-				if(i>0){
+				if(i>=0){
 					eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
 				}
 			}//*/

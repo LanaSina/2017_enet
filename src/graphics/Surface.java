@@ -304,9 +304,4 @@ public class Surface extends JPanel{
 		eyeFocusSize_h = ih;
 		eyeFocusSize_w = iw;
 	}
-
-	/*public void setVisualFieldSize(int ih, int iw) {
-		visualField_h = ih;
-		visualField_w = iw;
-	}*/
 }

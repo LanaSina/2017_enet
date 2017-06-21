@@ -138,7 +138,7 @@ public class SNetActions implements ControllableThread {
     	//net initialization
     	initNet();
     	//graphics
-    	netGraph = new NetworkGraph((HashMap<Integer, INeuron>) allINeurons.clone(), eye);
+    	netGraph = new NetworkGraph((HashMap<Integer, INeuron>) allINeurons.clone(), eye_neurons, eye);
 	    netGraph.show();  
     	
 	    //init potential folder name
