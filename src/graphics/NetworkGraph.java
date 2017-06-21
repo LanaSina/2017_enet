@@ -2,7 +2,6 @@ package graphics;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Shape;
@@ -12,6 +11,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 
@@ -19,26 +19,28 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.vecmath.Point2d;
 
 import org.apache.commons.collections15.Transformer;
 
 import communication.Constants;
-import communication.ControllableThread;
 import communication.MyLog;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.algorithms.layout.StaticLayout;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.RenderContext;
+import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
+import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer.Vertex;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
+import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Positioner;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import neurons.INeuron;
 import neurons.ProbaWeight;
-import sensors.Eye;
+import sun.reflect.generics.tree.VoidDescriptor;
 
 
 
@@ -51,6 +53,8 @@ public class NetworkGraph {
 	MyLog mlog = new MyLog("graphViz", true);
 	String name = "SNet";
 	
+    JFrame frame = new JFrame(name);
+
 	/**Graph<V, E> where V is the type of the vertices and E is the type of the edges*/
 	Graph<NeuronVertex, SynapseEdge> g = new DirectedSparseGraph<NeuronVertex, SynapseEdge>();
     /** visualizer*/
@@ -69,8 +73,13 @@ public class NetworkGraph {
     HashMap<Integer, INeuron>[] eye_neurons;
     /**neurons*/
     HashMap<Integer, INeuron> neurons;
-    
+    /** currently displayed */
+    HashMap<Integer, INeuron> displayed_neurons;
 
+    
+    /** offset graph at t=0 (dirty)*/
+    static int done_centering = 0;
+    
    /**
     * Creates a new instance of NeuronGraph 
     * @param size number of neurons
@@ -79,7 +88,8 @@ public class NetworkGraph {
     public NetworkGraph(HashMap<Integer, INeuron> neurons, HashMap<Integer, INeuron>[] eye_neurons){
     	this.neurons = neurons;
     	this.eye_neurons = eye_neurons;
-    	populateGraph(neurons); 
+    	displayed_neurons = neurons;
+    	populateGraph(displayed_neurons); 
     }
     
     private void populateGraph(HashMap<Integer, INeuron> neurons){
@@ -144,7 +154,7 @@ public class NetworkGraph {
      */
     public void updateNeurons(HashMap<Integer, INeuron> neurons) {
     	
-    	if(!paused){
+    	//if(!paused){
 	    	//remove neurons
 	    	Vector<NeuronVertex> toBeRemoved = new Vector<NeuronVertex>();
 	    	for (Iterator<Integer> iterator = vertices.keySet().iterator(); iterator.hasNext();) {
@@ -226,29 +236,19 @@ public class NetworkGraph {
 	        };
 	
 	        (new Thread(code)).start();
-    	}
+	        done_centering++;
+    	//}
     }
         
     
+    /**
+     * 
+     * @param square true if displaying sensors
+     */
     public void show() {
-        // The Layout<V, E> is parameterized by the vertex and edge types       
-    	//Layout<NeuronVertex, String> layout = new FRLayout(g);//CircleLayout(g);
-    	Layout<NeuronVertex, SynapseEdge>  layout = new ISOMLayout<NeuronVertex, SynapseEdge>(g);
+    	squareLayout(false); 
+        frame.getContentPane().add(vv, BorderLayout.CENTER); 
 
-        layout.setSize(new Dimension(700,700)); // sets the initial size of the layout space
-        // The BasicVisualizationServer<V,E> is parameterized by the vertex and edge types
-        vv = new BasicVisualizationServer<NeuronVertex,SynapseEdge>(layout);
-        vv.setPreferredSize(new Dimension(800,800)); //Sets the viewing area size
-        vv.getRenderer().setVertexRenderer(new MyRenderer());
-        vv.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
-        vv.getRenderContext().setVertexLabelTransformer(new Transformer<NeuronVertex, String>() {
-            public String transform(NeuronVertex nv) {
-                return (nv.toString());
-            }
-        });//*/
-        
-        
-        JFrame frame = new JFrame(name);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BoxLayout(frame.getContentPane(),BoxLayout.Y_AXIS));
 		
@@ -258,7 +258,7 @@ public class NetworkGraph {
 	         public void actionPerformed(ActionEvent e) {
 	        	 if(!paused){
 	        		 paused = true;
-	        		 pauseButton.setText("Start");
+	        		 pauseButton.setText("Startuyuyyu");
 	        	 }else{
 	        		 paused = false;
 	        		 pauseButton.setText("Pause");
@@ -275,21 +275,32 @@ public class NetworkGraph {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String s = (String) cb.getSelectedItem();//get the selected item
-                HashMap<Integer, INeuron> ne = neurons;
-                
+                displayed_neurons = neurons;
+            	emptyGraph();
+                frame.getContentPane().remove(vv); 
+
+
                 switch (s) {
                     case "Neurons":
                     	//default value ne = neurons;
+                		populateGraph(displayed_neurons);
+                    	squareLayout(false);
                         break;
                     case "White":
-                    	ne = eye_neurons[0];
+                    	displayed_neurons = eye_neurons[0];
+                		populateGraph(displayed_neurons);
+                    	squareLayout(true);
                         break;
                     case "Black":
-                    	ne = eye_neurons[Constants.gray_scales-1];
+                    	displayed_neurons = eye_neurons[Constants.gray_scales-1];
+                		populateGraph(displayed_neurons);
+                    	squareLayout(true);
                         break;
-                }
+                } 
                 
-                redraw(ne);
+                frame.getContentPane().add(vv, BorderLayout.CENTER); 
+                vv.repaint();
+                frame.repaint();
             }
         };
         cb.addActionListener(cbActionListener);
@@ -300,6 +311,70 @@ public class NetworkGraph {
         frame.getContentPane().add(vv, BorderLayout.CENTER); 
         frame.pack();      
         frame.setVisible(true);       
+    }
+    
+    private void squareLayout(boolean square){
+    	int w = 600, h = 600;
+    	Layout<NeuronVertex, SynapseEdge>  layout;
+
+		
+		if(square){
+			layout = new StaticLayout<NeuronVertex, SynapseEdge>(g);
+			layout.setSize(new Dimension(w,h)); // sets the initial size of the layout space
+			
+		 	//number of neurons in focused area
+			int nf = Constants.ef_h*Constants.ef_w/(Constants.eres_f*Constants.eres_f);
+			//number of neurons in non-focused area
+			//total n of pixels - focused pixels, / resolution
+			int nnf = ((Constants.vf_w*Constants.vf_h) - (Constants.ef_h*Constants.ef_w))/(Constants.eres_nf*Constants.eres_nf);
+			
+			
+			Iterator<Entry<Integer, NetworkGraph.NeuronVertex>> it = vertices.entrySet().iterator();
+			int x=0, y=0;
+			while(it.hasNext()){
+				Map.Entry<Integer, NetworkGraph.NeuronVertex> pair = it.next();
+				NetworkGraph.NeuronVertex v = pair.getValue();
+				layout.setLocation(v, new Point2D.Float((float)x,(float)y));
+		    	layout.lock(v, true);
+		    	x+=10;
+		    	y+=10;
+			}
+			//do infocus first
+			//size
+			/*int factor = 600/Constants.vf_w;
+			int f_size = factor*Constants.ef_w;
+			int cx = w/2;
+			int cy = h/2;
+			
+			//space between vertices
+		 	int ws = f_size/nf;
+		 	int x = cx-(f_size/2), y = cy-(f_size/2);
+		 	Iterator<Entry<Integer, INeuron>> it = displayed_neurons.entrySet().iterator();
+			while(it.hasNext()){
+				Map.Entry<Integer, INeuron> pair = it.next();
+				INeuron n = pair.getValue();
+				NeuronVertex v = vertices.get(n.getId());
+				layout.setLocation(v, new Point2D.Float((float)x,(float)y));
+		    	layout.lock(v, true);
+		    	x+=ws; y+=ws;
+			} 
+			mlog.say("here");*/
+		} else {
+			layout = new ISOMLayout<NeuronVertex, SynapseEdge>(g);
+			layout.setSize(new Dimension(w,h)); // sets the initial size of the layout space
+		}
+		
+		 // The BasicVisualizationServer<V,E> is parameterized by the vertex and edge types
+		 vv = new BasicVisualizationServer<NeuronVertex,SynapseEdge>(layout);
+		 vv.setPreferredSize(new Dimension(w+50,h+50)); //Sets the viewing area size
+		 vv.getRenderer().setVertexRenderer(new MyRenderer());
+		 vv.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);
+		 vv.getRenderContext().setVertexLabelTransformer(new Transformer<NeuronVertex, String>() {
+		     public String transform(NeuronVertex nv) {
+		         return (nv.toString());
+		     }
+		 });
+		 
     }
     
     /**
@@ -343,7 +418,7 @@ public class NetworkGraph {
     	}
     	
     	public String toString() { 
-   		 return label; 
+    		return label; 
    	 	}
     }
     
@@ -354,39 +429,43 @@ public class NetworkGraph {
      */
     static class MyRenderer implements Vertex<NeuronVertex, SynapseEdge> {    	
     	Color blue = new Color(102, 153, 204);
+    	
     	int ofx = 0;
     	int ofy = 0;
-
+    	
 		public void paintVertex(RenderContext<NeuronVertex, SynapseEdge> rc, Layout<NeuronVertex, SynapseEdge> layout, NeuronVertex vertex) {
+
 			GraphicsDecorator graphicsContext = rc.getGraphicsContext();
-	          Point2D center = layout.transform(vertex);
-	          Shape shape = null;
-	          Color color = null;
-	          Color edgeColor = Color.black;
-	          
-	          shape = new Ellipse2D.Double(center.getX()-10+ofx, center.getY()-10+ofy, 20, 20);
-	          NeuronVertex nv = vertices.get(vertex.id);
-	          if(nv.isSpiking) {	    
-	        	  color = blue;	         
-	          } else{
-	        	  color = Color.lightGray;  	        	  
-	          }
-	          if(nv.isPredicted){
-	        	  edgeColor = Color.red;
-	          }
-	          graphicsContext.setPaint(edgeColor);
-	          graphicsContext.draw(shape);
-	          graphicsContext.setPaint(color);
-	          graphicsContext.fill(shape);
+			Point2D center = layout.transform(vertex);
+			layout.setLocation(vertex, new Point2D.Double(center.getX()+ofx, center.getY()+ofy));
+			Shape shape = null;
+			Color color = null;
+			Color edgeColor = Color.black;
+			  
+			shape = new Ellipse2D.Double(center.getX()-10, center.getY()-10, 20, 20);
+			NeuronVertex nv = vertices.get(vertex.id);
+			if(nv.isSpiking) {	    
+				color = blue;	         
+			} else{
+				color = Color.lightGray;  	        	  
+			}
+			if(nv.isPredicted){
+				edgeColor = Color.red;
+			}
+			graphicsContext.setPaint(edgeColor);
+			graphicsContext.draw(shape);
+			graphicsContext.setPaint(color);
+			graphicsContext.fill(shape);
 		}
-     }
+    }
+    
 
     /** 
      * refreshes the graph as to get better alignment of the vertices
      */
 	public void redraw(HashMap<Integer, INeuron> neurons) {
 		emptyGraph();
-		populateGraph(neurons);
+		populateGraph(displayed_neurons);
 		vv.repaint();
 	}
 }
