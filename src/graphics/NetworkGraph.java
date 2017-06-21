@@ -3,7 +3,6 @@ package graphics;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,7 +18,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.vecmath.Point2d;
 
 import org.apache.commons.collections15.Transformer;
 
@@ -32,16 +30,12 @@ import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 import edu.uci.ics.jung.visualization.RenderContext;
-import edu.uci.ics.jung.visualization.control.CrossoverScalingControl;
-import edu.uci.ics.jung.visualization.renderers.DefaultVertexLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer.Vertex;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
-import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Positioner;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
 import neurons.INeuron;
 import neurons.ProbaWeight;
-import sun.reflect.generics.tree.VoidDescriptor;
-
+import sensors.Eye;
 
 
 /**
@@ -75,21 +69,44 @@ public class NetworkGraph {
     HashMap<Integer, INeuron> neurons;
     /** currently displayed */
     HashMap<Integer, INeuron> displayed_neurons;
-
+    //use this in a better way
+    int grayscale = -1;
+    
+    /** */
+    /*int focus_first;
+    int focus_last;
+    int outfocus_first;
+    int outfocus_last;*/
+    /** number of columns in focus */
+    int f_ncols;
+    /** number of columns outfocus */
+    int of_ncols;
     
     /** offset graph at t=0 (dirty)*/
     static int done_centering = 0;
     
+    // = eye.getNeuralInterface();
+    int[][] n_interface;
+    /** maps actual values in world to sensors (square sensory field, can be overlapping) 
+	 * [sensor id][topmost sensor, leftmost sensor, size]*/
+	int[][] eye_interface;
+	
    /**
     * Creates a new instance of NeuronGraph 
     * @param size number of neurons
     * @param weights weights of the network [from][to]
     */
-    public NetworkGraph(HashMap<Integer, INeuron> neurons, HashMap<Integer, INeuron>[] eye_neurons){
+    public NetworkGraph(HashMap<Integer, INeuron> neurons, HashMap<Integer, INeuron>[] eye_neurons, Eye eye){
     	this.neurons = neurons;
     	this.eye_neurons = eye_neurons;
     	displayed_neurons = neurons;
+    	n_interface = eye.getNeuralInterface();
+    	eye_interface = eye.getEyeInterface();
     	populateGraph(displayed_neurons); 
+    }
+    
+    public void setSensorParameters(int focus_first, int focus_last, int outfocus_first, int outfocus_last, int size){
+
     }
     
     private void populateGraph(HashMap<Integer, INeuron> neurons){
@@ -285,12 +302,14 @@ public class NetworkGraph {
                     	squareLayout(false);
                         break;
                     case "White":
-                    	displayed_neurons = eye_neurons[0];
+                    	grayscale = 0;
+                    	displayed_neurons = eye_neurons[grayscale];
                 		populateGraph(displayed_neurons);
                     	squareLayout(true);
                         break;
                     case "Black":
-                    	displayed_neurons = eye_neurons[Constants.gray_scales-1];
+                    	grayscale = Constants.gray_scales-1;
+                    	displayed_neurons = eye_neurons[grayscale];
                 		populateGraph(displayed_neurons);
                     	squareLayout(true);
                         break;
@@ -328,7 +347,7 @@ public class NetworkGraph {
 			int nnf = ((Constants.vf_w*Constants.vf_h) - (Constants.ef_h*Constants.ef_w))/(Constants.eres_nf*Constants.eres_nf);
 			
 			
-			Iterator<Entry<Integer, NetworkGraph.NeuronVertex>> it = vertices.entrySet().iterator();
+			/*Iterator<Entry<Integer, NetworkGraph.NeuronVertex>> it = vertices.entrySet().iterator();
 			int x=0, y=0;
 			while(it.hasNext()){
 				Map.Entry<Integer, NetworkGraph.NeuronVertex> pair = it.next();
@@ -337,27 +356,60 @@ public class NetworkGraph {
 		    	layout.lock(v, true);
 		    	x+=10;
 		    	y+=10;
-			}
+			}*/
 			//do infocus first
 			//size
-			/*int factor = 600/Constants.vf_w;
+			int factor = 600/Constants.vf_w;
 			int f_size = factor*Constants.ef_w;
 			int cx = w/2;
-			int cy = h/2;
-			
+			int cy = h/2;	
+			//int side = (int) Math.sqrt(nf);			
 			//space between vertices
-		 	int ws = f_size/nf;
-		 	int x = cx-(f_size/2), y = cy-(f_size/2);
-		 	Iterator<Entry<Integer, INeuron>> it = displayed_neurons.entrySet().iterator();
-			while(it.hasNext()){
+		 	int ws = factor*Constants.eres_f;//f_size/nf;
+		 	//position
+		 	//int x = cx-(f_size/2), y = cy-(f_size/2);
+		 	//nuber of columns
+		 	int col = 0;
+		 	
+		 	int nt = n_interface[0].length;
+		 	for(int k = 0; k<nt; k++){
+			 	int sensor_i = eye_interface[k][0];
+				int sensor_j = eye_interface[k][1];
+				int size = eye_interface[k][2];//size of the zone for this sensor
+				int nid = n_interface[grayscale][k];
+				//displayed_neurons.get(nid);
+				NeuronVertex v = vertices.get(nid);
+				float x = sensor_i+size/2;
+				float y = sensor_j+size/2;
+				layout.setLocation(v, new Point2D.Float(x*factor,y*factor));
+		    	layout.lock(v, true);
+		 	}
+		 	
+		 	/*Iterator<Entry<Integer, INeuron>> it = displayed_neurons.entrySet().iterator();
+		 	//number of sensors in a layer
+		 	//int nt = n_interface[0].length;
+		 	for(int k = 0; k<nf; k++){
+		 		INeuron n = displayed_neurons.get(n_interface[grayscale][k]);
+		 		NeuronVertex v = vertices.get(n.getId());
+			}
+		 	int id = 0;
+			while(it.hasNext() && id<focus_last){
 				Map.Entry<Integer, INeuron> pair = it.next();
 				INeuron n = pair.getValue();
+				id = n.getId();
 				NeuronVertex v = vertices.get(n.getId());
 				layout.setLocation(v, new Point2D.Float((float)x,(float)y));
 		    	layout.lock(v, true);
-		    	x+=ws; y+=ws;
-			} 
-			mlog.say("here");*/
+		    	x+=ws;
+		    	col++;
+		    	
+		    	if(col==f_ncols-1){
+		    		y+=ws;
+		    		x = cx-(f_size/2);
+		    		col = 0;
+		    	}
+			} */
+
 		} else {
 			layout = new ISOMLayout<NeuronVertex, SynapseEdge>(g);
 			layout.setSize(new Dimension(w,h)); // sets the initial size of the layout space

@@ -147,7 +147,7 @@ public class SNetPattern implements ControllableThread {
     	initNet();
     	//graphics
     	if(draw_net){
-	    	netGraph = new NetworkGraph((HashMap<Integer, INeuron>) allINeurons.clone(), eye_neurons);
+	    	netGraph = new NetworkGraph((HashMap<Integer, INeuron>) allINeurons.clone(), eye_neurons, eye);
 		    netGraph.show(); 
     	}
     	
@@ -463,8 +463,8 @@ public class SNetPattern implements ControllableThread {
 			int[][] n_interface = eye.getNeuralInterface();
 			for(int k = 0; k<n; k++){
 				//values in "in" start at 1, not 0
-				int i = in[k];//dont see white: add -1;
-				if(i>0){//dont see white
+				int i = in[k]-1;
+				if(i>0){
 					eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
 				}
 			}//*/

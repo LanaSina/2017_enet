@@ -456,6 +456,11 @@ public class Eye {
 		
 		panel.setPredicted(prediction);
 	}
+
+
+	public int[][] getEyeInterface() {
+		return eye_interface;
+	}
 	
 	
 }
