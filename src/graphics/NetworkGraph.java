@@ -340,13 +340,6 @@ public class NetworkGraph {
 			layout = new StaticLayout<NeuronVertex, SynapseEdge>(g);
 			layout.setSize(new Dimension(w,h)); // sets the initial size of the layout space
 			
-		 	//number of neurons in focused area
-			int nf = Constants.ef_h*Constants.ef_w/(Constants.eres_f*Constants.eres_f);
-			//number of neurons in non-focused area
-			//total n of pixels - focused pixels, / resolution
-			int nnf = ((Constants.vf_w*Constants.vf_h) - (Constants.ef_h*Constants.ef_w))/(Constants.eres_nf*Constants.eres_nf);
-			
-			
 			/*Iterator<Entry<Integer, NetworkGraph.NeuronVertex>> it = vertices.entrySet().iterator();
 			int x=0, y=0;
 			while(it.hasNext()){
@@ -357,19 +350,8 @@ public class NetworkGraph {
 		    	x+=10;
 		    	y+=10;
 			}*/
-			//do infocus first
 			//size
 			int factor = 600/Constants.vf_w;
-			int f_size = factor*Constants.ef_w;
-			int cx = w/2;
-			int cy = h/2;	
-			//int side = (int) Math.sqrt(nf);			
-			//space between vertices
-		 	int ws = factor*Constants.eres_f;//f_size/nf;
-		 	//position
-		 	//int x = cx-(f_size/2), y = cy-(f_size/2);
-		 	//nuber of columns
-		 	int col = 0;
 		 	
 		 	int nt = n_interface[0].length;
 		 	for(int k = 0; k<nt; k++){
@@ -383,33 +365,7 @@ public class NetworkGraph {
 				float y = sensor_j+size/2;
 				layout.setLocation(v, new Point2D.Float(x*factor,y*factor));
 		    	layout.lock(v, true);
-		 	}
-		 	
-		 	/*Iterator<Entry<Integer, INeuron>> it = displayed_neurons.entrySet().iterator();
-		 	//number of sensors in a layer
-		 	//int nt = n_interface[0].length;
-		 	for(int k = 0; k<nf; k++){
-		 		INeuron n = displayed_neurons.get(n_interface[grayscale][k]);
-		 		NeuronVertex v = vertices.get(n.getId());
-			}
-		 	int id = 0;
-			while(it.hasNext() && id<focus_last){
-				Map.Entry<Integer, INeuron> pair = it.next();
-				INeuron n = pair.getValue();
-				id = n.getId();
-				NeuronVertex v = vertices.get(n.getId());
-				layout.setLocation(v, new Point2D.Float((float)x,(float)y));
-		    	layout.lock(v, true);
-		    	x+=ws;
-		    	col++;
-		    	
-		    	if(col==f_ncols-1){
-		    		y+=ws;
-		    		x = cx-(f_size/2);
-		    		col = 0;
-		    	}
-			} */
-
+		 	}//*/
 		} else {
 			layout = new ISOMLayout<NeuronVertex, SynapseEdge>(g);
 			layout.setSize(new Dimension(w,h)); // sets the initial size of the layout space
