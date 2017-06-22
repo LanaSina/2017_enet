@@ -1,9 +1,9 @@
 test a small bundle system "prediction map"
-image/input bug: ???
-need a betting thing than "age"
-test prediction map on cue dataset
+need a better thing than "age"
 *save and load functions for network
 could not see white in ecal
+prediction orientation
+cue prediction bad
 
 1:48
 

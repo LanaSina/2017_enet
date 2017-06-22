@@ -457,7 +457,7 @@ public class Eye {
 			int rel_j = eye_interface[k][1];
 			for(int i=rel_i; i<rel_i+size; i++){
 				for(int j=rel_j; j<rel_j+size; j++){		       
-					prediction.setRGB(j, i, color2.getRGB());
+					prediction.setRGB(i, j, color2.getRGB());
 				}
 			}
 		}

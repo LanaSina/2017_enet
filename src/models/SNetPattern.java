@@ -86,7 +86,7 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/";//frames/small/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/cue/";//frames/small/"; 
 	/** leading zeros*/
 	String name_format = "%02d";
 	/** number of images if not using names*/
@@ -412,7 +412,7 @@ public class SNetPattern implements ControllableThread {
 	 */
 	public void buildInputs(){
 		presentations++;
-		/*if(presentations>=max_presentations){
+		if(presentations>=max_presentations){
     		nextImage = true;	
 		}//*/
 		
@@ -1189,10 +1189,10 @@ public class SNetPattern implements ControllableThread {
 		    				writeParameters();
 		    			}
 		    			//calculate snap time
-		    			/*before = System.currentTimeMillis();
+		    			before = System.currentTimeMillis();
 		    			net.snap();
 		    			long snaptime = System.currentTimeMillis()-before;;
-		    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);*/
+		    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);//*/
 		    			
 		    			//sleep for 20 steps, every 20 steps
 		    			/*if(step>1){
