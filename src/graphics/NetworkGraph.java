@@ -290,7 +290,6 @@ public class NetworkGraph {
             	emptyGraph();
                 frame.getContentPane().remove(vv); 
 
-
                 switch (s) {
                     case "Neurons":
                     	//default value ne = neurons;
@@ -299,6 +298,30 @@ public class NetworkGraph {
                         break;
                     case "White":
                     	grayscale = 0;
+                    	displayed_neurons = eye_neurons[grayscale];
+                		populateGraph(displayed_neurons);
+                    	squareLayout(true);
+                        break;
+                    case "Gray 1":
+                    	grayscale = 1;
+                    	displayed_neurons = eye_neurons[grayscale];
+                		populateGraph(displayed_neurons);
+                    	squareLayout(true);
+                        break;
+                    case "Gray 2":
+                    	grayscale = 2;
+                    	displayed_neurons = eye_neurons[grayscale];
+                		populateGraph(displayed_neurons);
+                    	squareLayout(true);
+                        break;
+                    case "Gray 3":
+                    	grayscale = 3;
+                    	displayed_neurons = eye_neurons[grayscale];
+                		populateGraph(displayed_neurons);
+                    	squareLayout(true);
+                        break;
+                    case "Gray 4":
+                    	grayscale = 4;
                     	displayed_neurons = eye_neurons[grayscale];
                 		populateGraph(displayed_neurons);
                     	squareLayout(true);

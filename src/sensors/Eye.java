@@ -201,12 +201,13 @@ public class Eye {
 			
 			//black and white buffer for image
 			//[row][column] = blackness level
-			bw = new double[im_h][im_w];
+			//bw = new double[im_h][im_w];
+			bw = new double[im_w][im_h];
 			
 			//build the whole image
-			for(int i=0; i<im_h;i++){
-				for(int j=0; j<im_w;j++){
-					Color color = new Color(image_input.getRGB(j,i));
+			for(int i=0; i<im_w;i++){
+				for(int j=0; j<im_h;j++){
+					Color color = new Color(image_input.getRGB(i,j));
 			        int b = color.getBlue();//0:255
 			        int g = color.getGreen();
 			        int r = color.getRed();
@@ -280,10 +281,17 @@ public class Eye {
 			int sensor_i = eye_interface[k][0]+of_i;
 			int sensor_j = eye_interface[k][1]+of_j;
 			int size = eye_interface[k][2];//size of the zone for this sensor
-			if(sensor_i>=0 & sensor_i+size<im_h & sensor_j>=0 & sensor_j+size<im_w){
+			/*if(sensor_i>=0 & sensor_i+size<im_h & sensor_j>=0 & sensor_j+size<im_w){//?w h
 				for(int i=sensor_i; i<sensor_i+size; i++){
 					for(int j=sensor_j; j<sensor_j+size; j++){
 						sums[k]+=bw[i][j];
+					}
+				}		
+			}*/
+			if(sensor_i>=0 & sensor_i+size<im_w & sensor_j>=0 & sensor_j+size<im_h){//?w h
+				for(int i=sensor_i; i<sensor_i+size; i++){
+					for(int j=sensor_j; j<sensor_j+size; j++){
+						sums[k]+=bw[i][j];//[row][column] 
 					}
 				}		
 			}
@@ -313,8 +321,8 @@ public class Eye {
 			int rel_j = eye_interface[k][1];
 			for(int i=rel_i; i<rel_i+size; i++){
 				for(int j=rel_j; j<rel_j+size; j++){		       
-					eye_input.setRGB(j, i, color.getRGB());//j and i
-					eye_input_coarse.setRGB(j, i, color2.getRGB());
+					eye_input.setRGB(i, j, color.getRGB());//j and i
+					eye_input_coarse.setRGB(i, j, color2.getRGB());
 				}
 			}
 		}
