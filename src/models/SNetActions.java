@@ -1235,7 +1235,7 @@ public class SNetActions implements ControllableThread {
 		    		
 		    		//UI
 				    panel.setTime(step);
-				    netGraph.updateNeurons(allINeurons);				  
+				    netGraph.updateNeurons();				  
 	    		}
 	    		
 	    		try {
@@ -1278,7 +1278,7 @@ public class SNetActions implements ControllableThread {
 
 	@Override
 	public void refresh() {
-		netGraph.redraw((HashMap<Integer, INeuron>) allINeurons.clone());
+		netGraph.redraw();
 	}
 
 }

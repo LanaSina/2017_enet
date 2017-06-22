@@ -975,7 +975,7 @@ public class SNetText implements ControllableThread {
 		    		//UI
 				    //panel.setTime(step);
 				    //Vector<INeuron> v = new Vector<INeuron>(allINeurons.values());
-				    netGraph.updateNeurons(allINeurons);				  
+				    netGraph.updateNeurons();				  
 	    		}
 	    		
 	    		try {
@@ -1018,7 +1018,7 @@ public class SNetText implements ControllableThread {
 
 	@Override
 	public void refresh() {
-		netGraph.redraw((HashMap<Integer, INeuron>) allINeurons.clone());
+		netGraph.redraw();
 	}
 
 }
