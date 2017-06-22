@@ -987,7 +987,7 @@ public class SNetPattern implements ControllableThread {
 					Map.Entry<Integer, INeuron> pair2 = it2.next();
 					INeuron n2 = pair2.getValue();
 										
-					if((n.getId()!= n2.getId()) && !n2.justSnapped){
+					if((n.getId() != n2.getId()) && !n2.justSnapped){
 						boolean dosnap = true;
 
 						//compare all out weights
@@ -1000,7 +1000,7 @@ public class SNetPattern implements ControllableThread {
 						Set<INeuron> s1 = out1.keySet();
 						Set<INeuron> s2 = out2.keySet();
 						
-						//avoid direct recurrent connections
+						//avoid direct recurrent connections //no need to avoid them
 						if(n.directInWeightsContains(n2) || n2.directInWeightsContains(n) ||
 								//avoid different sets of outweights
 								!s1.containsAll(s2) || !s2.containsAll(s1)){
@@ -1082,9 +1082,7 @@ public class SNetPattern implements ControllableThread {
 									
 									n2.clearDirectInWeights();									
 								}
-							}
-
-							
+							}							
 						}
 					}
 				}
@@ -1214,7 +1212,8 @@ public class SNetPattern implements ControllableThread {
 		    		//UI
 				    panel.setTime(step);
 				    if(draw_net){
-				    	netGraph.updateNeurons();//allINeurons);	
+				    	netGraph.setHiddenLayer(allINeurons);
+				    	//netGraph.updateNeurons();
 				    }
 	    		}
 	    		

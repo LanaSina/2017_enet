@@ -286,58 +286,38 @@ public class NetworkGraph {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String s = (String) cb.getSelectedItem();//get the selected item
+                grayscale = -1;
                 displayed_neurons = neurons;
             	emptyGraph();
                 frame.getContentPane().remove(vv); 
 
                 switch (s) {
                     case "Neurons":
-                    	//default value ne = neurons;
-                		populateGraph(displayed_neurons);
-                    	squareLayout(false);
+                    	updateGrayscale(-1);
                         break;
                     case "White":
-                    	grayscale = 0;
-                    	displayed_neurons = eye_neurons[grayscale];
-                		populateGraph(displayed_neurons);
-                    	squareLayout(true);
+                    	updateGrayscale(0);
                         break;
                     case "Gray 1":
-                    	grayscale = 1;
-                    	displayed_neurons = eye_neurons[grayscale];
-                		populateGraph(displayed_neurons);
-                    	squareLayout(true);
+                    	updateGrayscale(1);
                         break;
                     case "Gray 2":
-                    	grayscale = 2;
-                    	displayed_neurons = eye_neurons[grayscale];
-                		populateGraph(displayed_neurons);
-                    	squareLayout(true);
+                    	updateGrayscale(2);
                         break;
                     case "Gray 3":
-                    	grayscale = 3;
-                    	displayed_neurons = eye_neurons[grayscale];
-                		populateGraph(displayed_neurons);
-                    	squareLayout(true);
+                    	updateGrayscale(3);
                         break;
                     case "Gray 4":
-                    	grayscale = 4;
-                    	displayed_neurons = eye_neurons[grayscale];
-                		populateGraph(displayed_neurons);
-                    	squareLayout(true);
+                    	updateGrayscale(4);
                         break;
                     case "Black":
-                    	grayscale = Constants.gray_scales-1;
-                    	displayed_neurons = eye_neurons[grayscale];
-                		populateGraph(displayed_neurons);
-                    	squareLayout(true);
+                    	updateGrayscale(Constants.gray_scales-1);
                         break;
                 } 
                 
                 frame.getContentPane().add(vv, BorderLayout.CENTER); 
                 vv.repaint();
                 frame.revalidate();
-                //frame.repaint();
             }
         };
         cb.addActionListener(cbActionListener);
@@ -349,6 +329,28 @@ public class NetworkGraph {
         frame.pack();      
         frame.setVisible(true);       
     }
+    
+    public void setHiddenLayer(HashMap<Integer, INeuron> d_neurons) {
+    	neurons = d_neurons;
+		if(grayscale<0){
+			updateNeurons();
+		}
+	}
+    
+    private void updateGrayscale(int g) {
+		grayscale = g;
+		if(g<0){
+			displayed_neurons = neurons;
+		}else{
+			displayed_neurons = eye_neurons[grayscale];
+		}
+		populateGraph(displayed_neurons);
+		if(g<0){
+	    	squareLayout(false);
+		} else {
+			squareLayout(true);
+		}
+	}
     
     private void squareLayout(boolean square){
     	int w = 600, h = 600;
