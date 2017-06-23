@@ -17,7 +17,7 @@ public class Constants {
 	/** age at which probabilistic connections stop learning */
 	public static final int weight_max_age = 20;//20
 	/** confidence threshold for predictions */
-	public static final double confidence_threshold = 0.8;//90%
+	public static final double confidence_threshold = 0.8;//
 	
 	/** sensitivity of the image sensor */
 	public static final int gray_scales = 6;

@@ -417,13 +417,41 @@ public class INeuron extends Neuron {
 	 * @return the activation of the 1st neuron in the list of directOutWeights
 	 */
 	public double getUpperPredictedActivation() {
+		if(directOutWeights.size()>1){
+			mlog.say("=========ERROR");
+		}
 		//should never be null	
 		Iterator<Entry<INeuron, BundleWeight>> it = directOutWeights.entrySet().iterator();
-		Entry<INeuron, BundleWeight> pair = it.next();
-		INeuron neuron = pair.getKey();
-		return neuron.getPredictedActivation();
+		double sum = 0;
+		while(it.hasNext()){
+			Entry<INeuron, BundleWeight> pair = it.next();
+			INeuron neuron = pair.getKey();
+			sum+=neuron.getPredictedActivation();
+		}
+		
+		return sum/directOutWeights.size();
 	}
 	
+	/** for prediction map debug only */
+	public boolean getUpperSurprised() {
+		if(!isActivated()){
+			return false;
+		}
+		
+		Iterator<INeuron> it = directOutWeights.keySet().iterator();
+		while(it.hasNext()){
+			INeuron up = it.next();
+			if(up.isActivated() && !up.isSurprised()){
+				return false;
+			}
+			if(up.isMute()){
+				return up.getUpperSurprised();
+			}	
+		}
+		
+		//default
+		return true;
+	}
 	
 	/**
 	 * @param n key: output neuron
@@ -530,21 +558,6 @@ public class INeuron extends Neuron {
 		return mute;
 	}
 
-
-	/*public Vector<BundleWeight> getBundleWeights() {
-		return (Vector<BundleWeight>) bundleWeights.clone();	
-	}*/
-
-	
-	/*private boolean addBundleWeight(BundleWeight bw) {
-		//moved from PNeuron
-		boolean b = false;
-		if(!sameBundleWeight(bw)){	
-			bundleWeights.add(bw);
-			b = true;
-		}
-		return b;
-	}*/
 	
 	/**
 	 * @param bw

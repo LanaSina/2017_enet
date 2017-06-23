@@ -771,9 +771,9 @@ public class SNetPattern implements ControllableThread {
 							n_illusion++;
 						}
 					}
-				}
+				}				
 				
-				if(n.isSurprised() && !n.isMute()){
+				if(n.isSurprised()){// && !n.isMute()){
 					if(id>=si_start && id<=si_end){
 						n_surprised++;
 					}
@@ -955,6 +955,10 @@ public class SNetPattern implements ControllableThread {
 					//if white, dont't add anything
 					// gray
 					coarse[j] = coarse[j] + i;
+				}
+				
+				if(neuron.getUpperSurprised() == true){
+					mlog.say("surprised");
 				}
 			}
 		}		

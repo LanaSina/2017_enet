@@ -60,8 +60,6 @@ public class BundleWeight extends ProbaWeight {
 			if(!n.isActivated()){
 				b = false;
 				break;
-			}else{
-				//mlog.say("bundle strand activated "+n.getId());
 			}
 		}
 		return b;
