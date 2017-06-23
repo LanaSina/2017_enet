@@ -51,10 +51,11 @@ public class SNetPattern implements ControllableThread {
 	int speed = 1;
 	boolean draw_net = true;
 	/** max number of new connections per step*/
-	//int max_new_connections = 10000;
+	int max_new_connections = 10000;
 	/** max inweights per neuron */
 	//int max_in_weights = 500;
-	//int max_total_connections = 150000;
+	int max_total_connections = 150000;
+	//int max_layers = 10;//6
 
 	/** the folder for this specific run*/
 	String folderName;
@@ -82,7 +83,7 @@ public class SNetPattern implements ControllableThread {
 	boolean dreaming = false;
 	//
 	int activated =0;
-	//int max_layers = 10;//6
+	
 
 	//environment
 	/**images files*/
@@ -429,6 +430,7 @@ public class SNetPattern implements ControllableThread {
 		}
 		//build
 		buildEyeInput();
+			
 		//choose actions, activate "proprioceptive" neurons, act at next step
 		//findActions();
 	}
@@ -691,7 +693,6 @@ public class SNetPattern implements ControllableThread {
 			n.calculateActivation();
 			n.propagateActivation();
 		}
-		
 	}
 
 	/**
@@ -718,6 +719,27 @@ public class SNetPattern implements ControllableThread {
 	 * In this model there is no topological hierarchy yet, so all activated neurons are conscious.
 	 */
 	private void makeWeights() {
+		
+		//will store new neurons
+		Vector<INeuron> newn = new Vector<INeuron>();
+		
+		//debug
+		/*if(img_id == 2 && step < 5){
+			//force creation of pattern neurons from 01.png to 02.png
+			Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
+			while(it.hasNext()){
+				Map.Entry<Integer, INeuron> pair = it.next();
+				INeuron n = pair.getValue();
+				if(n.isActivated()){
+					INeuron neuron = new INeuron(STM,n,n_id);
+					newn.addElement(neuron);
+					n_id++;
+				}
+			}
+			mlog.say("**** created debug pattern neurons ");
+		}*/
+		
+		
 		//number of surprised neurons at this timestep
 		int n_surprised = 0;
 		//number of sensory activates
@@ -733,10 +755,7 @@ public class SNetPattern implements ControllableThread {
 				writeSurprise(0);
 			}
 			return;
-		}
-		
-		//will store new neurons
-		Vector<INeuron> newn = new Vector<INeuron>();
+		}		
 		
 		//ineurons 
 		//todo make order random
@@ -782,15 +801,17 @@ public class SNetPattern implements ControllableThread {
 							}
 						//}
 					//}
-					
+												
 					//no change happened, try building a spatial pattern
 					if(!didChange & !dreaming){					
 						if(!patternExists(STM,n) && !hasMaxLayer(STM)){
 							INeuron neuron = new INeuron(STM,n,n_id);
 							newn.addElement(neuron);
 							n_id++;
-							mlog.say("created pattern neuron "+neuron.getId());
-						}
+							mlog.say("******created pattern neuron "+neuron.getId());
+						}/*else{
+							mlog.say("----- pattern existed");
+						}*/
 					}
 				}					
 			}
@@ -820,10 +841,10 @@ public class SNetPattern implements ControllableThread {
 		boolean has = false;
 		for (Iterator<INeuron> iterator = sTM2.iterator(); iterator.hasNext();) {
 			INeuron iNeuron = iterator.next();
-			//if(iNeuron.level>=max_layers){
+			/*if(iNeuron.level>=max_layers){
 				has = true;
 				//mlog.say("layer limit");
-			//}
+			}*/
 		}
 		return has;
 	}
