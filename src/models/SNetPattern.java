@@ -1035,7 +1035,7 @@ public class SNetPattern implements ControllableThread {
 						boolean dosnap = true;
 
 						//compare all out weights
-						double diff = 0;
+						//double diff = 0;
 						int all = 0;
 						HashMap<INeuron,ProbaWeight> out1 = n.getOutWeights();
 						HashMap<INeuron,ProbaWeight> out2 = n2.getOutWeights();
@@ -1043,8 +1043,11 @@ public class SNetPattern implements ControllableThread {
 						//n1 must have all the weights that n2 has
 						Set<INeuron> s1 = out1.keySet();
 						Set<INeuron> s2 = out2.keySet();
+						//inweights
+						HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
+						HashMap<INeuron,ProbaWeight> in2 = n2.getInWeights();
 						
-						//avoid direct recurrent connections //no need to avoid them
+						//avoid direct recurrent connections //no need to avoid them?
 						if(n.directInWeightsContains(n2) || n2.directInWeightsContains(n) ||
 								//avoid different sets of outweights
 								!s1.containsAll(s2) || !s2.containsAll(s1)){
@@ -1066,67 +1069,58 @@ public class SNetPattern implements ControllableThread {
 									dosnap = false;
 									break;//give up
 								}
-								diff += Math.pow(w1.getProba() - w2.getProba(),2);
-								all++;
+								
+								if(Math.abs(w1.getProba()-w2.getProba())>Constants.w_error){
+									dosnap = false;
+									break;
+								};
+								
+								//finally, only snap if there are no conflicting inweights
+								Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
+								while(in1it.hasNext()){
+									Map.Entry<INeuron, ProbaWeight> entry = in1it.next();
+									INeuron c = entry.getKey();
+									if(in2.containsKey(c)){
+										ProbaWeight p1 = entry.getValue();
+										ProbaWeight p2 = in2.get(c);
+										if(Math.abs(p1.getProba()-p2.getProba())>Constants.w_error){
+											dosnap = false;
+											break;
+										}
+									}
+								}
+								
+								//change this for weight by weight condition
+								/*diff += Math.pow(w1.getProba() - w2.getProba(),2);
+								all++;*/
 							}
 							
-							double dist = 0;//do/don t snap even if there were no outweights at all
+							/*double dist = 0;//do snap even if there were no outweights at all
 							if(all!=0){
 								dist = Math.sqrt(diff)/all;					
-							}
+							}*/
 							//count how many connections are removed
-							if(dist<=Constants.w_error){//if exact same outweights
-								//check if no direct contradiction in inweights (important)
-								/*HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
-								HashMap<INeuron,ProbaWeight> in2 = n2.getInWeights();
-								Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
 								
-								while(in1it.hasNext()){
-									Map.Entry<INeuron, ProbaWeight> in1pair = in1it.next();
-									ProbaWeight inw = in1pair.getValue();	
-									if(in2.containsKey(in1pair.getKey())){
-										//check that they do not individually contradict
-										ProbaWeight inw2 = in2.get(in1pair.getKey());
-										double indiff = Math.pow(inw.getProba() - inw2.getProba(),2);
-										if(indiff>0.01){
-											dosnap = false;//give up
-										}
-									}
-								}
-								Iterator<Entry<INeuron, ProbaWeight>> in2it = in2.entrySet().iterator();
-								while(in2it.hasNext()){
-									Map.Entry<INeuron, ProbaWeight> in2pair = in2it.next();
-									ProbaWeight inw2 = in2pair.getValue();	
-									if(in1.containsKey(in2pair.getKey())){
-										//check that they do not individually contradict
-										ProbaWeight inw1 = in1.get(in2pair.getKey());
-										double indiff = Math.pow(inw1.getProba() - inw2.getProba(),2);
-										if(indiff>0.01){
-											dosnap = false;//give up
-										}
-									}
-								}//*/
+							if(dosnap){
+								n.justSnapped = true;
+								n2.justSnapped = true;
+								remove.add(n2);
 								
-								if(dosnap){
-									n.justSnapped = true;
-									n2.justSnapped = true;
-									remove.add(n2);
-									
-									//report n2 inputs to n if they did not exist
-									n2.reportInWeights(n);
-									
-									//do the same for direct inweights
-									n2.reportDirectInWeights(n);
-				
-									//now report direct outweights
-									n2.reportDirectOutWeights(n);
-									
-									//notifies output neurons too
-									n2.removeAllOutWeights();
-									
-									n2.clearDirectInWeights();									
-								}
-							}							
+								//report n2 inputs to n if they did not exist
+								n2.reportInWeights(n);
+								
+								//do the same for direct inweights
+								n2.reportDirectInWeights(n);
+			
+								//now report direct outweights
+								n2.reportDirectOutWeights(n);
+								
+								//notifies output neurons too
+								n2.removeAllOutWeights();
+								
+								n2.clearDirectInWeights();									
+							}
+														
 						}
 					}
 				}
