@@ -56,7 +56,7 @@ public class SNetPattern implements ControllableThread {
 	//int max_in_weights = 500;
 	int max_total_connections = 50000;
 	//int max_layers = 10;//6
-	boolean cpu_limitations = true;
+	boolean cpu_limitations = false;
 	boolean add_weights = true;
 
 
@@ -932,7 +932,6 @@ public class SNetPattern implements ControllableThread {
 		return b;
 	}
 
-	//or just let it like this. We have 0.5 predictions that we don't know what will happen next.
 	private void buildPredictionMap() {
 		int n = Constants.gray_scales;
 		
@@ -945,34 +944,17 @@ public class SNetPattern implements ControllableThread {
 		int[] sum = new int[n_interface[0].length];
 
 		//go through interface and build levels of gray
-		for(int i=0; i<n_interface.length; i++){// i = gray scale
-			for (int j = 0; j < n_interface[0].length; j++) {//j = position in image
+		for(int i=Constants.gray_scales-1; i<n_interface.length; i++){// i = gray scale
+			for (int j = Constants.gray_scales-1; j < n_interface[0].length; j++) {//j = position in image
 				int n_id = n_interface[i][j];
 				INeuron neuron = eye_neurons[i].get(n_id);
 				//if the neuron is not muted, get its prediction
-				if(!neuron.isMute()){
-					if(neuron.getUpperPredictedActivation()>0){//
-						sum[j]=sum[j]+1;
-						//if white, dont't add anything
-						// gray
-						coarse[j] = coarse[j] + i;
-					}
-				} else {
-					//get the prediction of its pattern neuron
-					HashMap<INeuron, BundleWeight> out_iw = neuron.getDirectOutWeights();
-					//iterate and check activation
-					Iterator<Entry<INeuron, BundleWeight>> it = out_iw.entrySet().iterator();
-					while(it.hasNext()){
-						Map.Entry<INeuron, BundleWeight> pair = it.next();
-						//check pattern neuron activation
-						INeuron in = pair.getKey();
-						//if activated, get its prediction as our prediction
-						if(in.getPredictedActivation()>0){
-							sum[j]=sum[j]+1;
-							coarse[j] = coarse[j] + i;
-							//break;
-						}
-					}
+				//never muted: these are eye neurons
+				if(neuron.getUpperPredictedActivation()>0){//
+					sum[j]=sum[j]+1;
+					//if white, dont't add anything
+					// gray
+					coarse[j] = coarse[j] + i;
 				}
 			}
 		}		
@@ -1283,7 +1265,7 @@ public class SNetPattern implements ControllableThread {
 					}    	
 	    		} else{
 	    			try {
-		    			Thread.sleep(3000/speed);
+		    			Thread.sleep(3000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}    	
