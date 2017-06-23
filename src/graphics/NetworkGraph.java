@@ -72,11 +72,6 @@ public class NetworkGraph {
     //use this in a better way
     int grayscale = -1;
     
-    /** */
-    /*int focus_first;
-    int focus_last;
-    int outfocus_first;
-    int outfocus_last;*/
     /** number of columns in focus */
     int f_ncols;
     /** number of columns outfocus */
@@ -141,7 +136,7 @@ public class NetworkGraph {
      * deletes all vertices and edges
      * */
     private void emptyGraph() {
-    	for (Iterator<Integer> iterator = vertices.keySet().iterator(); iterator.hasNext();) {
+    	/*for (Iterator<Integer> iterator = vertices.keySet().iterator(); iterator.hasNext();) {
 			Integer id = iterator.next();
 			NeuronVertex nv = vertices.get(id);
 			//delete outdated edges first
@@ -152,7 +147,9 @@ public class NetworkGraph {
 			}
 			//delete neuron
 			g.removeVertex(nv);
-		}
+		}*/
+    	
+    	g = new DirectedSparseGraph<NeuronVertex, SynapseEdge>();
     	//delete from vertices collection
     	vertices.clear();
 	}

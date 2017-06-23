@@ -149,13 +149,8 @@ public class SNetPattern implements ControllableThread {
     	createNet();	
     	//net initialization
     	initNet();
-    	//graphics
-    	if(draw_net){
-	    	netGraph = new NetworkGraph((HashMap<Integer, INeuron>) allINeurons.clone(), eye_neurons, eye);
-		    netGraph.show(); 
-    	}
     	
-	    //init potential folder name
+    	//init potential folder name
 	    //get current date
 	    DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
 	    Date date = new Date();
@@ -165,7 +160,12 @@ public class SNetPattern implements ControllableThread {
     		initDataFiles();
     	}
     	
-    	netGraph.setName(strDate);
+    	//graphics
+    	if(draw_net){
+	    	netGraph = new NetworkGraph((HashMap<Integer, INeuron>) allINeurons.clone(), eye_neurons, eye);
+		    netGraph.show(); 
+	    	netGraph.setName(strDate);
+    	}
     	
 		//main thread
     	new Thread(new ExperimentThread(this)).start();		
@@ -469,7 +469,7 @@ public class SNetPattern implements ControllableThread {
 			for(int k = 0; k<n; k++){
 				//values in "in" start at 1, not 0
 				int i = in[k]-1;
-				if(i>=0){
+				if(i>=0){//>=0 if seeing white
 					eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
 				}
 			}//*/
@@ -725,6 +725,8 @@ public class SNetPattern implements ControllableThread {
 		
 		//will store new neurons
 		Vector<INeuron> newn = new Vector<INeuron>();
+		//store removed neurons
+		ArrayList<INeuron> remove = new ArrayList<INeuron>();
 		
 		//number of surprised neurons at this timestep
 		int n_surprised = 0;
@@ -780,8 +782,10 @@ public class SNetPattern implements ControllableThread {
 					
 					//go through STM
 					for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
-						if(nw>max_new_connections) break;
 						INeuron preneuron = iterator.next();
+						//could be muted after being unsnapped
+						if((cpu_limitations && nw>max_new_connections) || preneuron.isMute()) break;
+						
 						//doubloons weights will not be added
 						ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
 						if(preneuron.addOutWeight(n,probaWeight)){
@@ -791,7 +795,7 @@ public class SNetPattern implements ControllableThread {
 						
 						//check for oversnapping in sensory neurons
 						//todo: generalize to normal neurons and pattern neurons
-						if(preneuron.getDirectInWeights().size()>1){
+						/*if(preneuron.getDirectInWeights().size()>1){
 							didChange = true;
 							Vector<BundleWeight> v = preneuron.getDirectInWeights();
 							for (Iterator<BundleWeight> v_it = v.iterator(); v_it.hasNext();) {
@@ -800,7 +804,7 @@ public class SNetPattern implements ControllableThread {
 								//create separate neuron for each non activated weight
 								//we don't know which weights were activated
 								Vector<INeuron> vect = new Vector<>(bundleWeight.getInNeurons());
-								INeuron unsnapped = new INeuron(vect,preneuron,n_id);
+								INeuron unsnapped = new INeuron(vect,n,n_id);
 								n_id++;
 								nw++;
 								newn.addElement(unsnapped);
@@ -808,17 +812,22 @@ public class SNetPattern implements ControllableThread {
 								//TODO not just "forget" it, bad
 								mlog.say("---- unsnapped ");
 							}
-						}
-						
+							//remove original neuron
+							preneuron.removeAllOutWeights();						
+							preneuron.clearDirectInWeights();
+							remove.add(preneuron);
+							preneuron.setMute(true);//to ignore it in next loops
+						}*/
 							
 						//no change happened, try building a spatial pattern
-						if(!didChange & !dreaming){					
+						if(!didChange & !dreaming){		
+							if(cpu_limitations && nw>max_new_connections) break;
 							if(!patternExists(STM,n) && !hasMaxLayer(STM)){
-								if(nw>max_new_connections) break;
 								INeuron neuron = new INeuron(STM,n,n_id);
 								newn.addElement(neuron);
 								n_id++;
 								nw++;
+								didChange = true;
 								mlog.say("******created pattern neuron "+neuron.getId());
 							}
 						}
@@ -837,9 +846,17 @@ public class SNetPattern implements ControllableThread {
 			}
 		}
 		
+		for(int i=0; i<remove.size();i++){	
+			allINeurons.remove(remove.get(i).getId());
+		}
+		
 		for (Iterator<INeuron> iterator = newn.iterator(); iterator.hasNext();) {
 			INeuron neuron = iterator.next();
 			allINeurons.put(neuron.getId(), neuron);
+		}
+		
+		if(draw_net && nw>0){
+			netGraph.setHiddenLayer(allINeurons);
 		}
 				
 		mlog.say("added " + nw + " weights and "+ newn.size() + " neurons ");
@@ -1256,15 +1273,21 @@ public class SNetPattern implements ControllableThread {
 				    	netGraph.setHiddenLayer(allINeurons);
 				    	//netGraph.updateNeurons();
 				    }
+				    
+				    try {
+		    			if(draw_net){
+		    				Thread.sleep(3000/speed);
+		    			}
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}    	
+	    		} else{
+	    			try {
+		    			Thread.sleep(3000/speed);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}    	
 	    		}
-	    		
-	    		try {
-	    			if(draw_net){
-	    				Thread.sleep(3000/speed);
-	    			}
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}    			    		
 	    	}
 	    }
 	    		
