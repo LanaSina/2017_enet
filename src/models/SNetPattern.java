@@ -51,11 +51,14 @@ public class SNetPattern implements ControllableThread {
 	int speed = 1;
 	boolean draw_net = true;
 	/** max number of new connections per step*/
-	int max_new_connections = 10000;
+	int max_new_connections = 5000;
 	/** max inweights per neuron */
 	//int max_in_weights = 500;
-	int max_total_connections = 150000;
+	int max_total_connections = 50000;
 	//int max_layers = 10;//6
+	boolean cpu_limitations = true;
+	boolean add_weights = true;
+
 
 	/** the folder for this specific run*/
 	String folderName;
@@ -723,23 +726,6 @@ public class SNetPattern implements ControllableThread {
 		//will store new neurons
 		Vector<INeuron> newn = new Vector<INeuron>();
 		
-		//debug
-		/*if(img_id == 2 && step < 5){
-			//force creation of pattern neurons from 01.png to 02.png
-			Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
-			while(it.hasNext()){
-				Map.Entry<Integer, INeuron> pair = it.next();
-				INeuron n = pair.getValue();
-				if(n.isActivated()){
-					INeuron neuron = new INeuron(STM,n,n_id);
-					newn.addElement(neuron);
-					n_id++;
-				}
-			}
-			mlog.say("**** created debug pattern neurons ");
-		}*/
-		
-		
 		//number of surprised neurons at this timestep
 		int n_surprised = 0;
 		//number of sensory activates
@@ -761,6 +747,7 @@ public class SNetPattern implements ControllableThread {
 		//todo make order random
 		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
 		int nw = 0;
+		int total = countWeights();		
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
@@ -788,7 +775,8 @@ public class SNetPattern implements ControllableThread {
 				}
 				//did we improve future prediction chances?
 				boolean didChange = false;
-				//if((nw<max_new_connections) && (total+nw<max_total_connections)){
+				
+				if(add_weights){
 					//go through STM
 					for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
 						INeuron preneuron = iterator.next();
@@ -800,20 +788,28 @@ public class SNetPattern implements ControllableThread {
 								didChange = true;
 							}
 						//}
-					//}
 												
-					//no change happened, try building a spatial pattern
-					if(!didChange & !dreaming){					
-						if(!patternExists(STM,n) && !hasMaxLayer(STM)){
-							INeuron neuron = new INeuron(STM,n,n_id);
-							newn.addElement(neuron);
-							n_id++;
-							mlog.say("******created pattern neuron "+neuron.getId());
-						}/*else{
-							mlog.say("----- pattern existed");
-						}*/
+						//no change happened, try building a spatial pattern
+						if(!didChange & !dreaming){					
+							if(!patternExists(STM,n) && !hasMaxLayer(STM)){
+								INeuron neuron = new INeuron(STM,n,n_id);
+								newn.addElement(neuron);
+								n_id++;
+								mlog.say("******created pattern neuron "+neuron.getId());
+							}
+						}
 					}
-				}					
+				} else{
+					mlog.say("network too big");
+				}
+			}
+		}
+		
+		if(cpu_limitations){
+			if((nw>max_new_connections) || (total+nw>max_total_connections)){
+				add_weights = false;
+			}else{
+				add_weights = true;
 			}
 		}
 		
