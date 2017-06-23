@@ -330,7 +330,6 @@ public class INeuron extends Neuron {
 
 
 	public void ageOutWeights() {
-
 		for (Iterator<ProbaWeight> iterator = outWeights.values().iterator(); iterator.hasNext();) {
 			ProbaWeight p = iterator.next();
 			p.increaseAge();

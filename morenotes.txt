@@ -2,8 +2,8 @@ test a small bundle system "prediction map"
 need a better thing than "age"
 *save and load functions for network
 could not see white in ecal
-prediction orientation
-cue prediction bad
+if one inweight activated , no need to go throug the rest for prediction
+probas after unsnapping
 
 1:48
 

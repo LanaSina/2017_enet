@@ -748,65 +748,89 @@ public class SNetPattern implements ControllableThread {
 		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
 		int nw = 0;
 		int total = countWeights();		
-		while(it.hasNext()){
-			Map.Entry<Integer, INeuron> pair = it.next();
-			INeuron n = pair.getValue();
-			int id = n.getId();
-			//do not try to predict proprioception: action choice is random for now
-			if(id>=pi_start && id<=pi_end){
-				continue;
-			}
-
-			if(id>=si_start && id<=si_end){
-				if(n.isActivated()){
-					n_activated++;
-				} else {
-					double pr = n.getPredictedActivation();
-					//false positive
-					if(pr>0){
-						n_illusion++;
+		
+		if(add_weights){
+			while(it.hasNext()){
+				Map.Entry<Integer, INeuron> pair = it.next();
+				INeuron n = pair.getValue();
+				int id = n.getId();
+				//do not try to predict proprioception: action choice is random for now
+				if(id>=pi_start && id<=pi_end){
+					continue;
+				}
+	
+				if(id>=si_start && id<=si_end){
+					if(n.isActivated()){
+						n_activated++;
+					} else {
+						double pr = n.getPredictedActivation();
+						//false positive
+						if(pr>0){
+							n_illusion++;
+						}
 					}
 				}
-			}
-			
-			if(n.isSurprised() && !n.isMute()){
-				if(id>=si_start && id<=si_end){
-					n_surprised++;
-				}
-				//did we improve future prediction chances?
-				boolean didChange = false;
 				
-				if(add_weights){
+				if(n.isSurprised() && !n.isMute()){
+					if(id>=si_start && id<=si_end){
+						n_surprised++;
+					}
+					//did we improve future prediction chances?
+					boolean didChange = false;
+					
 					//go through STM
 					for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
+						if(nw>max_new_connections) break;
 						INeuron preneuron = iterator.next();
 						//doubloons weights will not be added
-						//if(n.countInWeights()<max_in_weights){
-							ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
-							if(preneuron.addOutWeight(n,probaWeight)){
+						ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
+						if(preneuron.addOutWeight(n,probaWeight)){
+							nw++;
+							didChange = true;
+						}
+						
+						//check for oversnapping in sensory neurons
+						//todo: generalize to normal neurons and pattern neurons
+						if(preneuron.getDirectInWeights().size()>1){
+							didChange = true;
+							Vector<BundleWeight> v = preneuron.getDirectInWeights();
+							for (Iterator<BundleWeight> v_it = v.iterator(); v_it.hasNext();) {
+								if(nw>max_new_connections) break;
+								BundleWeight bundleWeight = v_it.next();
+								//create separate neuron for each non activated weight
+								//we don't know which weights were activated
+								Vector<INeuron> vect = new Vector<>(bundleWeight.getInNeurons());
+								INeuron unsnapped = new INeuron(vect,preneuron,n_id);
+								n_id++;
 								nw++;
-								didChange = true;
+								newn.addElement(unsnapped);
+								//what to do with existing probability???
+								//TODO not just "forget" it, bad
+								mlog.say("---- unsnapped ");
 							}
-						//}
-												
+						}
+						
+							
 						//no change happened, try building a spatial pattern
 						if(!didChange & !dreaming){					
 							if(!patternExists(STM,n) && !hasMaxLayer(STM)){
+								if(nw>max_new_connections) break;
 								INeuron neuron = new INeuron(STM,n,n_id);
 								newn.addElement(neuron);
 								n_id++;
+								nw++;
 								mlog.say("******created pattern neuron "+neuron.getId());
 							}
 						}
-					}
-				} else{
-					mlog.say("network too big");
+					}			
 				}
 			}
+		}else{
+			mlog.say("network too big");
 		}
 		
 		if(cpu_limitations){
-			if((nw>max_new_connections) || (total+nw>max_total_connections)){
+			if(total+nw>max_total_connections){
 				add_weights = false;
 			}else{
 				add_weights = true;
