@@ -463,16 +463,19 @@ public class NetworkGraph {
 								position[0]+= xy[0];
 								position[1]+= xy[1];
 								sum++;
-								mlog.say("ID " + iNeuron.getId() + "x "+ xy[0]);
+								mlog.say("ID " + iNeuron.getId() + " sum "+sum);
 							}
 						}
 					}
 					
 					NeuronVertex v = layered_vertices.get(to.getId());
-					float x = (float) position[0]/sum;
-					float y = (float) position[1]/sum;
-					layout.setLocation(v, new Point2D.Float(x*factor,y*factor));
-			    	layout.lock(v, true);
+					if(sum>0){
+						float x = (float) position[0]/sum;
+						float y = (float) position[1]/sum;
+						mlog.say("ID " + to.getId() + " x "+ x);
+						layout.setLocation(v, new Point2D.Float(x*factor,y*factor));
+				    	layout.lock(v, true);
+					}
 				}
 		 	}
 		} else {
