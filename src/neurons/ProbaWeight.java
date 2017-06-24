@@ -100,6 +100,10 @@ public class ProbaWeight {
 			age++;
 		}
 	}
+	
+	public void setAge(int a) {
+		age = a;
+	}
 
 	public int getValue() {
 		return value;
@@ -123,7 +127,6 @@ public class ProbaWeight {
 	public boolean sameBundle(Set<INeuron> neurons) {
 		return false;
 	}
-
 
 	//TODO
 	public void muteInputNeurons() {

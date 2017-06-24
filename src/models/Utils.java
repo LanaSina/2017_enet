@@ -19,9 +19,9 @@ public class Utils {
 	/** 
 	 * fuses similar neurons
 	 * */
-	private static void snap(HashMap<Integer, INeuron> allINeurons) {
+	public static HashMap<Integer, INeuron> snap(HashMap<Integer, INeuron> allINeurons) {
 		mlog.say("snapping");
-		int nw = countWeights();
+		int nw = countWeights(allINeurons);
 		mlog.say("total connections "+ nw + " neurons "+ allINeurons.size());		
 		
 		ArrayList<INeuron> remove = new ArrayList<INeuron>();
@@ -58,8 +58,13 @@ public class Utils {
 							break;
 						}
 					}*/
+					
+					mlog.say(" " + n.getId() + " " + n2.getId() + " " + n2.justSnapped);
+
 										
 					if((n.getId() != n2.getId()) && !n2.justSnapped && doit){
+						
+						
 						boolean dosnap = true;
 
 						//compare all out weights
@@ -78,6 +83,7 @@ public class Utils {
 						if(n.directInWeightsContains(n2) || n2.directInWeightsContains(n) ||
 								//avoid different sets of outweights
 								!s1.containsAll(s2) || !s2.containsAll(s1)){
+							//mlog.say("too different");
 							dosnap = false;
 						} else {
 							//compare outw
@@ -86,6 +92,7 @@ public class Utils {
 								ProbaWeight w2 = out2pair.getValue();
 								//can still learn: give up
 								if(w2.canLearn()){
+									//mlog.say("can learn");
 									dosnap = false;
 									break;
 								}
@@ -93,11 +100,13 @@ public class Utils {
 								//weight to same neuron; check value
 								ProbaWeight w1 = out1.get(out2pair.getKey());
 								if(w1.canLearn()){
+									//mlog.say("can learn");
 									dosnap = false;
 									break;//give up
 								}
 								
 								if(Math.abs(w1.getProba()-w2.getProba())>Constants.w_error){
+									//mlog.say("wrong out value");
 									dosnap = false;
 									break;
 								};
@@ -112,6 +121,7 @@ public class Utils {
 										ProbaWeight p1 = entry.getValue();
 										ProbaWeight p2 = in2.get(c);
 										if(Math.abs(p1.getProba()-p2.getProba())>Constants.w_error){
+											//mlog.say("wrong in value");
 											dosnap = false;
 											break;
 										}
@@ -159,8 +169,10 @@ public class Utils {
 			n.justSnapped = false;
 		}
 		
-		nw = countWeights();
+		nw = countWeights(allINeurons);
 		mlog.say("after: weights "+ nw + " neurons " + allINeurons.size());
+		
+		return allINeurons;
 	}
 	
 	public static int countWeights(HashMap<Integer, INeuron> allINeurons) {
