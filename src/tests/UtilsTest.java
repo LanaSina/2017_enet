@@ -11,11 +11,14 @@ import java.util.Vector;
 import org.junit.Test;
 
 import communication.Constants;
+import communication.MyLog;
 import models.Utils;
 import neurons.BundleWeight;
 import neurons.INeuron;
+import neurons.ProbaWeight;
 
 public class UtilsTest {
+	MyLog mlog = new MyLog("UtilsTest", true);
 	
 	@Test
 	public void snap_pattern(){
@@ -28,10 +31,6 @@ public class UtilsTest {
 		id++;
 		INeuron f2 = new INeuron(id);
 		id++;
-		
-		/*neurons.put(to.getId(), to);
-		neurons.put(f1.getId(), f1);
-		neurons.put(f2.getId(), f2);*/
 		
 		Vector<INeuron> from = new Vector<INeuron>();
 		from.addElement(f1);
@@ -69,6 +68,53 @@ public class UtilsTest {
 			}
 			
 		}
+	}
+	
+	
+	@Test
+	public void snap_pattern_normal(){
+		int id = 0;
+		HashMap<Integer, INeuron> neurons = new HashMap<Integer, INeuron> ();
+		
+		INeuron to = new INeuron(id);
+		id++;
+		INeuron f1 = new INeuron(id);
+		id++;
+		INeuron f2 = new INeuron(id);
+		id++;
+		
+		Vector<INeuron> from = new Vector<INeuron>();
+		from.addElement(f1);
+		from.addElement(f2);
+		
+		//
+		INeuron n = new INeuron(from, to, id);
+		id++;
+		n.getOutWeights().get(to).setAge(Constants.weight_max_age);
+		
+		//n2 has 1 outweight and 1 direct inweight
+		INeuron n2 = new INeuron(id);
+		id++;
+		ProbaWeight p = to.addInWeight(Constants.defaultConnection, n2);
+		n2.addOutWeight(to, p);
+		n2.getOutWeights().get(to).setAge(Constants.weight_max_age);
+		
+		INeuron n3 = new INeuron(id);
+		id++;
+		//add direct in weight
+		Vector<INeuron> ve = new Vector<INeuron>();
+		ve.addElement(n3);
+		BundleWeight b = n2.addDirectInWeight(ve);
+		n3.addDirectOutWeight(n2,b);
+
+		neurons.put(n.getId(), n);//3
+		neurons.put(n2.getId(), n2);//4
+		
+		neurons = Utils.snap(neurons);
+		assertEquals("size ", 1, neurons.keySet().size());
+		INeuron r = neurons.get(3);
+		assertEquals("out weights ", true, r.getOutWeights().containsKey(to));
+		assertEquals("direct in weights ", true, r.getDirectInWeights().contains(b));
 	}
 
 }
