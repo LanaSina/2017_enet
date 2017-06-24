@@ -304,7 +304,7 @@ public class SNetPattern implements ControllableThread {
 	
 	private void writeParameters() {
 		//count weights
-		int nw = countWeights();
+		int nw = Utils.countWeights(allINeurons);
 		//"iteration,neurons,connections\n";
 		String str = step+","+allINeurons.size()+","+nw+"\n";
     	try {
@@ -749,7 +749,7 @@ public class SNetPattern implements ControllableThread {
 		//todo make order random
 		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
 		int nw = 0;
-		int total = countWeights();		
+		int total = Utils.countWeights(allINeurons);		
 		
 		if(add_weights){
 			while(it.hasNext()){
@@ -1009,34 +1009,48 @@ public class SNetPattern implements ControllableThread {
 	 * */
 	private void snap() {
 		mlog.say("snapping");
-		int nw = countWeights();
+		int nw = Utils.countWeights(allINeurons);
 		mlog.say("total connections "+ nw + " neurons "+ allINeurons.size());		
 		
 		ArrayList<INeuron> remove = new ArrayList<INeuron>();
 		//go through net
-		int count = 0;
 		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
 		while(it.hasNext()){
 			
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
-			//mlog.say("n "+count);
 			
-			if(!n.justSnapped){ //& count<10000){
-				count++;
+			boolean doit = true;
+			/*Vector<BundleWeight> aaa = n.getDirectInWeights();
+			for (Iterator iterator = aaa.iterator(); iterator.hasNext();) {
+				BundleWeight bundleWeight = (BundleWeight) iterator.next();
+				if(bundleWeight.getInNeurons().size()>1){
+					doit = false;
+					break;
+				}
+			}*/
+			
+			if(!n.justSnapped && doit){ 
 
 				//look for equivalent neurons (neurons with equivalent outweights)
 				Iterator<Entry<Integer, INeuron>> it2 = allINeurons.entrySet().iterator();
 				while(it2.hasNext()){
 					Map.Entry<Integer, INeuron> pair2 = it2.next();
 					INeuron n2 = pair2.getValue();
+					
+					/*Vector<BundleWeight> bbb = n2.getDirectInWeights();
+					for (Iterator iterator = bbb.iterator(); iterator.hasNext();) {
+						BundleWeight bundleWeight = (BundleWeight) iterator.next();
+						if(bundleWeight.getInNeurons().size()>1){
+							doit = false;
+							break;
+						}
+					}*/
 										
-					if((n.getId() != n2.getId()) && !n2.justSnapped){
+					if((n.getId() != n2.getId()) && !n2.justSnapped && doit){
 						boolean dosnap = true;
 
 						//compare all out weights
-						//double diff = 0;
-						int all = 0;
 						HashMap<INeuron,ProbaWeight> out1 = n.getOutWeights();
 						HashMap<INeuron,ProbaWeight> out2 = n2.getOutWeights();
 						Iterator<Entry<INeuron, ProbaWeight>> out2it = out2.entrySet().iterator();
@@ -1047,7 +1061,8 @@ public class SNetPattern implements ControllableThread {
 						HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
 						HashMap<INeuron,ProbaWeight> in2 = n2.getInWeights();
 						
-						//avoid direct recurrent connections //no need to avoid them?
+						
+						//avoid direct recurrent connections
 						if(n.directInWeightsContains(n2) || n2.directInWeightsContains(n) ||
 								//avoid different sets of outweights
 								!s1.containsAll(s2) || !s2.containsAll(s1)){
@@ -1075,6 +1090,7 @@ public class SNetPattern implements ControllableThread {
 									break;
 								};
 								
+								
 								//finally, only snap if there are no conflicting inweights
 								Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
 								while(in1it.hasNext()){
@@ -1089,17 +1105,7 @@ public class SNetPattern implements ControllableThread {
 										}
 									}
 								}
-								
-								//change this for weight by weight condition
-								/*diff += Math.pow(w1.getProba() - w2.getProba(),2);
-								all++;*/
 							}
-							
-							/*double dist = 0;//do snap even if there were no outweights at all
-							if(all!=0){
-								dist = Math.sqrt(diff)/all;					
-							}*/
-							//count how many connections are removed
 								
 							if(dosnap){
 								n.justSnapped = true;
@@ -1141,17 +1147,8 @@ public class SNetPattern implements ControllableThread {
 			n.justSnapped = false;
 		}
 		
-		nw = countWeights();
+		nw = Utils.countWeights(allINeurons);
 		mlog.say("after: weights "+ nw + " neurons " + allINeurons.size());
-	}
-	
-	private int countWeights() {
-		int nw = 0;
-		for (Iterator<INeuron> iterator = allINeurons.values().iterator(); iterator.hasNext();) {
-			INeuron n = iterator.next();
-			nw+= n.getOutWeights().size();
-		}
-		return nw;
 	}
 	
 	private void cleanAll() {
@@ -1214,7 +1211,7 @@ public class SNetPattern implements ControllableThread {
 		    		net.buildInputs();
 					    
 		    		net.updateSNet();
-		    		int nw = countWeights();
+		    		int nw = Utils.countWeights(allINeurons);
 		    		mlog.say("step " + step +" weights "+nw);
 			
 		    		if(step%Constants.snap_freq==0){

@@ -563,7 +563,7 @@ public class INeuron extends Neuron {
 	 * @param bw
 	 * @return true if we possess a similar bundleweight
 	 */
-	private boolean sameDirecInWeight(BundleWeight bw) {
+	private boolean sameDirectInWeight(BundleWeight bw) {
 		boolean b = false;
 		for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
 			BundleWeight ownbw = iterator.next();
@@ -574,27 +574,6 @@ public class INeuron extends Neuron {
 		}
 		return b;
 	}
-
-	/**
-	 * 
-	 * @param n
-	 * @return true if n was present as direct in weight
-	 */
-	/*public boolean removeDirectInWeight(INeuron n) {
-		boolean b;
-		
-		/*for(Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
-			BundleWeight bw = iterator.next();
-			bw.replace(this, n);
-		}
-		
-		if(directInWeights.remove(n) != null){
-			b = true;
-		} else{
-			b = false;
-		}
-		return b;
-	}*/
 	
 	/**
 	 * remaps the directs outweights of this neuron so they now 
@@ -685,11 +664,11 @@ public class INeuron extends Neuron {
 		directInWeights.clear();
 	}	
 	
-	private boolean addDirectInWeight(BundleWeight bw) {		
-		if(sameDirecInWeight(bw)){
+	public boolean addDirectInWeight(BundleWeight bw) {		
+		if(sameDirectInWeight(bw)){
 			return false;
 		}
-		directInWeights.addElement(bw);
+		directInWeights.add(bw);
 		return true;
 	}
 
@@ -711,12 +690,16 @@ public class INeuron extends Neuron {
 		}
 	}
 
-	//TODO beware of what you do with this function
+	/**
+	 * 
+	 * @param n2
+	 * @return true is n2 is part of any pattern here
+	 */
 	public boolean directInWeightsContains(INeuron n2) {
 		boolean b = false;
 		for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
 			BundleWeight bw = iterator.next();
-			if(bw.contains(n2) & bw.getBundle().size()==1){
+			if(bw.contains(n2)){// & bw.getBundle().size()==1){
 				b = true;
 				break;
 			}
