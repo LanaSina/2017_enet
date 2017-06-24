@@ -142,7 +142,7 @@ public class NetworkGraph {
         
         if(layering){
 	        // Add neurons
-	    	for (Iterator<INeuron> iterator = neurons.values().iterator(); iterator.hasNext();) {
+	    	for (Iterator<INeuron> iterator = this.neurons.values().iterator(); iterator.hasNext();) {
 	    		INeuron iNeuron = (INeuron) iterator.next();
 	    		NeuronVertex nv = new NeuronVertex(iNeuron.getId());
 	    		if(iNeuron.isActivated()){
@@ -153,8 +153,8 @@ public class NetworkGraph {
 	    	}
 	      
 	        //add edges
-	        for (Iterator<INeuron> iterator = neurons.values().iterator(); iterator.hasNext();) {
-				INeuron iNeuron = (INeuron) iterator.next();
+	        for (Iterator<INeuron> iterator = this.neurons.values().iterator(); iterator.hasNext();) {
+				INeuron iNeuron = iterator.next();
 				//iterate over direct inweigths
 				Vector<BundleWeight> weights = iNeuron.getDirectInWeights();
 				for (Iterator<BundleWeight> iterator2 = weights.iterator(); iterator2.hasNext();) {
@@ -163,7 +163,10 @@ public class NetworkGraph {
 					for (Iterator<INeuron> iterator3 = ins.iterator(); iterator3.hasNext();) {
 						INeuron in = iterator3.next();
 	        			SynapseEdge se = new SynapseEdge(1);
-	        			g.addEdge(se, vertices.get(in.getId()), vertices.get(iNeuron.getId()));
+	        			NeuronVertex vertex = vertices.get(in.getId());
+	        			if(vertex!=null){//avoid unrelated sensor layers
+	        				g.addEdge(se, vertex, layered_vertices.get(iNeuron.getId()));
+	        			}
 					}
 				}
 			}   
@@ -463,7 +466,6 @@ public class NetworkGraph {
 								position[0]+= xy[0];
 								position[1]+= xy[1];
 								sum++;
-								mlog.say("ID " + iNeuron.getId() + " sum "+sum);
 							}
 						}
 					}
@@ -472,8 +474,7 @@ public class NetworkGraph {
 					if(sum>0){
 						float x = (float) position[0]/sum;
 						float y = (float) position[1]/sum;
-						mlog.say("ID " + to.getId() + " x "+ x);
-						layout.setLocation(v, new Point2D.Float(x*factor,y*factor));
+						layout.setLocation(v, new Point2D.Float(x*factor+5,y*factor+5));
 				    	layout.lock(v, true);
 					}
 				}
