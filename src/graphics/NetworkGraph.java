@@ -18,6 +18,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import org.apache.commons.collections15.Transformer;
 
@@ -33,6 +34,8 @@ import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.renderers.Renderer.Vertex;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
+import graphics.NetworkGraph.NeuronVertex;
+import neurons.BundleWeight;
 import neurons.INeuron;
 import neurons.ProbaWeight;
 import sensors.Eye;
@@ -59,9 +62,13 @@ public class NetworkGraph {
     double minWeight = 0.9;
     /** id, graphical object */
     static HashMap<Integer, NeuronVertex> vertices;
+    static HashMap<Integer, NeuronVertex> layered_vertices;
+
     
     /** whether to draw the frame or not*/
     boolean paused = true;
+    /** draw layers or not*/
+    boolean layering = false;
     
     /** sensors */
     HashMap<Integer, INeuron>[] eye_neurons;
@@ -103,6 +110,9 @@ public class NetworkGraph {
     private void populateGraph(HashMap<Integer, INeuron> neurons){
     	n = neurons.size();
         vertices = new HashMap<>();
+        layered_vertices = new HashMap<>();
+
+        
         // Add neurons
     	for (Iterator<INeuron> iterator = neurons.values().iterator(); iterator.hasNext();) {
     		INeuron iNeuron = (INeuron) iterator.next();
@@ -124,34 +134,50 @@ public class NetworkGraph {
 				ProbaWeight p = pair.getValue();
 				INeuron out = pair.getKey();
 				if(p.getProba()>minWeight){
-					String label = "w_"+iNeuron.getId()+","+out.getId();
-        			SynapseEdge se = new SynapseEdge(label, p.getProba());
+        			SynapseEdge se = new SynapseEdge(p.getProba());
         			g.addEdge(se, vertices.get(iNeuron.getId()), vertices.get(out.getId()));
 				}
 			}
 		}        
+        
+        if(layering){
+	        // Add neurons
+	    	for (Iterator<INeuron> iterator = neurons.values().iterator(); iterator.hasNext();) {
+	    		INeuron iNeuron = (INeuron) iterator.next();
+	    		NeuronVertex nv = new NeuronVertex(iNeuron.getId());
+	    		if(iNeuron.isActivated()){
+	    			nv.setSpiking(true);
+	    		}
+	    		layered_vertices.put(iNeuron.getId(), nv);
+	    		g.addVertex(nv);
+	    	}
+	      
+	        //add edges
+	        for (Iterator<INeuron> iterator = neurons.values().iterator(); iterator.hasNext();) {
+				INeuron iNeuron = (INeuron) iterator.next();
+				//iterate over direct inweigths
+				Vector<BundleWeight> weights = iNeuron.getDirectInWeights();
+				for (Iterator<BundleWeight> iterator2 = weights.iterator(); iterator2.hasNext();) {
+					BundleWeight bundleWeight = iterator2.next();				
+					Vector<INeuron> ins = new Vector<INeuron>(bundleWeight.getInNeurons());
+					for (Iterator<INeuron> iterator3 = ins.iterator(); iterator3.hasNext();) {
+						INeuron in = iterator3.next();
+	        			SynapseEdge se = new SynapseEdge(1);
+	        			g.addEdge(se, vertices.get(in.getId()), vertices.get(iNeuron.getId()));
+					}
+				}
+			}   
+        }
     }
     
     /**
      * deletes all vertices and edges
      * */
     private void emptyGraph() {
-    	/*for (Iterator<Integer> iterator = vertices.keySet().iterator(); iterator.hasNext();) {
-			Integer id = iterator.next();
-			NeuronVertex nv = vertices.get(id);
-			//delete outdated edges first
-			Vector<SynapseEdge> edges = new Vector<SynapseEdge>(g.getOutEdges(nv));
-			for (Iterator<SynapseEdge> iterator2 = edges.iterator(); iterator2.hasNext();) {
-				SynapseEdge edge = iterator2.next();
-				g.removeEdge(edge);
-			}
-			//delete neuron
-			g.removeVertex(nv);
-		}*/
-    	
     	g = new DirectedSparseGraph<NeuronVertex, SynapseEdge>();
     	//delete from vertices collection
     	vertices.clear();
+    	layered_vertices.clear();
 	}
     
     public void setName(String n){
@@ -162,15 +188,22 @@ public class NetworkGraph {
      * updates displayed neurons
      * @param ne
      */
-    public void updateNeurons(){//HashMap<Integer, INeuron> neurons) {
+    public void updateNeurons(){
     	
-    	if(!paused){
+    	if(!paused && (grayscale<0 || layering)){
+			HashMap<Integer,NeuronVertex> using_vertices;
+
+    		if(layering){
+    			using_vertices = layered_vertices;
+    		} else {
+    			using_vertices = vertices;
+    		}
 	    	//remove neurons
 	    	Vector<NeuronVertex> toBeRemoved = new Vector<NeuronVertex>();
-	    	for (Iterator<Integer> iterator = vertices.keySet().iterator(); iterator.hasNext();) {
+	    	for (Iterator<Integer> iterator = using_vertices.keySet().iterator(); iterator.hasNext();) {
 				Integer id = iterator.next();
-				if(!displayed_neurons.containsKey(id)){
-					NeuronVertex nv = vertices.get(id);
+				if(!neurons.containsKey(id)){
+					NeuronVertex nv = using_vertices.get(id);
 					//delete outdated edges first
 					Vector<SynapseEdge> edges = new Vector<SynapseEdge>(g.getOutEdges(nv));
 					for (Iterator<SynapseEdge> iterator2 = edges.iterator(); iterator2.hasNext();) {
@@ -185,19 +218,18 @@ public class NetworkGraph {
 	    	//delete from vertices collection
 	    	for (Iterator<NeuronVertex> iterator = toBeRemoved.iterator(); iterator.hasNext();) {
 				NeuronVertex neuronVertex = iterator.next();
-				vertices.remove(neuronVertex.id);
+				using_vertices.remove(neuronVertex.id);
 			}
 	    	
 	    	// Add neurons
-	    	for (Iterator<INeuron> iterator = displayed_neurons.values().iterator(); iterator.hasNext();) {
+	    	for (Iterator<INeuron> iterator = neurons.values().iterator(); iterator.hasNext();) {
 	    		INeuron iNeuron = iterator.next();
-	    		if(!vertices.containsKey(iNeuron.getId())){
+	    		if(!using_vertices.containsKey(iNeuron.getId())){
 	    			NeuronVertex nv = new NeuronVertex(iNeuron.getId());   		
-	    			vertices.put(iNeuron.getId(), nv);
+	    			using_vertices.put(iNeuron.getId(), nv);
 	        		g.addVertex(nv);
-	        		//mlog.say("added");
 	    		}  
-	    		NeuronVertex v = vertices.get(iNeuron.getId());
+	    		NeuronVertex v = using_vertices.get(iNeuron.getId());
 	    		v.setSpiking(false);
 	    		if(iNeuron.isActivated()){
 	    			v.setSpiking(true);
@@ -206,34 +238,48 @@ public class NetworkGraph {
 	    		if(iNeuron.getPredictedActivation()>0){
 	    			v.setPredicted(true);
 	    		}
-	    	}
-	    	
+	    	}	    	
 	    	
 	    	 //add edges
-	        for (Iterator<INeuron> iterator = displayed_neurons.values().iterator(); iterator.hasNext();) {
+	        for (Iterator<INeuron> iterator = neurons.values().iterator(); iterator.hasNext();) {
 				INeuron from = iterator.next();
-				//iterate over outweights
-				HashMap<INeuron, ProbaWeight> weights = from.getOutWeights();
-				for (Iterator<Entry<INeuron, ProbaWeight>> iterator2 = weights.entrySet().iterator(); iterator2.hasNext();) {
-					Entry<INeuron, ProbaWeight> pair = iterator2.next();
-					ProbaWeight p = pair.getValue();
-					INeuron out = pair.getKey();
-					//weight is high and edge does not exist
-					if(p.getProba()>minWeight){				
-						if((g.findEdge(vertices.get(from.getId()), vertices.get(out.getId()))==null)){ 
-							String label = "w_"+from.getId()+","+out.getId();
-		        			SynapseEdge se = new SynapseEdge(label, p.getProba());
-		        			g.addEdge(se, vertices.get(from.getId()), vertices.get(out.getId()));
-						}
-					}else{
-						//weight is low but edge does exist
-						SynapseEdge s;
-						if((s = g.findEdge(vertices.get(from.getId()), vertices.get(out.getId())))!=null){ 
-							//mlog.say("found");
-							g.removeEdge(s);
+				if(!layering){
+					//iterate over outweights
+					HashMap<INeuron, ProbaWeight> weights = from.getOutWeights();
+					for (Iterator<Entry<INeuron, ProbaWeight>> iterator2 = weights.entrySet().iterator(); iterator2.hasNext();) {
+						Entry<INeuron, ProbaWeight> pair = iterator2.next();
+						ProbaWeight p = pair.getValue();
+						INeuron out = pair.getKey();
+						//weight is high and edge does not exist
+						if(p.getProba()>minWeight){				
+							if((g.findEdge(using_vertices.get(from.getId()), using_vertices.get(out.getId()))==null)){ 
+			        			SynapseEdge se = new SynapseEdge(p.getProba());
+			        			g.addEdge(se, using_vertices.get(from.getId()), using_vertices.get(out.getId()));
+							}
+						}else{
+							//weight is low but edge does exist
+							SynapseEdge s;
+							if((s = g.findEdge(using_vertices.get(from.getId()), using_vertices.get(out.getId())))!=null){ 
+								//mlog.say("found");
+								g.removeEdge(s);
+							}
 						}
 					}
+				} else {
+					//iterate over direct inweigths
+					Vector<BundleWeight> weights = from.getDirectInWeights();
+					for (Iterator<BundleWeight> iterator2 = weights.iterator(); iterator2.hasNext();) {
+						BundleWeight bundleWeight = iterator2.next();
+						Vector<INeuron> ins = new Vector<INeuron>(bundleWeight.getInNeurons());
+						for (Iterator<INeuron> iterator3 = ins.iterator(); iterator3.hasNext();) {
+							INeuron in = iterator3.next();
+							if((g.findEdge(using_vertices.get(in.getId()), using_vertices.get(from.getId()))==null)){ 
+			        			SynapseEdge se = new SynapseEdge(1);
+			        			g.addEdge(se, using_vertices.get(in.getId()), using_vertices.get(from.getId()));
+							}
+						}
 						
+					}
 				}
 			}  
 	    	
@@ -326,7 +372,25 @@ public class NetworkGraph {
         };
         cb.addActionListener(cbActionListener);
 	    cb.setVisible(true);
-	    frame.add(cb);
+	    
+	    //neurons layering
+  		JButton layerButton = new JButton("Layer"); 		
+  		layerButton.addActionListener(new ActionListener() {
+  	         public void actionPerformed(ActionEvent e) {
+  	        	 if(!layering){
+  	        		 layering = true;
+  	        	 }else{
+  	        		 layering = false;
+  	        	 }	
+  	         }          
+  	    });
+  		
+	    JPanel selectPanel = new JPanel();
+	    selectPanel.setLayout(new BoxLayout(selectPanel, BoxLayout.X_AXIS));
+
+	    selectPanel.add(cb);
+	    selectPanel.add(layerButton);
+	    frame.add(selectPanel);
 		
         frame.setLocation(310, 150);
         frame.getContentPane().add(vv, BorderLayout.CENTER); 
@@ -364,16 +428,6 @@ public class NetworkGraph {
 			layout = new StaticLayout<NeuronVertex, SynapseEdge>(g);
 			layout.setSize(new Dimension(w,h)); // sets the initial size of the layout space
 			
-			/*Iterator<Entry<Integer, NetworkGraph.NeuronVertex>> it = vertices.entrySet().iterator();
-			int x=0, y=0;
-			while(it.hasNext()){
-				Map.Entry<Integer, NetworkGraph.NeuronVertex> pair = it.next();
-				NetworkGraph.NeuronVertex v = pair.getValue();
-				layout.setLocation(v, new Point2D.Float((float)x,(float)y));
-		    	layout.lock(v, true);
-		    	x+=10;
-		    	y+=10;
-			}*/
 			//size
 			int factor = 600/Constants.vf_w;
 		 	
@@ -383,13 +437,44 @@ public class NetworkGraph {
 				int sensor_j = eye_interface[k][1];
 				int size = eye_interface[k][2];//size of the zone for this sensor
 				int nid = n_interface[grayscale][k];
-				//displayed_neurons.get(nid);
 				NeuronVertex v = vertices.get(nid);
 				float x = sensor_i+size/2;
 				float y = sensor_j+size/2;
+				v.setPosition(x, y);
 				layout.setLocation(v, new Point2D.Float(x*factor,y*factor));
 		    	layout.lock(v, true);
 		 	}//*/
+		 	
+		 	if(layering){
+		 		Iterator<Entry<Integer, INeuron>> iterator = neurons.entrySet().iterator();
+		 		while (iterator.hasNext()) {
+					INeuron to = iterator.next().getValue();
+					Vector<BundleWeight> from_w = to.getDirectInWeights();
+					double[] position = {0,0};
+					int sum = 0;
+					for (Iterator<BundleWeight> iterator2 = from_w.iterator(); iterator2.hasNext();) {
+						BundleWeight w2 = iterator2.next();
+						Vector<INeuron> from_n = new Vector<INeuron>(w2.getInNeurons());
+						for (Iterator<INeuron> iterator3 = from_n.iterator(); iterator3.hasNext();) {
+							INeuron iNeuron = iterator3.next();
+							NeuronVertex vertex = vertices.get(iNeuron.getId());
+							if(vertex!=null){//avoid unrelated sensor layers but also level 1+ pattern neurons (unfortunate)
+								double[] xy = vertex.getPosition();
+								position[0]+= xy[0];
+								position[1]+= xy[1];
+								sum++;
+								mlog.say("ID " + iNeuron.getId() + "x "+ xy[0]);
+							}
+						}
+					}
+					
+					NeuronVertex v = layered_vertices.get(to.getId());
+					float x = (float) position[0]/sum;
+					float y = (float) position[1]/sum;
+					layout.setLocation(v, new Point2D.Float(x*factor,y*factor));
+			    	layout.lock(v, true);
+				}
+		 	}
 		} else {
 			layout = new ISOMLayout<NeuronVertex, SynapseEdge>(g);
 			layout.setSize(new Dimension(w,h)); // sets the initial size of the layout space
@@ -417,6 +502,7 @@ public class NetworkGraph {
     	 int id; 
     	 private boolean isSpiking = false;
     	 private boolean isPredicted = false;
+    	 double[] position = {0,0};
     	 
     	 public NeuronVertex(int id) {
     		 this.id = id;
@@ -428,6 +514,15 @@ public class NetworkGraph {
     	 public void setPredicted(boolean b) {
 			isPredicted = b;
     	 }
+    	 
+    	 public void setPosition(double x, double y) {
+    		 position[0] = x;
+    		 position[1]  = y;
+    	 }
+    	 
+    	 public double[] getPosition() {
+			return position;
+		}
     	    	 
     	 public String toString() { 
     		 return ""+id; 
@@ -441,16 +536,14 @@ public class NetworkGraph {
 
     class SynapseEdge{
     	double weight = 0;
-    	String label;
     	
-    	public SynapseEdge(String label, double weight){
-    		this.label = label;
+    	public SynapseEdge(double weight){
     		this.weight = weight;
     	}
     	
-    	public String toString() { 
+    	/*public String toString() { 
     		return label; 
-   	 	}
+   	 	}*/
     }
     
     /**
@@ -475,6 +568,9 @@ public class NetworkGraph {
 			  
 			shape = new Ellipse2D.Double(center.getX()-10, center.getY()-10, 20, 20);
 			NeuronVertex nv = vertices.get(vertex.id);
+			if(nv==null){//dirty
+				nv = layered_vertices.get(vertex.id);
+			}
 			if(nv.isSpiking) {	    
 				color = blue;	         
 			} else{
