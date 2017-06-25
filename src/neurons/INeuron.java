@@ -263,7 +263,7 @@ public class INeuron extends Neuron {
 		}
 	}
 	
-	/** activated outweights if this neuron is activated */
+	/** activated diect outweights if this neuron is activated */
 	public void propagateActivation(){
 		if(isActivated()){
 			//activate direct out weights

@@ -170,6 +170,10 @@ public class Utils {
 	}
 	
 
+	/**
+	 * calculates surprise and activate direct outweights
+	 * @param neurons
+	 */
 	public static void calculateAndPropagateActivation(HashMap<Integer, INeuron> neurons) {
 		for (Iterator<INeuron> iterator = neurons.values().iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();

@@ -416,10 +416,6 @@ public class SNetPattern implements ControllableThread {
 	 * and activate all outside weights and action_weights accordingly.
 	 */
 	public void buildInputs(){
-		presentations++;
-		if(presentations>=max_presentations){
-    		nextImage = true;	
-		}//*/
 		
 		if(nextImage){
 			presentations = 0;
@@ -435,6 +431,11 @@ public class SNetPattern implements ControllableThread {
 		//build
 		buildEyeInput();
 			
+		presentations++;
+		if(presentations>=max_presentations){
+    		nextImage = true;	
+		}//*/
+		
 		//choose actions, activate "proprioceptive" neurons, act at next step
 		//findActions();
 	}
@@ -470,7 +471,7 @@ public class SNetPattern implements ControllableThread {
 			for(int k = 0; k<n; k++){
 				//values in "in" start at 1, not 0
 				int i = in[k]-1;
-				if(i>0){//>=0 if seeing white
+				if(i>=0){//>=0 if seeing white
 					eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
 				}
 			}//*/
@@ -620,8 +621,12 @@ public class SNetPattern implements ControllableThread {
 		
 		//for ineurons
 		Utils.activateOutWeights(allINeurons);	
-			
+		//muting happens here
 		Utils.calculateAndPropagateActivation(allINeurons);
+		
+		if(testp != null){
+			mlog.say("+++++++ activation "+	testp.getActivation());
+		}
 		//create new weights based on (+) surprise
 		makeWeights();
 		
@@ -657,7 +662,7 @@ public class SNetPattern implements ControllableThread {
 
 	/**
 	 * create weights from previously conscious neurons to current surprised neurons.
-	 * In this model there is no topological hierarchy yet, so all activated neurons are conscious.
+	 * Beware: muted neurons at t can actually be in the STM (t-1)
 	 */
 	private void makeWeights() {
 		
@@ -711,19 +716,22 @@ public class SNetPattern implements ControllableThread {
 					}
 				}				
 				
-				if(n.isSurprised()){// && !n.isMute()){
+				if(n.isSurprised()){
 					if(id>=si_start && id<=si_end){
 						n_surprised++;
 					}
 					//did we improve future prediction chances?
 					boolean didChange = false;
 					
+					//if(img_id==2) mlog.say("&&&&&&&& im2");
+
 					//go through STM
 					for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
 						INeuron preneuron = iterator.next();
-						//could be muted after being unsnapped
-						if((cpu_limitations && nw>max_new_connections) || preneuron.isMute()) break;
 						
+						if((cpu_limitations && nw>max_new_connections)) break; // || preneuron.isMute()
+						
+
 						//doubloons weights will not be added
 						ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
 						if(preneuron.addOutWeight(n,probaWeight)){
@@ -760,14 +768,15 @@ public class SNetPattern implements ControllableThread {
 						//no change happened, try building a spatial pattern
 						if(!didChange & !dreaming){		
 							if(cpu_limitations && nw>max_new_connections) break;
+							if(img_id==2) mlog.say("&&&&&&&& im2 222");
 							
 							if(!Utils.patternExists(STM,n,allINeurons.values()) && !hasMaxLayer(STM)){
 								INeuron neuron = new INeuron(STM,n,n_id);
-								if(n_id==2235){
+								if(n_id==2220){
 									testp = neuron.getOutWeights().get(n);
 									for (Iterator iterator2 = STM.iterator(); iterator2.hasNext();) {
 										INeuron iNeuron = (INeuron) iterator2.next();
-										mlog.say(" "+iNeuron.getId());//2214-2230
+										//mlog.say(" "+iNeuron.getId());//2214-2230
 									}
 								}
 								newn.addElement(neuron);
