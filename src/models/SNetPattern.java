@@ -768,7 +768,6 @@ public class SNetPattern implements ControllableThread {
 						//no change happened, try building a spatial pattern
 						if(!didChange & !dreaming){		
 							if(cpu_limitations && nw>max_new_connections) break;
-							if(img_id==2) mlog.say("&&&&&&&& im2 222");
 							
 							if(!Utils.patternExists(STM,n,allINeurons.values()) && !hasMaxLayer(STM)){
 								INeuron neuron = new INeuron(STM,n,n_id);
@@ -776,7 +775,6 @@ public class SNetPattern implements ControllableThread {
 									testp = neuron.getOutWeights().get(n);
 									for (Iterator iterator2 = STM.iterator(); iterator2.hasNext();) {
 										INeuron iNeuron = (INeuron) iterator2.next();
-										//mlog.say(" "+iNeuron.getId());//2214-2230
 									}
 								}
 								newn.addElement(neuron);
@@ -858,7 +856,7 @@ public class SNetPattern implements ControllableThread {
 		int[] sum = new int[n_interface[0].length];
 
 		//go through interface and build levels of gray
-		for(int i=Constants.gray_scales-1; i<n_interface.length; i++){// i = gray scale
+		for(int i=0; i<n_interface.length; i++){// i = gray scale
 			for (int j = Constants.gray_scales-1; j < n_interface[0].length; j++) {//j = position in image
 				int n_id = n_interface[i][j];
 				INeuron neuron = eye_neurons[i].get(n_id);
