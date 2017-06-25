@@ -451,11 +451,11 @@ public class SNetPattern implements ControllableThread {
 		//reset activations of eye neurons and direct outweights
 		for(int i=0;i<eye_neurons.length;i++){
 			resetNeuronsActivation(eye_neurons[i]);
-			resetDirectOutWeights(eye_neurons[i]);
+			Utils.resetDirectOutWeights(eye_neurons[i]);
 		}
 		//reset activations of ineurons
 		resetNeuronsActivation(allINeurons);
-		resetDirectOutWeights(allINeurons);
+		Utils.resetDirectOutWeights(allINeurons);
 
 		
 		if(!dreaming){
@@ -469,7 +469,7 @@ public class SNetPattern implements ControllableThread {
 			for(int k = 0; k<n; k++){
 				//values in "in" start at 1, not 0
 				int i = in[k]-1;
-				if(i>=0){//>=0 if seeing white
+				if(i>0){//>=0 if seeing white
 					eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
 				}
 			}//*/
@@ -609,52 +609,14 @@ public class SNetPattern implements ControllableThread {
 	
 	
 	/**
-	 * resets output weights activation to 0 in this layer
-	 * @param layer
-	 */
-	public void resetOutWeights(HashMap<Integer,INeuron> layer){
-		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
-		while(it.hasNext()){
-			Map.Entry<Integer, INeuron> pair = it.next();
-			INeuron ne = (INeuron) pair.getValue();
-			ne.resetOutWeights();
-		}
-	}
-	
-	/**
-	 * reset direct output weights activation to 0 in this layer
-	 * @param layer
-	 */
-	public void resetDirectOutWeights(HashMap<Integer,INeuron> layer){
-		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
-		while(it.hasNext()){
-			Map.Entry<Integer, INeuron> pair = it.next();
-			INeuron ne = (INeuron) pair.getValue();
-			ne.resetDirectOutWeights();
-		}
-	}
-	
-	
-	/**
 	 * resets neurons activation to 0
 	 * TODO delete this and use function below
 	 * @param layer map of neurons to be reset.
 	 */
 	public void resetNeuronsActivation(HashMap<Integer,INeuron> layer){
-		resetNeuronsActivation(layer.values());
+		Utils.resetNeuronsActivation(layer.values());
 	}
-	
-	/**
-	 * resets neurons activation to 0
-	 * @param layer map of neurons to be reset.
-	 */
-	public void resetNeuronsActivation(Collection<INeuron> layer){
-		Iterator<INeuron> it = layer.iterator();
-		while(it.hasNext()){
-			INeuron n = it.next();
-			n.resetActivation();
-		}
-	}
+
 	
 	
 
@@ -665,14 +627,14 @@ public class SNetPattern implements ControllableThread {
 	public void updateSNet() {			
 
 		//update prediction probabilities		
-		ageOutWeights(allINeurons);
-		increaseInWeights(allINeurons);
+		Utils.ageOutWeights(allINeurons);
+		Utils.increaseInWeights(allINeurons);
 		
 		//reset activation of all w
 		for(int i=0;i<eye_neurons.length;i++){
-			resetOutWeights(eye_neurons[i]);
+			Utils.resetOutWeights(eye_neurons[i]);
 		}		
-		resetOutWeights(allINeurons);
+		Utils.resetOutWeights(allINeurons);
 		
 		//for ineurons
 		activateOutWeights(allINeurons);	
@@ -822,6 +784,7 @@ public class SNetPattern implements ControllableThread {
 						//no change happened, try building a spatial pattern
 						if(!didChange & !dreaming){		
 							if(cpu_limitations && nw>max_new_connections) break;
+							
 							if(!patternExists(STM,n) && !hasMaxLayer(STM)){
 								INeuron neuron = new INeuron(STM,n,n_id);
 								newn.addElement(neuron);
@@ -895,40 +858,22 @@ public class SNetPattern implements ControllableThread {
 	private boolean patternExists(Vector<INeuron> neurons, INeuron to_n) {
 		boolean b = false;
 		
-		//unroll patterns
-		HashSet<INeuron> allPatterns = new HashSet<INeuron>();
-		for (Iterator<INeuron> iterator = neurons.iterator(); iterator.hasNext();) {
-			INeuron n = iterator.next();
-			Vector<BundleWeight> bws = n.getDirectInWeights();
-			if(bws.isEmpty()){
-				allPatterns.add(n);
-			}else {
-				for (Iterator<BundleWeight> iterator2 = bws.iterator(); iterator2.hasNext();) {
-					BundleWeight bw = iterator2.next();
-					//there will not be duplicates
-					allPatterns.addAll(bw.getInNeurons());
-				}
-			}
-		}
+		//input neurons
+		Set<INeuron> from_neurons =  to_n.getInWeights().keySet();
 		
-		for (Iterator<INeuron> iterator = allINeurons.values().iterator(); iterator.hasNext();) {
+		for (Iterator<INeuron> iterator = from_neurons.iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
-			if(n.sameBundleWeights(neurons,to_n)){
-				b = true;
-				break;
-			}
-			
-			//check against unrolled patterns
+			//direct in weights to input neurons
 			Vector<BundleWeight> bws = n.getDirectInWeights();
 			for (Iterator<BundleWeight> iterator2 = bws.iterator(); iterator2.hasNext();) {
 				BundleWeight bw = iterator2.next();
-				if(bw.getInNeurons().containsAll(allPatterns)){
+				//pattern for direct in weight
+				Set<INeuron> set = bw.getInNeurons();
+				if(set.containsAll(neurons)){
 					b = true;
-					break;
 				}
 			}
-		}		
-		
+		}
 		return b;
 	}
 
@@ -974,33 +919,6 @@ public class SNetPattern implements ControllableThread {
 		
 		//then put into image
 		eye.setPredictedBuffer(coarse);		
-	}
-	
-	/**
-	 * age the outweights of neurons that are currently activated
-	 */
-	private void ageOutWeights(HashMap<Integer, INeuron> layer) {
-		Iterator<INeuron> it = layer.values().iterator();
-		while(it.hasNext()){
-			INeuron n =  it.next();
-			if(n.getActivation()>0){
-				n.ageOutWeights();
-			}
-		}
-	}
-	
-	/**
-	 * increase the inweights of neurons that are currently activated
-	 */
-	private void increaseInWeights(HashMap<Integer, INeuron> layer) {
-		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
-		while(it.hasNext()){
-			Map.Entry<Integer, INeuron> pair = it.next();
-			INeuron n = pair.getValue();
-			if(n.getActivation()>0){
-				n.increaseInWeights();
-			}
-		}
 	}
 
 	

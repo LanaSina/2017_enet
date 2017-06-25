@@ -1,6 +1,7 @@
 package models;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -15,6 +16,92 @@ import neurons.ProbaWeight;
 public class Utils {
 	static MyLog mlog = new MyLog("Utils", true);
 	
+	
+	/**
+	 * for all neurons in this layer calculate probabilistic activation
+	 * then activate all outside weights 
+	 * if the neuron activation is above a threshold 
+	 * @param layer
+	 */
+	private void activateOutWeights(HashMap<Integer, INeuron> layer){
+		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<Integer, INeuron> pair = it.next();
+			INeuron ne = (INeuron) pair.getValue();
+			if(ne.isActivated()){
+				ne.activateOutWeights();
+			}
+		}
+	}
+	
+	/**
+	 * resets output weights activation to 0 in this layer
+	 * @param layer
+	 */
+	public static void resetOutWeights(HashMap<Integer,INeuron> layer){
+		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<Integer, INeuron> pair = it.next();
+			INeuron ne = (INeuron) pair.getValue();
+			ne.resetOutWeights();
+		}
+	}
+	
+	/**
+	 * reset direct output weights activation to 0 in this layer
+	 * @param layer
+	 */
+	public static void resetDirectOutWeights(HashMap<Integer,INeuron> layer){
+		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<Integer, INeuron> pair = it.next();
+			INeuron ne = (INeuron) pair.getValue();
+			ne.resetDirectOutWeights();
+		}
+	}
+	
+	
+	/**
+	 * resets neurons activation to 0
+	 * @param layer map of neurons to be reset.
+	 */
+	public static void resetNeuronsActivation(Collection<INeuron> layer){
+		Iterator<INeuron> it = layer.iterator();
+		while(it.hasNext()){
+			INeuron n = it.next();
+			n.resetActivation();
+		}
+	}
+	
+	
+	/**
+	 * age the outweights of neurons that are currently activated
+	 */
+	public static void ageOutWeights(HashMap<Integer, INeuron> layer) {
+		Iterator<INeuron> it = layer.values().iterator();
+		while(it.hasNext()){
+			INeuron n =  it.next();
+			if(n.getActivation()>0){
+				n.ageOutWeights();
+			}
+		}
+	}
+	
+	
+	/**
+	 * increase the inweights of neurons that are currently activated
+	 */
+	public static void increaseInWeights(HashMap<Integer, INeuron> layer) {
+		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<Integer, INeuron> pair = it.next();
+			INeuron n = pair.getValue();
+			if(n.getActivation()>0){
+				n.increaseInWeights();
+			}
+		}
+	}
+
 	
 	/** 
 	 * fuses similar neurons
@@ -59,7 +146,7 @@ public class Utils {
 						}
 					}*/
 					
-					mlog.say(" " + n.getId() + " " + n2.getId() + " " + n2.justSnapped);
+					//mlog.say(" " + n.getId() + " " + n2.getId() + " " + n2.justSnapped);
 
 										
 					if((n.getId() != n2.getId()) && !n2.justSnapped && doit){
@@ -135,6 +222,7 @@ public class Utils {
 								remove.add(n2);
 								
 								//report n2 inputs to n if they did not exist
+								//todo error here
 								n2.reportInWeights(n);
 								
 								//do the same for direct inweights

@@ -116,5 +116,61 @@ public class UtilsTest {
 		assertEquals("out weights ", true, r.getOutWeights().containsKey(to));
 		assertEquals("direct in weights ", true, r.getDirectInWeights().contains(b));
 	}
+	
+	@Test
+	public void pattern_activation(){
+		int id = 0;
+		HashMap<Integer, INeuron> neurons = new HashMap<Integer, INeuron> ();
+
+		INeuron to = new INeuron(id);
+		id++;
+		INeuron f1 = new INeuron(id);
+		id++;
+		INeuron f2 = new INeuron(id);
+		id++;
+		
+		Vector<INeuron> from = new Vector<INeuron>();
+		from.addElement(f1);
+		from.addElement(f2);
+		
+		INeuron n = new INeuron(from, to, id);
+		id++;
+		
+		neurons.put(f1.getId(), f1);
+		neurons.put(f2.getId(), f2);
+		neurons.put(n.getId(), n);
+		neurons.put(to.getId(), to);
+
+		//loop
+		
+		//reset activations of ineurons
+		Utils.resetNeuronsActivation(neurons.values());
+		//resetDirectOutWeights(allINeurons);
+		Utils.resetDirectOutWeights(neurons);
+		
+		//build input 1
+		f1.increaseActivation(1);
+		f2.increaseActivation(1);
+
+		//net.updateSNet();
+		//update prediction probabilities	
+		Utils.ageOutWeights(neurons);
+		Utils.increaseInWeights(neurons);
+		
+		//reset activation of all w
+		Utils.resetOutWeights(neurons);
+		
+		//for ineurons
+		activateOutWeights(allINeurons);	
+			
+		calculateAndPropagateActivation();
+		//create new weights based on (+) surprise
+		makeWeights();
+
+		
+		//input 2
+		n.increaseActivation(1);
+
+	}
 
 }
