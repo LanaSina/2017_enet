@@ -646,7 +646,7 @@ public class SNetPattern implements ControllableThread {
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			//no hierarchy: all activated neurons are remembered, including sensory neurons.
-			if(n.isMute()) mlog.say("muted "+ n.getId());
+			//if(n.isMute()) mlog.say("muted "+ n.getId());
 			if(n.isActivated() & !n.isMute()){
 				STM.add(n);
 			}

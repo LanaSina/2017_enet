@@ -34,7 +34,8 @@ public class Utils {
 		Set<INeuron> from_neurons =  to_n.getInWeights().keySet();
 		//collection of patterns
 		Vector<Set<INeuron>> cp = new Vector<Set<INeuron>>();
-		for (Iterator<INeuron> iterator = from_neurons.iterator(); iterator.hasNext();) {
+		
+		/*for (Iterator<INeuron> iterator = from_neurons.iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
 			//direct in weights to input neurons
 			Vector<BundleWeight> bws = n.getDirectInWeights();
@@ -45,7 +46,7 @@ public class Utils {
 				//mlog.say("--------- ");
 				if(set.containsAll(neurons)){
 					b = true;
-					//mlog.say("############ B");
+					mlog.say("############ B");
 				}
 				
 				//check if set already exists
@@ -53,6 +54,30 @@ public class Utils {
 				for (Iterator<Set<INeuron>> iterator3 = cp.iterator(); iterator3.hasNext();) {
 					Set<INeuron> pattern = iterator3.next();
 					if(pattern.containsAll(set) || !valid_neurons.containsAll(set)){
+						exists = true;
+						mlog.say("############ A");
+					}
+				}
+				
+				if(!exists){
+					cp.addElement(set);
+				}
+			}
+		}*/
+		
+		//go through potential input and store each pattern
+		for (Iterator<INeuron> iterator = neurons.iterator(); iterator.hasNext();) {
+			INeuron n = iterator.next();
+			Vector<BundleWeight> bws = n.getDirectInWeights();
+			for (Iterator<BundleWeight> iterator2 = bws.iterator(); iterator2.hasNext();) {
+				BundleWeight bw = iterator2.next();
+				Set<INeuron> set = bw.getInNeurons();
+				
+				//check if set already exists
+				boolean exists = false;
+				for (Iterator<Set<INeuron>> iterator3 = cp.iterator(); iterator3.hasNext();) {
+					Set<INeuron> pattern = iterator3.next();
+					if(pattern.containsAll(set)){
 						exists = true;
 						//mlog.say("############ A");
 					}
@@ -62,23 +87,13 @@ public class Utils {
 					cp.addElement(set);
 				}
 			}
+			
 		}
-		/*mlog.say("############ cp size "+ cp.size());
-		if(cp.size()==81){
-			for (Iterator<Set<INeuron>> iterator3 = cp.iterator(); iterator3.hasNext();) {
-				Set<INeuron> s =  iterator3.next();
-				for (Iterator iterator = s.iterator(); iterator.hasNext();) {
-					INeuron iNeuron = (INeuron) iterator.next();
-					mlog.say("############ " + iNeuron.getId());
-				}
-				mlog.say("--------- ");
-			}
-		}*/
+		
+
 		//there is only one valid pattern and it already had been activated
 		if(cp.size()<2){
 			b = true;
-			
-			
 		}
 		return b;
 	}
