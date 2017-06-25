@@ -56,31 +56,6 @@ public class INeuronTest {
 		assertEquals("out", true, from.getOutWeights().containsKey(n));
 	}
 	
-	@Test
-	public void pattern_activation(){
-		int id = 0;
-		INeuron to = new INeuron(id);
-		id++;
-		INeuron f1 = new INeuron(id);
-		id++;
-		INeuron f2 = new INeuron(id);
-		id++;
-		
-		Vector<INeuron> from = new Vector<INeuron>();
-		from.addElement(f1);
-		from.addElement(f2);
-		
-		INeuron n = new INeuron(from, to, id);
-		id++;
-		
-		//loop
-		
-		//reset activations of ineurons
-		//resetNeuronsActivation(allINeurons);
-		
-		//resetDirectOutWeights(allINeurons);
-
-	}
 	
 	@Test
 	public void reportInWeights_pattern(){

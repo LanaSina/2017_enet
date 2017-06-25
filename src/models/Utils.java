@@ -6,16 +6,87 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 import java.util.Map.Entry;
 
 import communication.Constants;
 import communication.MyLog;
+import neurons.BundleWeight;
 import neurons.INeuron;
 import neurons.ProbaWeight;
 
 public class Utils {
 	static MyLog mlog = new MyLog("Utils", true);
 	
+	/**
+	 * 
+	 * @author lana
+	 * @param neurons list of neurons
+	 * @param to_n destination
+	 * @param valid_neurons (to avoid counting sensors as neurons)
+	 * @return true if there exists a PNeuron in the whole net that can be activated by the "neurons" pattern
+	 * and has an outweight to to_n
+	 */
+	public static boolean patternExists(Vector<INeuron> neurons, INeuron to_n, Collection<INeuron> valid_neurons) {
+		boolean b = false;
+		
+		//input neurons
+		Set<INeuron> from_neurons =  to_n.getInWeights().keySet();
+		//collection of patterns
+		Vector<Set<INeuron>> cp = new Vector<Set<INeuron>>();
+		for (Iterator<INeuron> iterator = from_neurons.iterator(); iterator.hasNext();) {
+			INeuron n = iterator.next();
+			//direct in weights to input neurons
+			Vector<BundleWeight> bws = n.getDirectInWeights();
+			for (Iterator<BundleWeight> iterator2 = bws.iterator(); iterator2.hasNext();) {
+				BundleWeight bw = iterator2.next();
+				//pattern for direct in weight
+				Set<INeuron> set = bw.getInNeurons();
+				for (Iterator iterator3 = set.iterator(); iterator3.hasNext();) {
+					INeuron iNeuron = (INeuron) iterator3.next();
+					//mlog.say("############ " + iNeuron.getId());
+				}
+				//mlog.say("--------- ");
+				if(set.containsAll(neurons)){
+					b = true;
+					//mlog.say("############ B");
+				}
+				
+				//check if set already exists
+				boolean exists = false;
+				for (Iterator<Set<INeuron>> iterator3 = cp.iterator(); iterator3.hasNext();) {
+					Set<INeuron> pattern = iterator3.next();
+					if(pattern.containsAll(set) || !valid_neurons.containsAll(set)){
+						exists = true;
+						//mlog.say("############ A");
+					}
+				}
+				
+				if(!exists){
+					cp.addElement(set);
+				}
+			}
+		}
+		mlog.say("############ cp size "+ cp.size());
+		if(cp.size()==81){
+			for (Iterator<Set<INeuron>> iterator3 = cp.iterator(); iterator3.hasNext();) {
+				Set<INeuron> s =  iterator3.next();
+				for (Iterator iterator = s.iterator(); iterator.hasNext();) {
+					INeuron iNeuron = (INeuron) iterator.next();
+					mlog.say("############ " + iNeuron.getId());
+				}
+				mlog.say("--------- ");
+			}
+		}
+		//there is only one valid pattern and it already had been activated
+		if(cp.size()<2){
+			b = true;
+			
+			
+		}
+		return b;
+	}
+
 	
 	/**
 	 * for all neurons in this layer calculate probabilistic activation
@@ -23,11 +94,11 @@ public class Utils {
 	 * if the neuron activation is above a threshold 
 	 * @param layer
 	 */
-	private void activateOutWeights(HashMap<Integer, INeuron> layer){
+	public static void activateOutWeights(HashMap<Integer, INeuron> layer){
 		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
-			INeuron ne = (INeuron) pair.getValue();
+			INeuron ne = pair.getValue();
 			if(ne.isActivated()){
 				ne.activateOutWeights();
 			}
@@ -42,7 +113,7 @@ public class Utils {
 		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
-			INeuron ne = (INeuron) pair.getValue();
+			INeuron ne = pair.getValue();
 			ne.resetOutWeights();
 		}
 	}
@@ -87,6 +158,14 @@ public class Utils {
 		}
 	}
 	
+
+	public static void calculateAndPropagateActivation(HashMap<Integer, INeuron> neurons) {
+		for (Iterator<INeuron> iterator = neurons.values().iterator(); iterator.hasNext();) {
+			INeuron n = iterator.next();
+			n.calculateActivation();
+			n.propagateActivation();
+		}
+	}
 	
 	/**
 	 * increase the inweights of neurons that are currently activated

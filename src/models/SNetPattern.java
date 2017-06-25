@@ -37,6 +37,7 @@ import sensors.Eye;
 public class SNetPattern implements ControllableThread {
 	/** log */
 	MyLog mlog = new MyLog("SNet", true);
+	ProbaWeight testp;
 	
 	/** data recording*/
 	boolean save = false;
@@ -589,25 +590,6 @@ public class SNetPattern implements ControllableThread {
 	}
 
 
-	
-	/**
-	 * for all neurons in this layer calculate probabilistic activation
-	 * then activate all outside weights 
-	 * if the neuron activation is above a threshold 
-	 * @param layer
-	 */
-	private void activateOutWeights(HashMap<Integer, INeuron> layer){
-		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
-		while(it.hasNext()){
-			Map.Entry<Integer, INeuron> pair = it.next();
-			INeuron ne = (INeuron) pair.getValue();
-			if(ne.isActivated()){
-				ne.activateOutWeights();
-			}
-		}
-	}
-	
-	
 	/**
 	 * resets neurons activation to 0
 	 * TODO delete this and use function below
@@ -637,9 +619,9 @@ public class SNetPattern implements ControllableThread {
 		Utils.resetOutWeights(allINeurons);
 		
 		//for ineurons
-		activateOutWeights(allINeurons);	
+		Utils.activateOutWeights(allINeurons);	
 			
-		calculateAndPropagateActivation();
+		Utils.calculateAndPropagateActivation(allINeurons);
 		//create new weights based on (+) surprise
 		makeWeights();
 		
@@ -652,13 +634,6 @@ public class SNetPattern implements ControllableThread {
 		//input activations are reset and updated at the beginning of next step.
 	}
 	
-	private void calculateAndPropagateActivation() {
-		for (Iterator<INeuron> iterator = allINeurons.values().iterator(); iterator.hasNext();) {
-			INeuron n = iterator.next();
-			n.calculateActivation();
-			n.propagateActivation();
-		}
-	}
 
 	/**
 	 * empties old memories and put in conscious neurons.
@@ -671,6 +646,7 @@ public class SNetPattern implements ControllableThread {
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			//no hierarchy: all activated neurons are remembered, including sensory neurons.
+			if(n.isMute()) mlog.say("muted "+ n.getId());
 			if(n.isActivated() & !n.isMute()){
 				STM.add(n);
 			}
@@ -785,13 +761,20 @@ public class SNetPattern implements ControllableThread {
 						if(!didChange & !dreaming){		
 							if(cpu_limitations && nw>max_new_connections) break;
 							
-							if(!patternExists(STM,n) && !hasMaxLayer(STM)){
+							if(!Utils.patternExists(STM,n,allINeurons.values()) && !hasMaxLayer(STM)){
 								INeuron neuron = new INeuron(STM,n,n_id);
+								if(n_id==2235){
+									testp = neuron.getOutWeights().get(n);
+									for (Iterator iterator2 = STM.iterator(); iterator2.hasNext();) {
+										INeuron iNeuron = (INeuron) iterator2.next();
+										mlog.say(" "+iNeuron.getId());//2214-2230
+									}
+								}
 								newn.addElement(neuron);
 								n_id++;
 								nw++;
 								didChange = true;
-								mlog.say("******created pattern neuron "+neuron.getId());
+								mlog.say("******created pattern neuron "+neuron.getId() + " to image " + img_id);
 							}
 						}
 					}			
@@ -799,6 +782,10 @@ public class SNetPattern implements ControllableThread {
 			}
 		}else{
 			mlog.say("network too big");
+		}
+		
+		if(testp != null){
+			mlog.say("+++++++ proba "+testp.getProba());
 		}
 		
 		if(cpu_limitations){
@@ -849,34 +836,7 @@ public class SNetPattern implements ControllableThread {
 		return has;
 	}
 
-	/**
-	 * 
-	 * @param neurons list of neurons
-	 * @return true if there exists a PNeuron in the whole net that can be activated by the "neurons" pattern
-	 * and has an outweight to to_n
-	 */
-	private boolean patternExists(Vector<INeuron> neurons, INeuron to_n) {
-		boolean b = false;
-		
-		//input neurons
-		Set<INeuron> from_neurons =  to_n.getInWeights().keySet();
-		
-		for (Iterator<INeuron> iterator = from_neurons.iterator(); iterator.hasNext();) {
-			INeuron n = iterator.next();
-			//direct in weights to input neurons
-			Vector<BundleWeight> bws = n.getDirectInWeights();
-			for (Iterator<BundleWeight> iterator2 = bws.iterator(); iterator2.hasNext();) {
-				BundleWeight bw = iterator2.next();
-				//pattern for direct in weight
-				Set<INeuron> set = bw.getInNeurons();
-				if(set.containsAll(neurons)){
-					b = true;
-				}
-			}
-		}
-		return b;
-	}
-
+	
 	private void buildPredictionMap() {
 		int n = Constants.gray_scales;
 		

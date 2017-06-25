@@ -486,6 +486,7 @@ public class INeuron extends Neuron {
 			//as long as we find ones that were activated by us
 			INeuron n = pair.getKey();
 			if(!n.isActivated()){//wasn't activated
+				//mlog.say("not activated yet "+ n.id);
 				n.makeDirectActivation();
 				if(n.isActivated()){//but now is activated
 					n.activateDirectOutWeights();
