@@ -862,9 +862,9 @@ public class SNetPattern implements ControllableThread {
 					coarse[j] = coarse[j] + i;
 				}
 				
-				if(neuron.getUpperSurprised() == true){
+				/*if(neuron.getUpperSurprised() == true){
 					mlog.say("surprised");
-				}
+				}*/
 			}
 		}		
 		for (int i = 0; i < coarse.length; i++) {

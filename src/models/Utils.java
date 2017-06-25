@@ -42,10 +42,6 @@ public class Utils {
 				BundleWeight bw = iterator2.next();
 				//pattern for direct in weight
 				Set<INeuron> set = bw.getInNeurons();
-				for (Iterator iterator3 = set.iterator(); iterator3.hasNext();) {
-					INeuron iNeuron = (INeuron) iterator3.next();
-					//mlog.say("############ " + iNeuron.getId());
-				}
 				//mlog.say("--------- ");
 				if(set.containsAll(neurons)){
 					b = true;
@@ -67,7 +63,7 @@ public class Utils {
 				}
 			}
 		}
-		mlog.say("############ cp size "+ cp.size());
+		/*mlog.say("############ cp size "+ cp.size());
 		if(cp.size()==81){
 			for (Iterator<Set<INeuron>> iterator3 = cp.iterator(); iterator3.hasNext();) {
 				Set<INeuron> s =  iterator3.next();
@@ -77,7 +73,7 @@ public class Utils {
 				}
 				mlog.say("--------- ");
 			}
-		}
+		}*/
 		//there is only one valid pattern and it already had been activated
 		if(cp.size()<2){
 			b = true;
@@ -291,7 +287,10 @@ public class Utils {
 											dosnap = false;
 											break;
 										}
-									}
+									}/* else {
+										dosnap = false;
+										//a bit sad about this but causes strong illusions
+									}*/
 								}
 							}
 								
