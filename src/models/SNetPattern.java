@@ -91,11 +91,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/cue/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/"; 
 	/** leading zeros*/
 	String name_format = "%02d";
 	/** number of images if not using names*/
-	int n_images = 6;//Constants.n_images;
+	int n_images = 1;//Constants.n_images;
 	
 	//sensors 
 	/** image sensor*/
@@ -375,12 +375,6 @@ public class SNetPattern implements ControllableThread {
 		pi_start = n_id;
 		//move right or left 
 		for(int i=0; i< eye.getHorizontalMotionResolution();i++){	
-			//this neuron links to this action
-			/*INeuron m = new INeuron(n_id);
-			eyemotor_h.add(m);	
-			allINeurons.put(m.getId(), m);
-			n_id++;*/
-			
 			INeuron n = new INeuron(n_id);
 			eyepro_h.add(n);	
 			allINeurons.put(n.getId(), n);
@@ -434,7 +428,7 @@ public class SNetPattern implements ControllableThread {
 		}//*/
 		
 		//choose actions, activate "proprioceptive" neurons, act at next step
-		//findActions();
+		findActions();
 	}
 	
 	
@@ -468,7 +462,7 @@ public class SNetPattern implements ControllableThread {
 			for(int k = 0; k<n; k++){
 				//values in "in" start at 1, not 0
 				int i = in[k]-1;
-				if(i>=0){//>=0 if seeing white
+				if(i>0){//>=0 if seeing white
 					eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
 				}
 			}//*/
@@ -509,14 +503,13 @@ public class SNetPattern implements ControllableThread {
 		int h_m = proprio[1];
 
 		//"do nothing" does not count as action
-		if(v_m>0){
+		/*if(v_m>0){
 			INeuron np = eyepro_v.get(v_m+1);
 			np.increaseActivation(1);
-		}
-		if(h_m>0){
-			INeuron np = eyepro_h.get(h_m+1);
-			np.increaseActivation(1);
-		}
+		}*/
+		INeuron np = eyepro_h.get(h_m+1);
+		np.increaseActivation(1);
+		
 		
 		String action = "h "+ h_m + " v " + v_m;
 		panel.setAction(action);
@@ -880,7 +873,7 @@ public class SNetPattern implements ControllableThread {
 	 * fuses similar neurons
 	 * */
 	private void snap() {
-		//allINeurons = Utils.snap(allINeurons);
+		allINeurons = Utils.snap(allINeurons);
 	}
 	
 	private void cleanAll() {
@@ -901,14 +894,10 @@ public class SNetPattern implements ControllableThread {
 		h_muscles.clear();
 		int act =  (int) Constants.uniformDouble(0,3);//0..2
 		h_muscles.addElement(act);
-		//INeuron n = eyemotor_v.get(act);
-		//n.increaseActivation(1);
 		
-		v_muscles.clear();
+		/*v_muscles.clear();
 		act =  (int) Constants.uniformDouble(0,3);
-		v_muscles.addElement(act);
-		//n = eyemotor_h.get(act);
-		//n.increaseActivation(1);		
+		v_muscles.addElement(act);	*/
 	}
 	
 	//main thread
