@@ -759,7 +759,7 @@ public class SNetPattern implements ControllableThread {
 						//no change happened, try building a spatial pattern
 						if(!didChange & !dreaming){		
 							if(cpu_limitations && nw>max_new_connections) break;
-							
+														
 							if(!Utils.patternExists(STM,n,allINeurons.values()) && !hasMaxLayer(STM)){
 								INeuron neuron = new INeuron(STM,n,n_id);
 								newn.addElement(neuron);

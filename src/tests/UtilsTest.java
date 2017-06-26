@@ -235,11 +235,67 @@ public class UtilsTest {
 		neurons.put(f2.getId(), f2);
 		neurons.put(n.getId(), n);
 		neurons.put(to.getId(), to);
-		
+
 		assertEquals("exists ", true, Utils.patternExists(from, to, neurons.values()));
 		Vector<INeuron> a = new Vector<INeuron>();
 		a.addElement(n);
 		assertEquals("exists ", true, Utils.patternExists(a, to, neurons.values()));
+	}
+	
+	
+	@Test
+	public void pattern_adding(){
+		int id = 0;
+		HashMap<Integer, INeuron> neurons = new HashMap<Integer, INeuron> ();
+
+		INeuron to = new INeuron(id);
+		id++;
+		INeuron f1 = new INeuron(id);
+		id++;
+		INeuron f2 = new INeuron(id);
+		id++;
+		
+		Vector<INeuron> from = new Vector<INeuron>();
+		from.addElement(f1);
+		from.addElement(f2);
+		
+		/*INeuron n = new INeuron(from, to, id);
+		id++;*/
+		
+		ProbaWeight p = to.addInWeight(Constants.defaultConnection, f1);
+		f1.addOutWeight(to, p);
+		p = to.addInWeight(Constants.defaultConnection, f2);
+		f2.addOutWeight(to, p);
+
+		
+		neurons.put(f1.getId(), f1);
+		neurons.put(f2.getId(), f2);
+		//neurons.put(n.getId(), n);
+		//neurons.put(to.getId(), to);
+		
+		for (Iterator<INeuron> iterator = neurons.values().iterator(); iterator.hasNext();) {
+			INeuron n = iterator.next();
+			mlog.say("test : "+ n.getId());
+		}
+		
+		assertEquals("create ", false, Utils.patternExists(from, to, neurons.values()));
+		
+		INeuron i1 = new INeuron(id);
+		id++;
+		INeuron i2 = new INeuron(id);
+		id++;
+		
+		Vector<INeuron> v = new Vector<INeuron>();
+		v.addElement(i1);
+		BundleWeight b = f1.addDirectInWeight(v);
+		i1.addDirectOutWeight(f1, b);
+		v = new Vector<INeuron>();
+		v.addElement(i2);
+		b = f2.addDirectInWeight(v);
+		i2.addDirectOutWeight(f2, b);
+		
+		assertEquals("create ", false, Utils.patternExists(from, to, neurons.values()));
+		
 	}
 
 }
