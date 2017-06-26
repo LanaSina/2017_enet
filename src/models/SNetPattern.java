@@ -86,19 +86,16 @@ public class SNetPattern implements ControllableThread {
 	/** phase */
 	boolean dreaming = false;
 	//
-	int activated =0;
+	int activated = 0;
 	
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/cue/";//frames/small/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/cue/"; 
 	/** leading zeros*/
 	String name_format = "%02d";
 	/** number of images if not using names*/
 	int n_images = 6;//Constants.n_images;
-	/** image dimensions */
-	//int ih = Constants.ih;
-	//int iw = Constants.iw;
 	
 	//sensors 
 	/** image sensor*/
@@ -723,14 +720,15 @@ public class SNetPattern implements ControllableThread {
 					//did we improve future prediction chances?
 					boolean didChange = false;
 					
-					//if(img_id==2) mlog.say("&&&&&&&& im2");
-
 					//go through STM
 					for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
 						INeuron preneuron = iterator.next();
 						
-						if((cpu_limitations && nw>max_new_connections)) break; // || preneuron.isMute()
+						if((cpu_limitations && nw>max_new_connections)) break;
 						
+						/*if(preneuron.getId()>=2208 && preneuron.getId()<2213){
+							mlog.say("--------- pattern neuron includes motion neuron");
+						}*/
 
 						//doubloons weights will not be added
 						ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
@@ -771,17 +769,11 @@ public class SNetPattern implements ControllableThread {
 							
 							if(!Utils.patternExists(STM,n,allINeurons.values()) && !hasMaxLayer(STM)){
 								INeuron neuron = new INeuron(STM,n,n_id);
-								if(n_id==2220){
-									testp = neuron.getOutWeights().get(n);
-									for (Iterator iterator2 = STM.iterator(); iterator2.hasNext();) {
-										INeuron iNeuron = (INeuron) iterator2.next();
-									}
-								}
 								newn.addElement(neuron);
 								n_id++;
 								nw++;
 								didChange = true;
-								mlog.say("******created pattern neuron "+neuron.getId() + " to image " + img_id);
+								//mlog.say("******created pattern neuron "+neuron.getId() + " to image " + img_id);
 							}
 						}
 					}			
@@ -856,8 +848,8 @@ public class SNetPattern implements ControllableThread {
 		int[] sum = new int[n_interface[0].length];
 
 		//go through interface and build levels of gray
-		for(int i=0; i<n_interface.length; i++){// i = gray scale
-			for (int j = Constants.gray_scales-1; j < n_interface[0].length; j++) {//j = position in image
+		for(int i=0; i<Constants.gray_scales; i++){// i = gray scale //n_interface.length
+			for (int j = 0; j < n_interface[0].length; j++) {//j = position in image
 				int n_id = n_interface[i][j];
 				INeuron neuron = eye_neurons[i].get(n_id);
 				//if the neuron is not muted, get its prediction
@@ -868,17 +860,12 @@ public class SNetPattern implements ControllableThread {
 					// gray
 					coarse[j] = coarse[j] + i;
 				}
-				
-				/*if(neuron.getUpperSurprised() == true){
-					mlog.say("surprised");
-				}*/
 			}
 		}		
 		for (int i = 0; i < coarse.length; i++) {
 			//normalize
 			//i*i could have been added i times		
 			coarse[i] = (coarse[i])/(n);//+1 bc grayscales start at 1 in eye
-			//mlog.say(""+coarse[i]+" "+sum[i]);
 			if(sum[i]>0){
 				coarse[i] = coarse[i]/sum[i];
 			}
@@ -893,7 +880,7 @@ public class SNetPattern implements ControllableThread {
 	 * fuses similar neurons
 	 * */
 	private void snap() {
-		allINeurons = Utils.snap(allINeurons);
+		//allINeurons = Utils.snap(allINeurons);
 	}
 	
 	private void cleanAll() {

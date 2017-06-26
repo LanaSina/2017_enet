@@ -17,7 +17,7 @@ public class Constants {
 	/** age at which probabilistic connections stop learning */
 	public static final int weight_max_age = 20;//20
 	/** confidence threshold for predictions */
-	public static final double confidence_threshold = 0.8;//
+	public static final double confidence_threshold = 0.95;//
 	
 	/** sensitivity of the image sensor */
 	public static final int gray_scales = 6;
@@ -31,8 +31,8 @@ public class Constants {
 	public static final int vf_h = 50;
 	public static final int vf_w = 50;
 	/** image dimensions*/
-	public static final int w = 141;
-	public static final int h = 134;
+	public static final int w = 50;//141;
+	public static final int h = 50;//134;
 	/** image dimensions (viewed from eye) */
 	public static final int iw = (w/eres_f)*eres_f;
 	public static final int ih = (h/eres_f)*eres_f;//round down depending on focus resolution
