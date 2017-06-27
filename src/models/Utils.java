@@ -314,6 +314,7 @@ public class Utils {
 	
 	/**
 	 * resets neurons activation to 0
+	 * also unmutes them.
 	 * @param layer map of neurons to be reset.
 	 */
 	public static void resetNeuronsActivation(Collection<INeuron> layer){
@@ -321,6 +322,7 @@ public class Utils {
 		while(it.hasNext()){
 			INeuron n = it.next();
 			n.resetActivation();
+			n.setMute(false);
 		}
 	}
 	
@@ -384,14 +386,6 @@ public class Utils {
 			INeuron n = pair.getValue();
 			
 			boolean doit = true;
-			/*Vector<BundleWeight> aaa = n.getDirectInWeights();
-			for (Iterator iterator = aaa.iterator(); iterator.hasNext();) {
-				BundleWeight bundleWeight = (BundleWeight) iterator.next();
-				if(bundleWeight.getInNeurons().size()>1){
-					doit = false;
-					break;
-				}
-			}*/
 			
 			if(!n.justSnapped && doit){ 
 
@@ -400,15 +394,7 @@ public class Utils {
 				while(it2.hasNext()){
 					Map.Entry<Integer, INeuron> pair2 = it2.next();
 					INeuron n2 = pair2.getValue();
-					
-					/*Vector<BundleWeight> bbb = n2.getDirectInWeights();
-					for (Iterator iterator = bbb.iterator(); iterator.hasNext();) {
-						BundleWeight bundleWeight = (BundleWeight) iterator.next();
-						if(bundleWeight.getInNeurons().size()>1){
-							doit = false;
-							break;
-						}
-					}*/
+	
 					
 					//mlog.say(" " + n.getId() + " " + n2.getId() + " " + n2.justSnapped);
 

@@ -91,11 +91,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/cue/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/"; 
 	/** leading zeros*/
 	String name_format = "%02d";
 	/** number of images if not using names*/
-	int n_images = 6;//Constants.n_images;
+	int n_images = 1;//Constants.n_images;
 	
 	//sensors 
 	/** image sensor*/
@@ -437,7 +437,7 @@ public class SNetPattern implements ControllableThread {
 		}//*/
 		
 		//choose actions, activate "proprioceptive" neurons, act at next step
-		//findActions();
+		findActions();
 	}
 	
 	
@@ -653,6 +653,9 @@ public class SNetPattern implements ControllableThread {
 			//if(n.isMute()) mlog.say("muted "+ n.getId());
 			if(n.isActivated() & !n.isMute()){
 				STM.add(n);
+				if(n.getId()>=2208 && n.getId()<2213){
+					mlog.say("000000 STM includes motion neuron");
+				}
 			}
 		}
 		
@@ -731,16 +734,13 @@ public class SNetPattern implements ControllableThread {
 						
 						if((cpu_limitations && nw>max_new_connections)) break;
 						
-						/*if(preneuron.getId()>=2208 && preneuron.getId()<2213){
-							mlog.say("--------- pattern neuron includes motion neuron");
-						}*/
-
+						
 						//doubloons weights will not be added
-						ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
+						/*ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
 						if(preneuron.addOutWeight(n,probaWeight)){
 							nw++;
 							didChange = true;
-						}
+						}*/
 						
 						//check for oversnapping in sensory neurons
 						//todo: generalize to normal neurons and pattern neurons
@@ -775,13 +775,18 @@ public class SNetPattern implements ControllableThread {
 							if(!hasMaxLayer(STM)){
 								Vector<INeuron> vn = Utils.patternExists3D(STM, n);
 								if(vn.size()>0){
+									
+									
 									if(the_pattern==null){
 										mlog.say("******** added pattern neuron id "+ n_id);
-										mlog.say(" in: ");
-										/*for (Iterator<INeuron> iterator2 = vn.iterator(); iterator2.hasNext();) {
+										
+										for (Iterator<INeuron> iterator2 = vn.iterator(); iterator2.hasNext();) {
 											INeuron iNeuron = (INeuron) iterator2.next();
-											mlog.say("ID "+ iNeuron.getId());
-										}*/
+											//mlog.say("ID "+ iNeuron.getId());
+											if(iNeuron.getId()>=2208 && iNeuron.getId()<2213){
+												mlog.say("--------- pattern neuron includes motion neuron");
+											}
+										}
 										
 										the_pattern = new INeuron(vn,n,n_id);
 										n_id++;
@@ -959,6 +964,7 @@ public class SNetPattern implements ControllableThread {
 		    			before = System.currentTimeMillis();
 		    		}
 		    		
+		    		//also unmutes neurons?
 		    		net.buildInputs();
 					    
 		    		net.updateSNet();

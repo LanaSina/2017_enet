@@ -689,7 +689,6 @@ public class INeuron extends Neuron {
 		for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
 			BundleWeight b = iterator.next();		
 			if(n.addDirectInWeight(b)){
-				//b.notifyRemoval(this);
 				b.notifyChange(this,n);
 			} else{
 				//just delete it
