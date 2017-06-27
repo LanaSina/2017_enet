@@ -20,7 +20,9 @@ public class BundleWeight extends ProbaWeight {
 	
 	/** the inweights*/
 	HashMap<INeuron, ProbaWeight> bundle = new HashMap<>();//<input,weight>
-
+	/**on inweights: mean(x), mean (y), var(x), var(y))*/
+	private double[] position = {0,0,0,0};
+	
 	/**
 	 * This constructor might never be used
 	 * @param type 
@@ -49,6 +51,18 @@ public class BundleWeight extends ProbaWeight {
 			n.addDirectOutWeight(to, this);
 		}
 	}
+	
+	/**
+	 * @param p on direct inweights: mean(x), mean (y), var(x), var(y))
+	 */
+	public void setPosition(double[] p) {
+		position = p.clone();
+	}
+	
+	public double[] getPosition() {
+		return position.clone();
+	}
+
 	
 	/**
 	 * @return true if all weights in bundle are activated, false otherwise

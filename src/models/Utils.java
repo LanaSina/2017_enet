@@ -19,6 +19,64 @@ import neurons.ProbaWeight;
 public class Utils {
 	static MyLog mlog = new MyLog("Utils", true);
 	
+	
+	/**
+	 * 
+	 * @author lana
+	 * Definition of "same pattern": same "position" variable.
+	 * If 2 patterns have same x and y, smaller variances + smaller number of weights could be used for generalisation
+	 * @param neurons list of neurons
+	 * @param to_n destination
+	 * @return vector of unique patterns that do not yet predict this neuron
+	 */
+	public static Vector<INeuron> patternExists3D(Vector<INeuron> neurons, INeuron to_n) {
+		Vector<INeuron> valid_neurons = new Vector<INeuron>();
+		//input neurons
+		Set<INeuron> from_neurons =  to_n.getInWeights().keySet();
+		
+		//1: check if combined postion of "neurons" already equivalent to to_n
+		//2: check if we already have an inweight from a pattern neuron at that position
+		//3: ?
+		
+		//calculate hypothetical position of pattern of "neurons" (average positions of x,y + some z)
+		//TODO send that position to this function, instead of the neurons vector
+		double[] np_xy = {0,0};
+		int ns = neurons.size();
+		for (Iterator<INeuron> iterator = neurons.iterator(); iterator.hasNext();) {
+			INeuron n = iterator.next();
+			double[] p = n.getPosition();
+			np_xy[0] += p[0];
+			np_xy[1] += p[1];
+		}
+		np_xy[0] = np_xy[0]/ns;
+		np_xy[1] = np_xy[1]/ns;
+		
+		//calculate variances
+		double[] np_v = {0,0};
+		for (Iterator<INeuron> iterator = neurons.iterator(); iterator.hasNext();) {
+			INeuron n = iterator.next();
+			double[] p = n.getPosition();
+			np_v[0] = Math.pow(p[2]-np_xy[0], 2);
+			np_v[1] = Math.pow(p[3]-np_xy[1], 2);
+		}
+		np_v[0] = np_v[0]/ns;
+		np_v[1] = np_v[1]/ns;
+		
+		//is that already our position, or the position of one of our direct inweights?
+		//(this neuron is a pattern neuron with "neurons" as input pattern already)
+		double[] this_p = to_n.getPosition();
+		if(this_p[0] == np_xy[0] && this_p[0] == np_xy[0] && 
+				this_p[0] == np_xy[0] && this_p[0] == np_xy[0]){
+			return valid_neurons;
+		}
+		
+		//is that the position of one of our bundle_weights already?
+
+		
+		return b;
+	}
+
+	
 	/**
 	 * 
 	 * @author lana

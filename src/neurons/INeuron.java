@@ -58,9 +58,24 @@ public class INeuron extends Neuron {
 	boolean canSnap = true;
 	
 	public int level = 0;
+	
+	//this is used to check if pattern neurons are identical or not
+	/**on direct inweights: mean(x), mean (y), var(x), var(y))*/
+	private double[] position = {0,0,0,0};
 
 	public boolean canSnap() {
 		return canSnap;
+	}
+	
+	/**
+	 * @param p on direct inweights: mean(x), mean (y), var(x), var(y))
+	 */
+	public void setPosition(double[] p) {
+		position = p.clone();
+	}
+	
+	public double[] getPosition() {
+		return position.clone();
 	}
 
 	public void setCanSnap(boolean canSnap) {
