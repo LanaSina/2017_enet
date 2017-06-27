@@ -371,7 +371,6 @@ public class SNetPattern implements ControllableThread {
 				BundleWeight b = n2.addDirectInWeight(v);
 				//ProbaWeight p = n2.addInWeight(Constants.fixedConnection, n);
 				n.addDirectOutWeight(n2,b);
-				n2.setPosition(p);
 				allINeurons.put(n_id, n2);
 				n_id++;				
 			}

@@ -265,18 +265,21 @@ public class UtilsTest {
 		HashMap<Integer, INeuron> neurons = new HashMap<Integer, INeuron> ();
 
 		INeuron to = new INeuron(id);
+		double[] p0 = {0,0,0,0};
+		to.setPosition(p0);
 		id++;
 		INeuron f1 = new INeuron(id);
+		double[] p1 = {0,1,0,0};
+		f1.setPosition(p1);
 		id++;
 		INeuron f2 = new INeuron(id);
+		double[] p2 = {0,2,0,0};
+		f1.setPosition(p2);
 		id++;
 		
 		Vector<INeuron> from = new Vector<INeuron>();
 		from.addElement(f1);
 		from.addElement(f2);
-		
-		/*INeuron n = new INeuron(from, to, id);
-		id++;*/
 		
 		ProbaWeight p = to.addInWeight(Constants.defaultConnection, f1);
 		f1.addOutWeight(to, p);
@@ -286,8 +289,6 @@ public class UtilsTest {
 		
 		neurons.put(f1.getId(), f1);
 		neurons.put(f2.getId(), f2);
-		//neurons.put(n.getId(), n);
-		//neurons.put(to.getId(), to);
 		
 		for (Iterator<INeuron> iterator = neurons.values().iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
@@ -298,8 +299,10 @@ public class UtilsTest {
 		assertEquals("create ", 2, Utils.patternExists3D(from, to).size());
 
 		INeuron i1 = new INeuron(id);
+		i1.setPosition(p1);
 		id++;
 		INeuron i2 = new INeuron(id);
+		i2.setPosition(p2);
 		id++;
 		
 		Vector<INeuron> v = new Vector<INeuron>();
@@ -312,7 +315,7 @@ public class UtilsTest {
 		i2.addDirectOutWeight(f2, b);
 		
 		//assertEquals("create ", false, Utils.patternExists(from, to, neurons.values()));
-		assertEquals("exists ", 0, Utils.patternExists3D(from, to).size());
+		assertEquals("exists ", false, 0==Utils.patternExists3D(from, to).size());
 	}
 
 }

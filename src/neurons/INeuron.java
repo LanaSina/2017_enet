@@ -156,8 +156,17 @@ public class INeuron extends Neuron {
 		BundleWeight b = lookForWeight(v);
 		if(b==null){
 			b = new BundleWeight(v, this);
-			directInWeights.addElement(b);
 		}
+		directInWeights.addElement(b);
+		
+		//recalculate postion
+		Vector<INeuron> all_in = new Vector<INeuron>();
+		for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
+			BundleWeight bundle = iterator.next();
+			all_in.addAll(bundle.getInNeurons());
+		}
+		
+		setPosition(Utils.patternPosition(all_in));
 		return b;
 	}
 	
