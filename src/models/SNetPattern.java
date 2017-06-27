@@ -346,7 +346,6 @@ public class SNetPattern implements ControllableThread {
 		int gray_scales = Constants.gray_scales;
 		si_start = n_id;
 		int[][] eye_interface = eye.getEyeInterface();
-		int[][] n_interface = eye.getNeuralInterface();
 		
 		//eye sensory neurons
 		for(int i=0; i< n_n;i++){				
@@ -369,7 +368,6 @@ public class SNetPattern implements ControllableThread {
 				Vector<INeuron> v = new Vector<INeuron>();
 				v.addElement(n);
 				BundleWeight b = n2.addDirectInWeight(v);
-				//ProbaWeight p = n2.addInWeight(Constants.fixedConnection, n);
 				n.addDirectOutWeight(n2,b);
 				allINeurons.put(n_id, n2);
 				n_id++;				
@@ -473,7 +471,7 @@ public class SNetPattern implements ControllableThread {
 			for(int k = 0; k<n; k++){
 				//values in "in" start at 1, not 0
 				int i = in[k]-1;
-				if(i>0){//>=0 if seeing white
+				if(i>=0){//>=0 if seeing white
 					eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
 				}
 			}//*/
@@ -738,11 +736,11 @@ public class SNetPattern implements ControllableThread {
 						}*/
 
 						//doubloons weights will not be added
-						/*ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
+						ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
 						if(preneuron.addOutWeight(n,probaWeight)){
 							nw++;
 							didChange = true;
-						}*/
+						}
 						
 						//check for oversnapping in sensory neurons
 						//todo: generalize to normal neurons and pattern neurons
@@ -773,40 +771,6 @@ public class SNetPattern implements ControllableThread {
 						//no change happened, try building a spatial pattern
 						if(!didChange & !dreaming){		
 							if(cpu_limitations && nw>max_new_connections) break;
-									
-							/*if(!Utils.patternExists(STM,n,allINeurons.values()) && !hasMaxLayer(STM)){
-								
-								if(the_pattern==null){
-									mlog.say("******** added pattern neuron id "+ n_id);
-									mlog.say(" in: ");
-									for (Iterator iterator2 = STM.iterator(); iterator2.hasNext();) {
-										INeuron iNeuron = (INeuron) iterator2.next();
-										mlog.say("ID "+ iNeuron.getId());
-										
-									}
-									
-									the_pattern = new INeuron(STM,n,n_id);
-									n_id++;
-									newn.addElement(the_pattern);
-									nw++;
-									didChange = true;
-									
-								} else{
-									ProbaWeight p = n.addInWeight(Constants.defaultConnection, the_pattern);
-									if(p==null){
-										//TODO WHY
-										//the patternExists was supposed to save us from this
-									}else{
-										if(the_pattern.addOutWeight(n, p)){
-											nw++;
-											didChange = true;
-										} else{
-											//why!!
-											n.removeInWeight(the_pattern);
-										}
-									}
-								}
-							}*/
 							
 							if(!hasMaxLayer(STM)){
 								Vector<INeuron> vn = Utils.patternExists3D(STM, n);
@@ -814,10 +778,10 @@ public class SNetPattern implements ControllableThread {
 									if(the_pattern==null){
 										mlog.say("******** added pattern neuron id "+ n_id);
 										mlog.say(" in: ");
-										for (Iterator<INeuron> iterator2 = vn.iterator(); iterator2.hasNext();) {
+										/*for (Iterator<INeuron> iterator2 = vn.iterator(); iterator2.hasNext();) {
 											INeuron iNeuron = (INeuron) iterator2.next();
 											mlog.say("ID "+ iNeuron.getId());
-										}
+										}*/
 										
 										the_pattern = new INeuron(vn,n,n_id);
 										n_id++;
