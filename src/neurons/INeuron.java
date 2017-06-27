@@ -63,25 +63,6 @@ public class INeuron extends Neuron {
 	/**on direct inweights: mean(x), mean (y), var(x), var(y))*/
 	private double[] position = {0,0,0,0};
 
-	public boolean canSnap() {
-		return canSnap;
-	}
-	
-	/**
-	 * @param p on direct inweights: mean(x), mean (y), var(x), var(y))
-	 */
-	public void setPosition(double[] p) {
-		position = p.clone();
-	}
-	
-	public double[] getPosition() {
-		return position.clone();
-	}
-
-	public void setCanSnap(boolean canSnap) {
-		this.canSnap = canSnap;
-	}
-
 	public INeuron(int id) {
 		super(id);
 	}
@@ -107,6 +88,27 @@ public class INeuron extends Neuron {
 		ProbaWeight p = to.addInWeight(Constants.defaultConnection, this);
 		outWeights.put(to, p);
 	}
+	
+
+	public boolean canSnap() {
+		return canSnap;
+	}
+	
+	/**
+	 * @param p on direct inweights: mean(x), mean (y), var(x), var(y) (also check number of direct inw))
+	 */
+	public void setPosition(double[] p) {
+		position = p.clone();
+	}
+	
+	public double[] getPosition() {
+		return position.clone();
+	}
+
+	public void setCanSnap(boolean canSnap) {
+		this.canSnap = canSnap;
+	}
+
 
 	/**
 	 * adds or replace new weight (there isnt supposed to be contradictions in inweights
