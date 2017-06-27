@@ -31,17 +31,23 @@ public class Utils {
 	public static boolean patternExists(Vector<INeuron> neurons, INeuron to_n, Collection<INeuron> valid_neurons) {
 		boolean b = false;
 		
+		if(neurons.size()==1 && neurons.get(0)==to_n){
+			return true;
+		}
+		
 		//input neurons
 		Set<INeuron> from_neurons =  to_n.getInWeights().keySet();
 		//collection of patterns predicting this neuron
 		//to check if "neurons" are not just equivalent to patterns we already have
 		Vector<Set<INeuron>> cp = new Vector<Set<INeuron>>();
+		//list of neurons having unique patterns
+		Vector<INeuron> original_n = new Vector<INeuron>();
 
 		//look at each pattern going to this neuron
 		//check if "neurons" is equal to any of the patterns
 		for (Iterator<INeuron> iterator = from_neurons.iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
-			mlog.say("id n "+ n.getId());
+			//mlog.say("id n "+ n.getId());
 
 			//direct in weights to input neurons
 			Vector<BundleWeight> bws = n.getDirectInWeights();
@@ -51,119 +57,109 @@ public class Utils {
 				//pattern for direct in weight
 				Set<INeuron> set = bw.getInNeurons();
 				
-				if(set.containsAll(neurons) && neurons.containsAll(set)){
-					b = true;
+				if(set.equals(neurons)){
+					return true;
 				}
 				
 				//check if set already exists
 				boolean exists = false;
 				for (Iterator<Set<INeuron>> iterator3 = cp.iterator(); iterator3.hasNext();) {
 					Set<INeuron> pattern = iterator3.next();
-					if((pattern.containsAll(set) && set.containsAll(pattern)) || !valid_neurons.containsAll(set)){
+					
+					if(set.equals(pattern) || !valid_neurons.containsAll(set)){
 						exists = true;
 					}
 				}
 				
 				if(!exists){
 					cp.addElement(set);
-					mlog.say("set ");
-					for (Iterator iterator3 = set.iterator(); iterator3.hasNext();) {
-						INeuron iNeuron = (INeuron) iterator3.next();
-						mlog.say("set, id " + iNeuron.getId());
+					if(!original_n.contains(n)){
+						original_n.addElement(n);
+						mlog.say("added "+n.getId());
 					}
-					mlog.say("---------- " );
 				}
 			}
 		}
 		
-		mlog.say("cp size " + cp.size());
+		/*boolean bad = true;
+		//build the list of original patterns in "neurons", 
+		//check that it is not equal to patterns already coming to this neuron	
+		for (Iterator<INeuron> iterator = neurons.iterator(); iterator.hasNext();) {
+			INeuron n = iterator.next();
+
+			//direct in weights to input neurons
+			Vector<BundleWeight> bws = n.getDirectInWeights();
+			for (Iterator<BundleWeight> iterator2 = bws.iterator(); iterator2.hasNext();) {
+				BundleWeight bw = iterator2.next();
+				
+				//pattern for direct in weight
+				Set<INeuron> set = bw.getInNeurons();
+				for (Iterator<Set<INeuron>> iterator3 = cp.iterator(); iterator3.hasNext();) {
+					Set<INeuron> s = iterator3.next();
+					if(!set.equals(s)){
+						bad = false;
+						break;
+					}
+				}
+				if (!bad) {
+					break;
+				}
+			}
+			
+		}
+			
+		if(bad){
+			return true;
+		}*/
+		
+		
+		//mlog.say("cp size " + cp.size());
 		
 		if(cp.size()==0){
 			//?
 		}
 		
+		//check if the list of "original neurons" is different from "neurons"
+		if(original_n.equals(neurons)){
+			return true;
+		}else{
+			mlog.say("not equal");
+			for (Iterator<INeuron> iterator = neurons.iterator(); iterator.hasNext();) {
+				INeuron n = iterator.next();
+				mlog.say(" " + n.getId());
+			}
+			mlog.say("and ");
+			for (Iterator<INeuron> iterator = original_n.iterator(); iterator.hasNext();) {
+				INeuron n = iterator.next();
+				mlog.say(" " + n.getId());
+			}
+		}
+
 		//next check if there is a new pattern in the proposed neurons (or TODO remove similar patterns)
 		if(cp.size()==1){
 			Set<INeuron> s = cp.get(0);
 			if(s.containsAll(neurons)){
-				b = true;
+				return true;
 			}
 			
-			boolean bad = true;
+			
+			boolean bad2 = true;
 			for (Iterator<INeuron> iterator = neurons.iterator(); iterator.hasNext();) {
 				INeuron n = iterator.next();
 				Vector<BundleWeight> bws = n.getDirectInWeights();
 				for (Iterator iterator2 = bws.iterator(); iterator2.hasNext();) {
 					BundleWeight bw = (BundleWeight) iterator2.next();
 					Set<INeuron> set = bw.getInNeurons();
-					if(!(set.containsAll(s) && s.containsAll(set))){
-						bad = false;
+					if(!set.equals(s)){
+						bad2 = false;
 					}
 				}
 			}
-			if(bad){
+			if(bad2){
 				b = true;
 			}
 		}
-		
-		
-			
-		//go through potential input and store each unique pattern
-		//if there is only one pattern
-		/*for (Iterator<INeuron> iterator = neurons.iterator(); iterator.hasNext();) {
-			INeuron n = iterator.next();
-			mlog.say("id n "+ n.getId());
-			
-			Vector<BundleWeight> bws = n.getDirectInWeights();
-			//origin neuron
-			if(bws.size()==0){
-				Vector<INeuron> a = new Vector<INeuron>();
-				a.addElement(n);
-				cp.add(new HashSet<INeuron>(a));
-				
-				mlog.say("added to cp id "+ n.getId());
-			} 
-			
-			for (Iterator<BundleWeight> iterator2 = bws.iterator(); iterator2.hasNext();) {
-				BundleWeight bw = iterator2.next();
-				Set<INeuron> set = bw.getInNeurons();
-				
-				for (Iterator iterator3 = set.iterator(); iterator3.hasNext();) {
-					INeuron iNeuron = (INeuron) iterator3.next();
-					mlog.say("set, id " + iNeuron.getId());
-				}
-				mlog.say("---------- " );
-				
-				//check if set already exists
-				boolean exists = false;
-				for (Iterator<Set<INeuron>> iterator3 = cp.iterator(); iterator3.hasNext();) {
-					Set<INeuron> pattern = iterator3.next();
-					if(pattern.containsAll(set)){
-						exists = true;
-					}
-				}
-				
-				if(!exists){
-					cp.addElement(set);
-					mlog.say("added set ");
-				}
-			}
-		}
-		
-		//there is only one valid pattern and it already had been activated
-		if(cp.size()<2){
-			b = true;
-		}
-		
-		for (Iterator iterator = cp.iterator(); iterator.hasNext();) {
-			Set<INeuron> set = (Set<INeuron>) iterator.next();
-			for (Iterator iterator2 = set.iterator(); iterator2.hasNext();) {
-				INeuron iNeuron = (INeuron) iterator2.next();
-				mlog.say("id " + iNeuron.getId());
-			}
-			mlog.say("---------- " );
-		}*/
-		
+	
 		return b;
 	}
 
@@ -332,7 +328,7 @@ public class Utils {
 						//avoid direct recurrent connections
 						if(n.directInWeightsContains(n2) || n2.directInWeightsContains(n) ||
 								//avoid different sets of outweights
-								!s1.containsAll(s2) || !s2.containsAll(s1)){
+								!s1.equals(s2)){
 							//mlog.say("too different");
 							dosnap = false;
 						} else {

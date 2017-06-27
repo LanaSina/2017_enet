@@ -213,7 +213,7 @@ public class UtilsTest {
 	}
 	
 	@Test
-	public void patternExists(){
+	public void pattern_exists(){
 		int id = 0;
 		HashMap<Integer, INeuron> neurons = new HashMap<Integer, INeuron> ();
 
@@ -240,11 +240,14 @@ public class UtilsTest {
 		Vector<INeuron> a = new Vector<INeuron>();
 		a.addElement(n);
 		assertEquals("exists ", true, Utils.patternExists(a, to, neurons.values()));
+		
+		//pattern from self to self
+		assertEquals("exists ", true, Utils.patternExists(a, n, neurons.values()));
 	}
 	
 	
 	@Test
-	public void pattern_adding(){
+	public void pattern_not_exist(){
 		int id = 0;
 		HashMap<Integer, INeuron> neurons = new HashMap<Integer, INeuron> ();
 
@@ -295,6 +298,8 @@ public class UtilsTest {
 		i2.addDirectOutWeight(f2, b);
 		
 		assertEquals("create ", false, Utils.patternExists(from, to, neurons.values()));
+		
+		
 		
 	}
 

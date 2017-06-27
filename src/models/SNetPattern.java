@@ -91,11 +91,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/cue/"; 
 	/** leading zeros*/
 	String name_format = "%02d";
 	/** number of images if not using names*/
-	int n_images = 1;//Constants.n_images;
+	int n_images = 6;//Constants.n_images;
 	
 	//sensors 
 	/** image sensor*/
@@ -428,7 +428,7 @@ public class SNetPattern implements ControllableThread {
 		}//*/
 		
 		//choose actions, activate "proprioceptive" neurons, act at next step
-		findActions();
+		//findActions();
 	}
 	
 	
@@ -661,6 +661,9 @@ public class SNetPattern implements ControllableThread {
 		//store removed neurons
 		ArrayList<INeuron> remove = new ArrayList<INeuron>();
 		
+		//in case we made a pattern neuron
+		INeuron the_pattern = null;
+		
 		//number of surprised neurons at this timestep
 		int n_surprised = 0;
 		//number of sensory activates
@@ -724,11 +727,11 @@ public class SNetPattern implements ControllableThread {
 						}*/
 
 						//doubloons weights will not be added
-						ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
+						/*ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
 						if(preneuron.addOutWeight(n,probaWeight)){
 							nw++;
 							didChange = true;
-						}
+						}*/
 						
 						//check for oversnapping in sensory neurons
 						//todo: generalize to normal neurons and pattern neurons
@@ -759,13 +762,41 @@ public class SNetPattern implements ControllableThread {
 						//no change happened, try building a spatial pattern
 						if(!didChange & !dreaming){		
 							if(cpu_limitations && nw>max_new_connections) break;
-														
+									
 							if(!Utils.patternExists(STM,n,allINeurons.values()) && !hasMaxLayer(STM)){
-								INeuron neuron = new INeuron(STM,n,n_id);
-								newn.addElement(neuron);
-								n_id++;
-								nw++;
-								didChange = true;
+								
+								if(the_pattern==null){
+									mlog.say("******** added pattern neuron id "+ n_id);
+									mlog.say(" in: ");
+									for (Iterator iterator2 = STM.iterator(); iterator2.hasNext();) {
+										INeuron iNeuron = (INeuron) iterator2.next();
+										mlog.say("ID "+ iNeuron.getId());
+										
+									}
+									
+									the_pattern = new INeuron(STM,n,n_id);
+									n_id++;
+									newn.addElement(the_pattern);
+									nw++;
+									didChange = true;
+									
+									
+								} else{
+									ProbaWeight p = n.addInWeight(Constants.defaultConnection, the_pattern);
+									if(p==null){
+										//TODO WHY
+										//the patternExists was supposed to save us from this
+									}else{
+										if(the_pattern.addOutWeight(n, p)){
+											nw++;
+											didChange = true;
+										} else{
+											//why!!
+											n.removeInWeight(the_pattern);
+										}
+									}
+								}
+								
 								//mlog.say("******created pattern neuron "+neuron.getId() + " to image " + img_id);
 							}
 						}
