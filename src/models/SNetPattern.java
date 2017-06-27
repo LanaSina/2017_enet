@@ -363,7 +363,7 @@ public class SNetPattern implements ControllableThread {
 				eye.linkNeuron(n_id,j, i);
 				n_id++;				
 				INeuron n2 = new INeuron(n_id);
-				n2.justSnapped = true;//avoid snapping newborn neurons
+				//n2.justSnapped = true;//avoid snapping newborn neurons
 				//add direct in weight
 				Vector<INeuron> v = new Vector<INeuron>();
 				v.addElement(n);
@@ -385,8 +385,10 @@ public class SNetPattern implements ControllableThread {
 			n.setPosition(p);
 			eyepro_h.add(n);	
 			allINeurons.put(n.getId(), n);
+			mlog.say("Proprioception INeuron " + n_id);
 			n_id++;			
 		}	
+		
 		//up or down
 		for(int i=0; i< eye.getVerticalMotionResolution();i++){	
 			//neuron links to this action
@@ -400,13 +402,22 @@ public class SNetPattern implements ControllableThread {
 			n.setPosition(p);
 			eyepro_v.add(n);	
 			allINeurons.put(n.getId(), n);
+			mlog.say("Proprioception INeuron " + n_id);
 			n_id++;
 		}
 		pi_end = n_id-1;
 		
-		mlog.say("Proprioception INeurons: id "+ pi_start + " to "+ pi_end + "-1");
+		mlog.say("Proprioception INeurons: id "+ pi_start + " to "+ pi_end);
 		
 		mlog.say(n_id +" neurons");		
+		
+		resetNeuronsActivation(allINeurons);
+		/*for (Iterator<Integer> iterator = allINeurons.keySet().iterator(); iterator.hasNext();) {
+			Integer id =  iterator.next();
+			mlog.say("id " + id);	
+		}
+		mlog.say("<<<<<<<<<<<<<");*/
+
 	}
 	
 	
@@ -430,7 +441,7 @@ public class SNetPattern implements ControllableThread {
 		}
 		//build
 		buildEyeInput();
-			
+
 		presentations++;
 		if(presentations>=max_presentations){
     		nextImage = true;	
@@ -455,8 +466,11 @@ public class SNetPattern implements ControllableThread {
 			resetNeuronsActivation(eye_neurons[i]);
 			Utils.resetDirectOutWeights(eye_neurons[i]);
 		}
+		
 		//reset activations of ineurons
+		mlog.say("RESET ALL INEURONS "+ allINeurons.size());
 		resetNeuronsActivation(allINeurons);
+
 		Utils.resetDirectOutWeights(allINeurons);
 
 		
@@ -511,7 +525,6 @@ public class SNetPattern implements ControllableThread {
 		int v_m = proprio[0];
 		int h_m = proprio[1];
 
-		//"do nothing" does not count as action
 		/*if(v_m>0){
 			INeuron np = eyepro_v.get(v_m+1);
 			np.increaseActivation(1);
@@ -548,6 +561,7 @@ public class SNetPattern implements ControllableThread {
 			n.resetOutWeights();
 			//shouldnt be needed but is?
 			n.resetInWeights();
+			n.setMute(false);
 		}
 	}
 	
@@ -671,7 +685,7 @@ public class SNetPattern implements ControllableThread {
 		//will store new neurons
 		Vector<INeuron> newn = new Vector<INeuron>();
 		//store removed neurons
-		ArrayList<INeuron> remove = new ArrayList<INeuron>();
+		//ArrayList<INeuron> remove = new ArrayList<INeuron>();
 		
 		//in case we made a pattern neuron
 		INeuron the_pattern = null;
@@ -823,9 +837,9 @@ public class SNetPattern implements ControllableThread {
 			}
 		}
 		
-		for(int i=0; i<remove.size();i++){	
+		/*for(int i=0; i<remove.size();i++){	
 			allINeurons.remove(remove.get(i).getId());
-		}
+		}*/
 		
 		for (Iterator<INeuron> iterator = newn.iterator(); iterator.hasNext();) {
 			INeuron neuron = iterator.next();
@@ -959,14 +973,14 @@ public class SNetPattern implements ControllableThread {
 	    		if(!paused){
 	    			
 		    		long before = 0;
-		    		if(step%20==0){
+		    		if(step%Constants.snap_freq==0){
 		    			//calculate runtime
 		    			before = System.currentTimeMillis();
 		    		}
 		    		
 		    		//also unmutes neurons?
 		    		net.buildInputs();
-					    
+  
 		    		net.updateSNet();
 		    		int nw = Utils.countWeights(allINeurons);
 		    		mlog.say("step " + step +" weights "+nw);

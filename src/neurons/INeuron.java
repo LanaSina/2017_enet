@@ -51,7 +51,7 @@ public class INeuron extends Neuron {
 	/** does the prediction corresponds to any kind of input*/
 	private boolean surprised = false;
 	/** used when pruning neurons*/
-	public boolean justSnapped = false;
+	public boolean justSnapped = true;
 	
 	/** whether we can get remembered in the STM or not (eq to consciousness)*/
 	boolean mute = false;
@@ -588,6 +588,15 @@ public class INeuron extends Neuron {
 
 	public void setMute(boolean b) {
 		mute = b;
+		if(mute){
+			if(id>=2208 && id<2213){
+				mlog.say("======== motion neuron muted");
+			}
+		}else{
+			if(id>=2208 && id<2213){
+				mlog.say("~~~~~~~~ motion neuron unmuted");
+			}
+		}
 	}
 
 
