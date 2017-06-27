@@ -86,12 +86,14 @@ public class Utils {
 			}
 		}
 		
-		mlog.say("size " + valid_neurons.size());
+		//mlog.say("size " + valid_neurons.size());
 		
 		double[] pos;
 		//if single neuron
 		if(valid_neurons.size()==1){
-			pos = valid_neurons.get(0).getPosition();			
+			//no direct iw with only 1 neuron
+			//pos = valid_neurons.get(0).getPosition();		
+			return new Vector<INeuron>();
 		}else{
 			//calculate hypothetical position of pattern of "neurons" (average positions of x,y + some z)
 			pos = patternPosition(valid_neurons);
