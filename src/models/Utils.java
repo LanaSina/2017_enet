@@ -64,11 +64,11 @@ public class Utils {
 	public static Vector<INeuron> patternExists3D(Vector<INeuron> neurons, INeuron to_n) {
 		Vector<INeuron> valid_neurons = new Vector<INeuron>();
 		valid_neurons.addAll(neurons);
-		
+		double[] this_p = to_n.getPosition();
+
 		//0: check if some of these neurons are equivalent
 		//1: check if combined postion of "neurons" already equivalent to to_n
 		//2: check if we already have an inweight from a pattern neuron at that position
-		//3: ?
 		
 		for (Iterator<INeuron> iterator = neurons.iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
@@ -84,15 +84,22 @@ public class Utils {
 					}
 				}
 			}
-			
 		}
 		
-		//calculate hypothetical position of pattern of "neurons" (average positions of x,y + some z)
-		double[] pos = patternPosition(valid_neurons);
+		mlog.say("size " + valid_neurons.size());
+		
+		double[] pos;
+		//if single neuron
+		if(valid_neurons.size()==1){
+			pos = valid_neurons.get(0).getPosition();			
+		}else{
+			//calculate hypothetical position of pattern of "neurons" (average positions of x,y + some z)
+			pos = patternPosition(valid_neurons);
+		}
+		//mlog.say("pattern position " + pos[0] + " " + pos[1] + " " + pos[2] + " " + pos[3]);
 		
 		//is that already our position?
 		//(this neuron is a pattern neuron with "neurons" as input pattern already)
-		double[] this_p = to_n.getPosition();
 		if(this_p[0] == pos[0] && this_p[1] == pos[1] && 
 				this_p[2] == pos[2] && this_p[3] == pos[3]){
 			return new Vector<INeuron>();

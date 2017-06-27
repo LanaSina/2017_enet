@@ -218,10 +218,16 @@ public class UtilsTest {
 		HashMap<Integer, INeuron> neurons = new HashMap<Integer, INeuron> ();
 
 		INeuron to = new INeuron(id);
+		double[] p = {0,0,0,0};
+		to.setPosition(p);
 		id++;
 		INeuron f1 = new INeuron(id);
+		double[] p1 = {0,1,0,0};
+		f1.setPosition(p1);
 		id++;
 		INeuron f2 = new INeuron(id);
+		double[] p2 = {0,2,0,0};
+		f1.setPosition(p2);
 		id++;
 		
 		Vector<INeuron> from = new Vector<INeuron>();
@@ -229,6 +235,8 @@ public class UtilsTest {
 		from.addElement(f2);
 		
 		INeuron n = new INeuron(from, to, id);
+		double[] pp = n.getPosition();
+		mlog.say("position " + pp[0] + " " + pp[1] + " " + pp[2] + " " + pp[3]);
 		id++;
 		
 		neurons.put(f1.getId(), f1);
@@ -236,13 +244,18 @@ public class UtilsTest {
 		neurons.put(n.getId(), n);
 		neurons.put(to.getId(), to);
 
-		assertEquals("exists ", true, Utils.patternExists(from, to, neurons.values()));
+		//assertEquals("exists ", true, Utils.patternExists(from, to, neurons.values()));
+		assertEquals("exists ", 0, Utils.patternExists3D(from, to).size());
+				
 		Vector<INeuron> a = new Vector<INeuron>();
 		a.addElement(n);
-		assertEquals("exists ", true, Utils.patternExists(a, to, neurons.values()));
-		
+		//assertEquals("exists ", true, Utils.patternExists(a, to, neurons.values()));
+		assertEquals("exists ", 0, Utils.patternExists3D(a, to).size());
+
 		//pattern from self to self
-		assertEquals("exists ", true, Utils.patternExists(a, n, neurons.values()));
+		//assertEquals("exists ", true, Utils.patternExists(a, n, neurons.values()));
+		assertEquals("exists ", 0, Utils.patternExists3D(a, n).size());
+
 	}
 	
 	
@@ -281,8 +294,9 @@ public class UtilsTest {
 			mlog.say("test : "+ n.getId());
 		}
 		
-		assertEquals("create ", false, Utils.patternExists(from, to, neurons.values()));
-		
+		//assertEquals("create ", false, Utils.patternExists(from, to, neurons.values()));
+		assertEquals("create ", 2, Utils.patternExists3D(from, to).size());
+
 		INeuron i1 = new INeuron(id);
 		id++;
 		INeuron i2 = new INeuron(id);
@@ -297,10 +311,8 @@ public class UtilsTest {
 		b = f2.addDirectInWeight(v);
 		i2.addDirectOutWeight(f2, b);
 		
-		assertEquals("create ", false, Utils.patternExists(from, to, neurons.values()));
-		
-		
-		
+		//assertEquals("create ", false, Utils.patternExists(from, to, neurons.values()));
+		assertEquals("exists ", 0, Utils.patternExists3D(from, to).size());
 	}
 
 }
