@@ -345,6 +345,8 @@ public class SNetPattern implements ControllableThread {
 		int n_n = eye.getPartialNeuronsNumber();
 		int gray_scales = Constants.gray_scales;
 		si_start = n_id;
+		int[][] eye_interface = eye.getEyeInterface();
+		int[][] n_interface = eye.getNeuralInterface();
 		
 		//eye sensory neurons
 		for(int i=0; i< n_n;i++){				
@@ -353,6 +355,11 @@ public class SNetPattern implements ControllableThread {
 				INeuron n = new INeuron(n_id);
 				//put it in list
 				eye_neurons[j].put(n_id, n);
+				//position
+				int sensor_i = eye_interface[i][0]+(n_n*j);
+				int sensor_j = eye_interface[i][1]+(n_n*j);
+				double[] p = {sensor_i,sensor_j,0,0};
+				n.setPosition(p);
 				//make it sensitive to an input
 				eye.linkNeuron(n_id,j, i);
 				n_id++;				
@@ -364,6 +371,7 @@ public class SNetPattern implements ControllableThread {
 				BundleWeight b = n2.addDirectInWeight(v);
 				//ProbaWeight p = n2.addInWeight(Constants.fixedConnection, n);
 				n.addDirectOutWeight(n2,b);
+				n2.setPosition(p);
 				allINeurons.put(n_id, n2);
 				n_id++;				
 			}
@@ -376,6 +384,8 @@ public class SNetPattern implements ControllableThread {
 		//move right or left 
 		for(int i=0; i< eye.getHorizontalMotionResolution();i++){	
 			INeuron n = new INeuron(n_id);
+			double[] p = {-i,0,0,0};
+			n.setPosition(p);
 			eyepro_h.add(n);	
 			allINeurons.put(n.getId(), n);
 			n_id++;			
@@ -389,6 +399,8 @@ public class SNetPattern implements ControllableThread {
 			n_id++;*/
 				
 			INeuron n = new INeuron(n_id);
+			double[] p = {-i,1,0,0};
+			n.setPosition(p);
 			eyepro_v.add(n);	
 			allINeurons.put(n.getId(), n);
 			n_id++;
@@ -763,7 +775,7 @@ public class SNetPattern implements ControllableThread {
 						if(!didChange & !dreaming){		
 							if(cpu_limitations && nw>max_new_connections) break;
 									
-							if(!Utils.patternExists(STM,n,allINeurons.values()) && !hasMaxLayer(STM)){
+							/*if(!Utils.patternExists(STM,n,allINeurons.values()) && !hasMaxLayer(STM)){
 								
 								if(the_pattern==null){
 									mlog.say("******** added pattern neuron id "+ n_id);
@@ -780,7 +792,6 @@ public class SNetPattern implements ControllableThread {
 									nw++;
 									didChange = true;
 									
-									
 								} else{
 									ProbaWeight p = n.addInWeight(Constants.defaultConnection, the_pattern);
 									if(p==null){
@@ -796,9 +807,34 @@ public class SNetPattern implements ControllableThread {
 										}
 									}
 								}
-								
-								//mlog.say("******created pattern neuron "+neuron.getId() + " to image " + img_id);
+							}*/
+							
+							if(!hasMaxLayer(STM)){
+								Vector<INeuron> vn = Utils.patternExists3D(STM, n);
+								if(vn.size()>0){
+									if(the_pattern==null){
+										mlog.say("******** added pattern neuron id "+ n_id);
+										mlog.say(" in: ");
+										for (Iterator<INeuron> iterator2 = vn.iterator(); iterator2.hasNext();) {
+											INeuron iNeuron = (INeuron) iterator2.next();
+											mlog.say("ID "+ iNeuron.getId());
+										}
+										
+										the_pattern = new INeuron(vn,n,n_id);
+										n_id++;
+										newn.addElement(the_pattern);
+										nw++;
+										didChange = true;
+									} else{
+										ProbaWeight p = n.addInWeight(Constants.defaultConnection, the_pattern);
+										if(the_pattern.addOutWeight(n, p)){
+											nw++;
+											didChange = true;
+										}
+									}
+								}
 							}
+							
 						}
 					}			
 				}

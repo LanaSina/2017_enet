@@ -19,6 +19,38 @@ import neurons.ProbaWeight;
 public class Utils {
 	static MyLog mlog = new MyLog("Utils", true);
 	
+	/**
+	 * 
+	 * @param neurons
+	 * @return 4D position of the pattern 
+	 */
+	public static double[] patternPosition(Vector<INeuron> neurons){
+		
+		//calculate hypothetical position of pattern of "neurons" (average positions of x,y + some z)
+		double[] position = {0,0,0,0};
+		int ns = neurons.size();
+		for (Iterator<INeuron> iterator = neurons.iterator(); iterator.hasNext();) {
+			INeuron n = iterator.next();
+			double[] p = n.getPosition();
+			position[0] += p[0];
+			position[1] += p[1];
+		}
+		position[0] = position[0]/ns;
+		position[1] = position[1]/ns;
+		
+		//calculate variances
+		for (Iterator<INeuron> iterator = neurons.iterator(); iterator.hasNext();) {
+			INeuron n = iterator.next();
+			double[] p = n.getPosition();
+			position[2] = Math.pow(p[2]-position[0], 2);
+			position[3] = Math.pow(p[3]-position[1], 2);
+		}
+		position[2] = position[2]/ns;
+		position[3] = position[3]/ns;
+		
+		return position;
+	}
+	
 	
 	/**
 	 * 
@@ -56,34 +88,13 @@ public class Utils {
 		}
 		
 		//calculate hypothetical position of pattern of "neurons" (average positions of x,y + some z)
-		//TODO send that position to this function, instead of the neurons vector
-		double[] np_xy = {0,0};
-		int ns = valid_neurons.size();
-		for (Iterator<INeuron> iterator = valid_neurons.iterator(); iterator.hasNext();) {
-			INeuron n = iterator.next();
-			double[] p = n.getPosition();
-			np_xy[0] += p[0];
-			np_xy[1] += p[1];
-		}
-		np_xy[0] = np_xy[0]/ns;
-		np_xy[1] = np_xy[1]/ns;
-		
-		//calculate variances
-		double[] np_v = {0,0};
-		for (Iterator<INeuron> iterator = valid_neurons.iterator(); iterator.hasNext();) {
-			INeuron n = iterator.next();
-			double[] p = n.getPosition();
-			np_v[0] = Math.pow(p[2]-np_xy[0], 2);
-			np_v[1] = Math.pow(p[3]-np_xy[1], 2);
-		}
-		np_v[0] = np_v[0]/ns;
-		np_v[1] = np_v[1]/ns;
+		double[] pos = patternPosition(valid_neurons);
 		
 		//is that already our position?
 		//(this neuron is a pattern neuron with "neurons" as input pattern already)
 		double[] this_p = to_n.getPosition();
-		if(this_p[0] == np_xy[0] && this_p[0] == np_xy[0] && 
-				this_p[0] == np_xy[0] && this_p[0] == np_xy[0]){
+		if(this_p[0] == pos[0] && this_p[1] == pos[1] && 
+				this_p[2] == pos[2] && this_p[3] == pos[3]){
 			return new Vector<INeuron>();
 		}
 		
@@ -93,8 +104,8 @@ public class Utils {
 		for (Iterator<INeuron> iterator = from_neurons.iterator(); iterator.hasNext();) {
 			INeuron iNeuron = iterator.next();
 			this_p = iNeuron.getPosition();
-			if(this_p[0] == np_xy[0] && this_p[0] == np_xy[0] && 
-					this_p[0] == np_xy[0] && this_p[0] == np_xy[0]){
+			if(this_p[0] == pos[0] && this_p[1] == pos[1] && 
+					this_p[2] == pos[2] && this_p[3] == pos[3]){
 				return new Vector<INeuron>();
 			}
 		}

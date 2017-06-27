@@ -15,6 +15,7 @@ import com.sun.swing.internal.plaf.basic.resources.basic;
 import apple.laf.JRSUIUtils.Tree;
 import communication.Constants;
 import communication.MyLog;
+import models.Utils;
 
 /**
  * Equivalent to previous "CNeuron".
@@ -87,6 +88,9 @@ public class INeuron extends Neuron {
 		//as outweight from this to To
 		ProbaWeight p = to.addInWeight(Constants.defaultConnection, this);
 		outWeights.put(to, p);
+		
+		//position
+		setPosition(Utils.patternPosition(from));
 	}
 	
 
