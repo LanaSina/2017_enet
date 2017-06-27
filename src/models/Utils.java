@@ -323,9 +323,6 @@ public class Utils {
 			INeuron n = it.next();
 			n.resetActivation();
 			n.setMute(false);
-			if(n.getId()>=2208 && n.getId()<2213){
-				mlog.say("NNNN  motion neuron UNmuted id "+ n.getId());
-			}
 		}
 	}
 	

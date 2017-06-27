@@ -588,15 +588,6 @@ public class INeuron extends Neuron {
 
 	public void setMute(boolean b) {
 		mute = b;
-		if(mute){
-			if(id>=2208 && id<2213){
-				mlog.say("======== motion neuron muted");
-			}
-		}else{
-			if(id>=2208 && id<2213){
-				mlog.say("~~~~~~~~ motion neuron unmuted");
-			}
-		}
 	}
 
 

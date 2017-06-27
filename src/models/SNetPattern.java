@@ -412,12 +412,6 @@ public class SNetPattern implements ControllableThread {
 		mlog.say(n_id +" neurons");		
 		
 		resetNeuronsActivation(allINeurons);
-		/*for (Iterator<Integer> iterator = allINeurons.keySet().iterator(); iterator.hasNext();) {
-			Integer id =  iterator.next();
-			mlog.say("id " + id);	
-		}
-		mlog.say("<<<<<<<<<<<<<");*/
-
 	}
 	
 	
@@ -468,7 +462,6 @@ public class SNetPattern implements ControllableThread {
 		}
 		
 		//reset activations of ineurons
-		mlog.say("RESET ALL INEURONS "+ allINeurons.size());
 		resetNeuronsActivation(allINeurons);
 
 		Utils.resetDirectOutWeights(allINeurons);
