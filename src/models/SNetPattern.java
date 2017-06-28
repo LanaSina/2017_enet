@@ -442,7 +442,7 @@ public class SNetPattern implements ControllableThread {
 		}//*/
 		
 		//choose actions, activate "proprioceptive" neurons, act at next step
-		//findActions();
+		findActions();
 	}
 	
 	
@@ -712,8 +712,8 @@ public class SNetPattern implements ControllableThread {
 		int total = Utils.countWeights(allINeurons);		
 		
 		
-		mlog.say("##### 551 predicted activation: " + allINeurons.get(551).getPredictedActivation());
-		mlog.say("##### 2053 predicted activation: " + allINeurons.get(2053).getPredictedActivation());
+		//mlog.say("##### 551 predicted activation: " + allINeurons.get(551).getPredictedActivation());
+		//mlog.say("##### 2053 predicted activation: " + allINeurons.get(2053).getPredictedActivation());
 
 		if(add_weights){
 			while(it.hasNext()){
@@ -936,7 +936,7 @@ public class SNetPattern implements ControllableThread {
 	 * fuses similar neurons
 	 * */
 	private void snap() {
-		//allINeurons = Utils.snap(allINeurons);
+		allINeurons = Utils.snap(allINeurons);
 	}
 	
 	private void cleanAll() {
