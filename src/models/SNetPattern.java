@@ -91,11 +91,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/cue/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/"; 
 	/** leading zeros*/
 	String name_format = "%02d";
 	/** number of images if not using names*/
-	int n_images = 6;//Constants.n_images;
+	int n_images = 1;//Constants.n_images;
 	
 	//sensors 
 	/** image sensor*/
@@ -442,7 +442,7 @@ public class SNetPattern implements ControllableThread {
 		}//*/
 		
 		//choose actions, activate "proprioceptive" neurons, act at next step
-		//findActions();
+		findActions();
 	}
 	
 	
@@ -775,7 +775,7 @@ public class SNetPattern implements ControllableThread {
 								Vector<INeuron> vn = Utils.patternExists3D(STM, n);
 								if(vn.size()>0){
 									
-									if(the_pattern==null){
+									//if(the_pattern==null){
 										mlog.say("******** added pattern neuron id "+ n_id);
 										
 										for (Iterator<INeuron> iterator2 = vn.iterator(); iterator2.hasNext();) {
@@ -793,7 +793,7 @@ public class SNetPattern implements ControllableThread {
 										weight.setActivation(1, null);
 										nw++;
 										didChange = true;
-									} else{
+									/*} else{
 										ProbaWeight p = n.addInWeight(Constants.defaultConnection, the_pattern);
 										if(the_pattern.addOutWeight(n, p)){
 											nw++;
