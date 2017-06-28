@@ -527,4 +527,18 @@ public class Utils {
 		}
 		return nw;
 	}
+	
+
+	/**
+	 * recursively propagates direct activation
+	 * @param collection
+	 */
+	public static void propagateInstantaneousActivation(Collection<INeuron> collection) {
+		for (Iterator<INeuron> iterator = collection.iterator(); iterator.hasNext();) {
+			INeuron n = iterator.next();
+			if(n.getActivation()>0){
+				n.activateDirectOutWeights();
+			}
+		}
+	}
 }

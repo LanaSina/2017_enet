@@ -290,16 +290,21 @@ public class INeuron extends Neuron {
 						mlog.say("----- " + pair.getKey().getId());
 					}*/
 				}
-			}			
-	
+			}	
+			
+
 			if(pro_activation==0 & activation>0){
 				setSurprised(true);
 			}			
 			
+			if(id==2053){
+				mlog.say("----- predicted activation " + pro_activation + " next " + pa );
+				mlog.say("----- real activation " + activation );
+				mlog.say("----- surprised " + isSurprised() );
+			}
+	
 			pro_activation = pa;
-			/*if(id==1921){
-				mlog.say("----- predicted activation " + pa);
-			}*/
+			
 			activationCalculated = true;
 		}
 	}

@@ -442,7 +442,7 @@ public class SNetPattern implements ControllableThread {
 		}//*/
 		
 		//choose actions, activate "proprioceptive" neurons, act at next step
-		findActions();
+		//findActions();
 	}
 	
 	
@@ -465,7 +465,6 @@ public class SNetPattern implements ControllableThread {
 		resetNeuronsActivation(allINeurons);
 
 		Utils.resetDirectOutWeights(allINeurons);
-
 		
 		if(!dreaming){
 			//apply blur to selected portion of image
@@ -530,8 +529,13 @@ public class SNetPattern implements ControllableThread {
 		panel.setAction(action);
 
 		//propagate instantly from eyes
-		propagateFromEyeNeurons();
-		
+		//propagateFromEyeNeurons();
+		for (int i = 0; i < eye_neurons.length; i++) {
+			Utils.propagateInstantaneousActivation(eye_neurons[i].values());
+		}
+		Utils.propagateInstantaneousActivation(eyepro_h);
+		Utils.propagateInstantaneousActivation(eyepro_v);
+
 		//integrate previously predicted activation to actual activation
 		if(dreaming){
 			Iterator<INeuron> it = allINeurons.values().iterator();
@@ -571,7 +575,7 @@ public class SNetPattern implements ControllableThread {
 	}
 	
 
-	private void propagateFromEyeNeurons() {
+	/*private void propagateFromEyeNeurons() {
 		for (int i = 0; i < eye_neurons.length; i++) {
 			Iterator<Entry<Integer, INeuron>> it = eye_neurons[i].entrySet().iterator();
 			while(it.hasNext()){
@@ -582,7 +586,7 @@ public class SNetPattern implements ControllableThread {
 				}
 			}	
 		}
-	}
+	}*/
 
 	/**
 	 * integrates previously predicted activation to actual activation
@@ -628,6 +632,7 @@ public class SNetPattern implements ControllableThread {
 		//for ineurons
 		Utils.activateOutWeights(allINeurons);	
 		//muting happens here
+		//predicted activation for next step calculated here
 		Utils.calculateAndPropagateActivation(allINeurons);
 		
 		if(testp != null){
@@ -706,6 +711,10 @@ public class SNetPattern implements ControllableThread {
 		int nw = 0;
 		int total = Utils.countWeights(allINeurons);		
 		
+		
+		mlog.say("##### 551 predicted activation: " + allINeurons.get(551).getPredictedActivation());
+		mlog.say("##### 2053 predicted activation: " + allINeurons.get(2053).getPredictedActivation());
+
 		if(add_weights){
 			while(it.hasNext()){
 				Map.Entry<Integer, INeuron> pair = it.next();
@@ -729,6 +738,7 @@ public class SNetPattern implements ControllableThread {
 				}				
 				
 				if(n.isSurprised()){
+					mlog.say("+++++++++ " + n.getId() + " surprised ");
 					if(id>=si_start && id<=si_end){
 						n_surprised++;
 					}
@@ -776,7 +786,7 @@ public class SNetPattern implements ControllableThread {
 						}*/
 							
 						//no change happened, try building a spatial pattern
-						if(!dreaming){	//!didChange & 
+						if(!didChange & !dreaming){	//
 							if(cpu_limitations && nw>max_new_connections) break;
 							
 							if(!hasMaxLayer(STM)){
@@ -914,7 +924,7 @@ public class SNetPattern implements ControllableThread {
 	 * fuses similar neurons
 	 * */
 	private void snap() {
-		allINeurons = Utils.snap(allINeurons);
+		//allINeurons = Utils.snap(allINeurons);
 	}
 	
 	private void cleanAll() {

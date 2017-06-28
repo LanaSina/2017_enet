@@ -15,7 +15,7 @@ public class Constants {
 	public static final String image_format = ".png";
 
 	/** age at which probabilistic connections stop learning */
-	public static final int weight_max_age = 20;//20
+	public static final int weight_max_age = 25;//20
 	/** confidence threshold for predictions */
 	public static final double confidence_threshold = 0.95;//
 	
