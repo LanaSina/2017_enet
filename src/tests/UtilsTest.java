@@ -31,6 +31,9 @@ public class UtilsTest {
 		id++;
 		INeuron f2 = new INeuron(id);
 		id++;
+		to.justSnapped = false;
+		f1.justSnapped = false;
+		f2.justSnapped = false;
 		
 		Vector<INeuron> from = new Vector<INeuron>();
 		from.addElement(f1);
@@ -39,10 +42,13 @@ public class UtilsTest {
 		//create 2 neurons with same bundleweights
 		INeuron n = new INeuron(from, to, id);
 		id++;
+		n.justSnapped = false;
 		n.getOutWeights().get(to).setAge(Constants.weight_max_age);
 		INeuron n2 = new INeuron(from, to, id);
 		n2.getOutWeights().get(to).setAge(Constants.weight_max_age);
 		id++;
+		n2.justSnapped = false;
+
 
 		neurons.put(n.getId(), n);//3
 		neurons.put(n2.getId(), n2);//4
@@ -83,24 +89,31 @@ public class UtilsTest {
 		INeuron f2 = new INeuron(id);
 		id++;
 		
+		to.justSnapped = false;
+		f1.justSnapped = false;
+		f2.justSnapped = false;
+		
 		Vector<INeuron> from = new Vector<INeuron>();
 		from.addElement(f1);
 		from.addElement(f2);
 		
-		//
+		//n has 2 direct inweights from [f1,f2], one weight to "to"
 		INeuron n = new INeuron(from, to, id);
 		id++;
 		n.getOutWeights().get(to).setAge(Constants.weight_max_age);
+		n.justSnapped = false;
 		
-		//n2 has 1 outweight and 1 direct inweight
+		//n2 has one weight to "to", one direct weight from n3
 		INeuron n2 = new INeuron(id);
 		id++;
 		ProbaWeight p = to.addInWeight(Constants.defaultConnection, n2);
 		n2.addOutWeight(to, p);
 		n2.getOutWeights().get(to).setAge(Constants.weight_max_age);
+		n2.justSnapped = false;
 		
 		INeuron n3 = new INeuron(id);
 		id++;
+		n3.justSnapped = false;
 		//add direct in weight
 		Vector<INeuron> ve = new Vector<INeuron>();
 		ve.addElement(n3);

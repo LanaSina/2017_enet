@@ -971,7 +971,7 @@ public class SNetPattern implements ControllableThread {
 		    			before = System.currentTimeMillis();
 		    		}
 		    		
-		    		//also unmutes neurons?
+		    		//also unmutes neurons
 		    		net.buildInputs();
   
 		    		net.updateSNet();

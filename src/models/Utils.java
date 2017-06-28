@@ -384,25 +384,24 @@ public class Utils {
 		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
 		while(it.hasNext()){
 			
+			//mlog.say("here");
+			
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			
 			boolean doit = true;
 			
 			if(!n.justSnapped && doit){ 
+				//mlog.say("here 1");
 
 				//look for equivalent neurons (neurons with equivalent outweights)
 				Iterator<Entry<Integer, INeuron>> it2 = allINeurons.entrySet().iterator();
 				while(it2.hasNext()){
 					Map.Entry<Integer, INeuron> pair2 = it2.next();
 					INeuron n2 = pair2.getValue();
-	
-					
-					//mlog.say(" " + n.getId() + " " + n2.getId() + " " + n2.justSnapped);
-
 										
 					if((n.getId() != n2.getId()) && !n2.justSnapped && doit){
-						
+						//mlog.say("here 2");
 						
 						boolean dosnap = true;
 
@@ -425,6 +424,7 @@ public class Utils {
 							//mlog.say("too different");
 							dosnap = false;
 						} else {
+							//mlog.say("compare outw");
 							//compare outw
 							while(out2it.hasNext()){
 								Map.Entry<INeuron, ProbaWeight> out2pair = out2it.next();
