@@ -158,7 +158,13 @@ public class INeuron extends Neuron {
 			b = new BundleWeight(v, this);
 		}
 		directInWeights.addElement(b);
+		recalculatePosition();
 		
+		return b;
+	}
+	
+	//TODO make the difference between bundles
+	public void recalculatePosition() {
 		//recalculate postion
 		Vector<INeuron> all_in = new Vector<INeuron>();
 		for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
@@ -167,7 +173,6 @@ public class INeuron extends Neuron {
 		}
 		
 		setPosition(Utils.patternPosition(all_in));
-		return b;
 	}
 	
 	/**
@@ -644,6 +649,7 @@ public class INeuron extends Neuron {
 			BundleWeight b = iterator.next();
 			b.replace(replaced, replacement);	
 		}
+		recalculatePosition();
 	}
 
 	/**
@@ -687,7 +693,8 @@ public class INeuron extends Neuron {
 	 */
 	public void reportDirectInWeights(INeuron n) {	
 		for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
-			BundleWeight b = iterator.next();		
+			BundleWeight b = iterator.next();
+			
 			if(n.addDirectInWeight(b)){
 				b.notifyChange(this,n);
 			} else{

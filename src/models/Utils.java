@@ -482,6 +482,7 @@ public class Utils {
 								
 								//do the same for direct inweights
 								n2.reportDirectInWeights(n);
+								n.recalculatePosition();
 			
 								//now report direct outweights
 								n2.reportDirectOutWeights(n);
