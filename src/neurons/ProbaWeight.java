@@ -71,6 +71,7 @@ public class ProbaWeight {
 
 	/**
 	 * @param a activation value
+	 * @param n ignore if not bundle weight
 	 */
 	public void setActivation(int a, INeuron n) {
 		activation = a;

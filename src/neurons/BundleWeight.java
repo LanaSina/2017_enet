@@ -170,7 +170,6 @@ public class BundleWeight extends ProbaWeight {
 	//bc bw doesnt need the "activation" var for example
 	@Override
 	public void setActivation(int a, INeuron n) {
-		//activation = a;
 		bundle.get(n).setActivation(1, n);
 	}
 	

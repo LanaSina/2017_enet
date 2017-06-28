@@ -91,11 +91,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/simple/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/cue/"; 
 	/** leading zeros*/
 	String name_format = "%02d";
 	/** number of images if not using names*/
-	int n_images = 3;//Constants.n_images;
+	int n_images = 6;//Constants.n_images;
 	
 	//sensors 
 	/** image sensor*/
@@ -736,7 +736,7 @@ public class SNetPattern implements ControllableThread {
 						//doubloons weights will not be added
 						ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
 						if(preneuron.addOutWeight(n,probaWeight)){
-							probaWeight.setActivation(1, n);
+							probaWeight.setActivation(1,null);
 							nw++;
 							didChange = true;
 						}
@@ -789,8 +789,8 @@ public class SNetPattern implements ControllableThread {
 										the_pattern = new INeuron(vn,n,n_id);
 										n_id++;
 										newn.addElement(the_pattern);
-										the_pattern.increaseActivation(1);
-										the_pattern.activateOutWeights();
+										ProbaWeight weight = the_pattern.getOutWeights().get(n);
+										weight.setActivation(1, null);
 										nw++;
 										didChange = true;
 									} else{
@@ -798,7 +798,7 @@ public class SNetPattern implements ControllableThread {
 										if(the_pattern.addOutWeight(n, p)){
 											nw++;
 											didChange = true;
-											p.setActivation(1, n);
+											p.setActivation(1, null);
 										}
 									}//*/
 								}
