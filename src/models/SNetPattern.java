@@ -744,10 +744,10 @@ public class SNetPattern implements ControllableThread {
 						
 						//doubloons weights will not be added
 						ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
-						/*if(preneuron.addOutWeight(n,probaWeight)){
+						if(preneuron.addOutWeight(n,probaWeight)){
 							nw++;
 							didChange = true;
-						}*/
+						}
 						
 						//check for oversnapping in sensory neurons
 						//todo: generalize to normal neurons and pattern neurons
@@ -776,15 +776,14 @@ public class SNetPattern implements ControllableThread {
 						}*/
 							
 						//no change happened, try building a spatial pattern
-						if(!didChange & !dreaming){		
+						if(!dreaming){	//!didChange & 
 							if(cpu_limitations && nw>max_new_connections) break;
 							
 							if(!hasMaxLayer(STM)){
 								Vector<INeuron> vn = Utils.patternExists3D(STM, n);
 								if(vn.size()>0){
 									
-									
-									if(the_pattern==null){
+									//if(the_pattern==null){
 										mlog.say("******** added pattern neuron id "+ n_id);
 										
 										for (Iterator<INeuron> iterator2 = vn.iterator(); iterator2.hasNext();) {
@@ -800,13 +799,13 @@ public class SNetPattern implements ControllableThread {
 										newn.addElement(the_pattern);
 										nw++;
 										didChange = true;
-									} else{
+									/*} else{
 										ProbaWeight p = n.addInWeight(Constants.defaultConnection, the_pattern);
 										if(the_pattern.addOutWeight(n, p)){
 											nw++;
 											didChange = true;
 										}
-									}
+									}*/
 								}
 							}
 							
