@@ -286,9 +286,6 @@ public class INeuron extends Neuron {
 				double w  = pw.getProba();
 				if(w>confidence & pw.isActivated()){
 					pa+=1;
-					/*if(id==1921){
-						mlog.say("----- " + pair.getKey().getId());
-					}*/
 				}
 			}	
 			
@@ -297,14 +294,8 @@ public class INeuron extends Neuron {
 				setSurprised(true);
 			}			
 			
-			if(id==2053){
-				mlog.say("----- predicted activation " + pro_activation + " next " + pa );
-				mlog.say("----- real activation " + activation );
-				mlog.say("----- surprised " + isSurprised() );
-			}
 	
 			pro_activation = pa;
-			
 			activationCalculated = true;
 		}
 	}

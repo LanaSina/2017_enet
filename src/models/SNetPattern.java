@@ -91,11 +91,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/simple/"; 
 	/** leading zeros*/
 	String name_format = "%02d";
 	/** number of images if not using names*/
-	int n_images = 1;//Constants.n_images;
+	int n_images = 3;//Constants.n_images;
 	
 	//sensors 
 	/** image sensor*/
@@ -442,7 +442,7 @@ public class SNetPattern implements ControllableThread {
 		}//*/
 		
 		//choose actions, activate "proprioceptive" neurons, act at next step
-		findActions();
+		//findActions();
 	}
 	
 	
@@ -573,20 +573,7 @@ public class SNetPattern implements ControllableThread {
 		}
 		return t;
 	}
-	
 
-	/*private void propagateFromEyeNeurons() {
-		for (int i = 0; i < eye_neurons.length; i++) {
-			Iterator<Entry<Integer, INeuron>> it = eye_neurons[i].entrySet().iterator();
-			while(it.hasNext()){
-				Map.Entry<Integer, INeuron> pair = it.next();
-				INeuron n = pair.getValue();
-				if(n.getActivation()>0){
-					n.activateDirectOutWeights();
-				}
-			}	
-		}
-	}*/
 
 	/**
 	 * integrates previously predicted activation to actual activation
@@ -682,8 +669,6 @@ public class SNetPattern implements ControllableThread {
 		
 		//will store new neurons
 		Vector<INeuron> newn = new Vector<INeuron>();
-		//store removed neurons
-		//ArrayList<INeuron> remove = new ArrayList<INeuron>();
 		
 		//in case we made a pattern neuron
 		INeuron the_pattern = null;
@@ -711,10 +696,6 @@ public class SNetPattern implements ControllableThread {
 		int nw = 0;
 		int total = Utils.countWeights(allINeurons);		
 		
-		
-		//mlog.say("##### 551 predicted activation: " + allINeurons.get(551).getPredictedActivation());
-		//mlog.say("##### 2053 predicted activation: " + allINeurons.get(2053).getPredictedActivation());
-
 		if(add_weights){
 			while(it.hasNext()){
 				Map.Entry<Integer, INeuron> pair = it.next();
@@ -794,7 +775,7 @@ public class SNetPattern implements ControllableThread {
 								Vector<INeuron> vn = Utils.patternExists3D(STM, n);
 								if(vn.size()>0){
 									
-									//if(the_pattern==null){
+									if(the_pattern==null){
 										mlog.say("******** added pattern neuron id "+ n_id);
 										
 										for (Iterator<INeuron> iterator2 = vn.iterator(); iterator2.hasNext();) {
@@ -812,7 +793,7 @@ public class SNetPattern implements ControllableThread {
 										the_pattern.activateOutWeights();
 										nw++;
 										didChange = true;
-									/*} else{
+									} else{
 										ProbaWeight p = n.addInWeight(Constants.defaultConnection, the_pattern);
 										if(the_pattern.addOutWeight(n, p)){
 											nw++;
@@ -832,6 +813,7 @@ public class SNetPattern implements ControllableThread {
 						}
 						n.activationCalculated = false;
 						n.calculateActivation();
+						n.setSurprised(true);
 					}
 				}
 			}

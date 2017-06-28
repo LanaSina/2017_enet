@@ -1,3 +1,7 @@
+59521dab194ff34548595f11
+59521e22194ff34548595f12
+
+
 This iPhone SE (Model A1662, A1723, A1724) is running iOS 10.3.1 (14E304), which may not be supported by this version of Xcode.
 
 perf with and without patterns
@@ -7,8 +11,9 @@ see separate prediction maps?
 need a better thing than "age"
 *save and load functions for network
 could not see white in ecal
-if one inweight activated , no need to go throug the rest for prediction
-probas after unsnapping
+some weights are not updated after creating (individual) pattern neurons?
+also too many weights remaining (probably because not updated)
+why so much time to learn simple time series
 
 1:48
 
