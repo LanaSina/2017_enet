@@ -775,7 +775,7 @@ public class SNetPattern implements ControllableThread {
 								Vector<INeuron> vn = Utils.patternExists3D(STM, n);
 								if(vn.size()>0){
 									
-									//if(the_pattern==null){
+									if(the_pattern==null){
 										mlog.say("******** added pattern neuron id "+ n_id);
 										
 										for (Iterator<INeuron> iterator2 = vn.iterator(); iterator2.hasNext();) {
@@ -793,7 +793,7 @@ public class SNetPattern implements ControllableThread {
 										weight.setActivation(1, null);
 										nw++;
 										didChange = true;
-									/*} else{
+									} else{
 										ProbaWeight p = n.addInWeight(Constants.defaultConnection, the_pattern);
 										if(the_pattern.addOutWeight(n, p)){
 											nw++;
