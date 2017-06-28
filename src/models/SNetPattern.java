@@ -743,8 +743,8 @@ public class SNetPattern implements ControllableThread {
 						
 						
 						//doubloons weights will not be added
-						/*ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
-						if(preneuron.addOutWeight(n,probaWeight)){
+						ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
+						/*if(preneuron.addOutWeight(n,probaWeight)){
 							nw++;
 							didChange = true;
 						}*/
