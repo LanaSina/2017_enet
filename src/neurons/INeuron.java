@@ -43,7 +43,7 @@ public class INeuron extends Neuron {
 	double pro_activation;
 	
 	/** has activation been calculated since the last reset or not*/
-	boolean activationCalculated = false;
+	public boolean activationCalculated = false;
 	/** predicted activation */
 	int predictedActivation;
 	/** has activation been calculated since the last reset or not*/

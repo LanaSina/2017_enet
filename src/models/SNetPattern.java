@@ -622,7 +622,7 @@ public class SNetPattern implements ControllableThread {
 		//update prediction probabilities		
 		Utils.ageOutWeights(allINeurons);
 		Utils.increaseInWeights(allINeurons);
-		
+
 		//reset activation of all w
 		for(int i=0;i<eye_neurons.length;i++){
 			Utils.resetOutWeights(eye_neurons[i]);
@@ -755,6 +755,7 @@ public class SNetPattern implements ControllableThread {
 						//doubloons weights will not be added
 						ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
 						if(preneuron.addOutWeight(n,probaWeight)){
+							probaWeight.setActivation(1, n);
 							nw++;
 							didChange = true;
 						}
@@ -807,6 +808,8 @@ public class SNetPattern implements ControllableThread {
 										the_pattern = new INeuron(vn,n,n_id);
 										n_id++;
 										newn.addElement(the_pattern);
+										the_pattern.increaseActivation(1);
+										the_pattern.activateOutWeights();
 										nw++;
 										didChange = true;
 									} else{
@@ -814,13 +817,22 @@ public class SNetPattern implements ControllableThread {
 										if(the_pattern.addOutWeight(n, p)){
 											nw++;
 											didChange = true;
+											p.setActivation(1, n);
 										}
 									}//*/
 								}
 							}
 							
 						}
-					}			
+					}	
+					//if it changed, it is good to recalculate predicted activation
+					if(didChange){
+						if(n.getId()==2053){
+							mlog.say("recalculated activation");
+						}
+						n.activationCalculated = false;
+						n.calculateActivation();
+					}
 				}
 			}
 		}else{
