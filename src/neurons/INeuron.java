@@ -231,9 +231,6 @@ public class INeuron extends Neuron {
 	public void increaseActivation(int i) {
 		activation = activation+i;
 		activationCalculated = false;
-		if(id==2053){
-			mlog.say("2053 activated");
-		}
 	}
 
 	/**

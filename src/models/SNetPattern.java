@@ -771,7 +771,7 @@ public class SNetPattern implements ControllableThread {
 						}*/
 							
 						//no change happened, try building a spatial pattern
-						if(!dreaming){	//!didChange & 
+						if(!didChange && !dreaming){	// 
 							if(cpu_limitations && nw>max_new_connections) break;
 							
 							if(!hasMaxLayer(STM)){
