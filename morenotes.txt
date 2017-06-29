@@ -1,5 +1,4 @@
-59521dab194ff34548595f11
-59521e22194ff34548595f12
+
 
 
 This iPhone SE (Model A1662, A1723, A1724) is running iOS 10.3.1 (14E304), which may not be supported by this version of Xcode.
@@ -9,6 +8,9 @@ radio button layer + sensors (so we can choose what we see)
 see separate prediction maps?
 
 need a better thing than "age"
+need several time scales: same time scale = same level for pattern neurons
+slower time scale = we can combine pattern neurons
+
 *save and load functions for network
 could not see white in ecal
 some weights are not updated after creating (individual) pattern neurons?

@@ -257,7 +257,7 @@ public class Eye {
 		int[] coarse = new int[n];	
 		
 		//first, shift focus
-		focus_center[0] +=  h_m*eye_motion_res;//fpw
+		//focus_center[0] +=  h_m*eye_motion_res;//fpw
 		focus_center[1] +=  v_m*eye_motion_res;//fph
 		
 		//limit conditions (cannot look out of image)

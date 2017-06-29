@@ -4,6 +4,7 @@ package models;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -517,12 +518,12 @@ public class SNetPattern implements ControllableThread {
 		int v_m = proprio[0];
 		int h_m = proprio[1];
 
-		/*if(v_m>0){
-			INeuron np = eyepro_v.get(v_m+1);
-			np.increaseActivation(1);
-		}*/
-		INeuron np = eyepro_h.get(h_m+1);
+		INeuron np = eyepro_v.get(v_m+1);
+		//np.increaseActivation(1);
+		np = eyepro_h.get(h_m+1);
 		np.increaseActivation(1);
+		mlog.say("intention "+np.getId());
+
 		
 		
 		String action = "h "+ h_m + " v " + v_m;
@@ -655,6 +656,9 @@ public class SNetPattern implements ControllableThread {
 				if(n.getId()>=2208 && n.getId()<2213){
 					mlog.say("000000 STM includes motion neuron");
 				}
+				if(n.getId()>2213){
+					mlog.say("1111111 STM includes pattern neuron");
+				}
 			}
 		}
 		
@@ -718,8 +722,8 @@ public class SNetPattern implements ControllableThread {
 					}
 				}				
 				
-				if(n.isSurprised()){
-					//mlog.say("+++++++++ " + n.getId() + " surprised ");
+				if(n.isSurprised() && !n.isMute()){
+					mlog.say("+++++++++ " + n.getId() + " surprised ");
 					if(id>=si_start && id<=si_end){
 						n_surprised++;
 					}
@@ -768,7 +772,7 @@ public class SNetPattern implements ControllableThread {
 						}*/
 							
 						//no change happened, try building a spatial pattern
-						if(!didChange & !dreaming){	//
+						if(!dreaming){	//!didChange & 
 							if(cpu_limitations && nw>max_new_connections) break;
 							
 							if(!hasMaxLayer(STM)){
@@ -776,21 +780,35 @@ public class SNetPattern implements ControllableThread {
 								if(vn.size()>0){
 									
 									if(the_pattern==null){
-										mlog.say("******** added pattern neuron id "+ n_id);
 										
-										for (Iterator<INeuron> iterator2 = vn.iterator(); iterator2.hasNext();) {
-											INeuron iNeuron = (INeuron) iterator2.next();
-											//mlog.say("ID "+ iNeuron.getId());
-											if(iNeuron.getId()>=2208 && iNeuron.getId()<2213){
-												mlog.say("--------- pattern neuron includes motion neuron");
+										if(vn.size()>1){
+											mlog.say("******** added pattern neuron id "+ n_id + " to " + n.getId());
+											
+											if(vn.get(vn.size()-1).getId()>2213){
+												mlog.say("***** countains pattern neuron");
 											}
+											for (Iterator<INeuron> iterator2 = vn.iterator(); iterator2.hasNext();) {
+												INeuron iNeuron = (INeuron) iterator2.next();
+												mlog.say("ID "+ iNeuron.getId());
+												if(iNeuron.getId()>=2208 && iNeuron.getId()<2213){
+													mlog.say("--------- pattern neuron includes motion neuron "+iNeuron.getId());
+												}
+											}
+											
+											the_pattern = new INeuron(vn,n,n_id);
+											n_id++;
+											newn.addElement(the_pattern);
+											ProbaWeight weight = the_pattern.getOutWeights().get(n);
+											weight.setActivation(1, null);
+										}else{
+											//only used when debugging
+											INeuron pn = vn.get(0);
+											ProbaWeight p = n.addInWeight(Constants.defaultConnection, pn);
+											pn.addOutWeight(n, p);
+											p.setActivation(1, null);
+											mlog.say("******** added p weight from "+ pn.getId() + " to " + n.getId());
 										}
 										
-										the_pattern = new INeuron(vn,n,n_id);
-										n_id++;
-										newn.addElement(the_pattern);
-										ProbaWeight weight = the_pattern.getOutWeights().get(n);
-										weight.setActivation(1, null);
 										nw++;
 										didChange = true;
 									} else{
@@ -799,6 +817,7 @@ public class SNetPattern implements ControllableThread {
 											nw++;
 											didChange = true;
 											p.setActivation(1, null);
+											mlog.say("******** added pattern weight to " + n.getId());
 										}
 									}//*/
 								}
@@ -808,9 +827,6 @@ public class SNetPattern implements ControllableThread {
 					}	
 					//if it changed, it is good to recalculate predicted activation
 					if(didChange){
-						if(n.getId()==2053){
-							mlog.say("recalculated activation");
-						}
 						n.activationCalculated = false;
 						n.calculateActivation();
 						n.setSurprised(true);
@@ -942,7 +958,7 @@ public class SNetPattern implements ControllableThread {
 		
 		/*v_muscles.clear();
 		act =  (int) Constants.uniformDouble(0,3);
-		v_muscles.addElement(act);	*/
+		v_muscles.addElement(act);*/
 	}
 	
 	//main thread

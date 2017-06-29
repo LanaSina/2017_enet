@@ -231,6 +231,9 @@ public class INeuron extends Neuron {
 	public void increaseActivation(int i) {
 		activation = activation+i;
 		activationCalculated = false;
+		if(id==2053){
+			mlog.say("2053 activated");
+		}
 	}
 
 	/**
@@ -340,7 +343,13 @@ public class INeuron extends Neuron {
 			Map.Entry<INeuron, ProbaWeight> pair = it.next();
 			ProbaWeight pw = pair.getValue();
 			pw.setActivation(1,this);
+			/*if(getId()>2213){
+				mlog.say("^^^^^ outweigths activated " + pair.getKey().getId());
+			}*/
 		}
+		/*if(getId()>2213){
+			mlog.say("^^^^^ outweigths activated " + getId());
+		}*/
 	}
 
 
@@ -525,8 +534,12 @@ public class INeuron extends Neuron {
 			if(!n.isActivated()){//wasn't activated
 				//mlog.say("not activated yet "+ n.id);
 				n.makeDirectActivation();
+				
 				if(n.isActivated()){//but now is activated
 					n.activateDirectOutWeights();
+					if(n.getId()>2213){
+						mlog.say("^^^^^ directly activated "+n.getId());
+					}
 				}			
 			}
 		}	
