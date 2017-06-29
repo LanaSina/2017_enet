@@ -11,6 +11,9 @@ need a better thing than "age"
 need several time scales: same time scale = same level for pattern neurons
 slower time scale = we can combine pattern neurons
 
+cannot predict actions = cannot predict pattern neurons that have actions = cannot have predictions for "muted" neurons
+So instead do not care that they are mute (until we have intentions?)
+
 *save and load functions for network
 could not see white in ecal
 some weights are not updated after creating (individual) pattern neurons?
