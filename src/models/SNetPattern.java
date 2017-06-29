@@ -737,14 +737,12 @@ public class SNetPattern implements ControllableThread {
 						if((cpu_limitations && nw>max_new_connections)) break;
 						
 						//doubloons weights will not be added
-						//if(step>1){
-							ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
-							if(preneuron.addOutWeight(n,probaWeight)){
-								probaWeight.setActivation(1,null);
-								nw++;
-								didChange = true;
-							}
-						//}
+						ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
+						if(preneuron.addOutWeight(n,probaWeight)){
+							probaWeight.setActivation(1,null);
+							nw++;
+							didChange = true;
+						}
 						
 						//check for oversnapping in sensory neurons
 						//todo: generalize to normal neurons and pattern neurons
