@@ -67,7 +67,7 @@ public class Utils {
 		double[] this_p = to_n.getPosition();
 
 		//0: check if some of these neurons are equivalent
-		//1: check if combined postion of "neurons" already equivalent to to_n
+		//1: check if combined position of "neurons" already equivalent to to_n
 		//2: check if we already have an inweight from a pattern neuron at that position
 		
 		for (Iterator<INeuron> iterator = neurons.iterator(); iterator.hasNext();) {
@@ -79,7 +79,7 @@ public class Utils {
 					double[] p2 = n2.getPosition();
 					
 					if(p1[0] == p2[0] && p1[1] == p2[1] && 
-							p1[2] == p2[2] && p1[2] == p2[2]){
+							p1[2] == p2[2] && p1[3] == p2[3]){
 						valid_neurons.remove(n2);
 					}
 				}
