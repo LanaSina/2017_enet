@@ -63,7 +63,7 @@ public class Utils {
 	 */
 	public static Vector<INeuron> patternExists3D(Vector<INeuron> neurons, INeuron to_n) {
 		Vector<INeuron> valid_neurons = new Vector<INeuron>();
-		valid_neurons.addAll(neurons);
+		//valid_neurons.addAll(neurons);
 		double[] this_p = to_n.getPosition();
 
 		//0: check if some of these neurons are equivalent
@@ -72,7 +72,9 @@ public class Utils {
 		
 		for (Iterator<INeuron> iterator = neurons.iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
-			for (Iterator<INeuron> iterator2 = neurons.iterator(); iterator2.hasNext();) {
+			
+			boolean add = true;
+			for (Iterator<INeuron> iterator2 = valid_neurons.iterator(); iterator2.hasNext();) {
 				INeuron n2 = iterator2.next();
 				if(n.getId() != n2.getId()){
 					double[] p1 = n.getPosition();
@@ -80,21 +82,28 @@ public class Utils {
 					
 					if(p1[0] == p2[0] && p1[1] == p2[1] && 
 							p1[2] == p2[2] && p1[3] == p2[3]){
-						valid_neurons.remove(n2);
+						add = false;
 					}
 				}
 			}
+			
+			if(add){
+				valid_neurons.add(n);
+			}
 		}
-		
-		//mlog.say("size " + valid_neurons.size());
-		
-		
+
 		//if single neuron
 		if(valid_neurons.size()==1){
 			//no direct iw with only 1 neuron
-			//pos = valid_neurons.get(0).getPosition();		
-			return new Vector<INeuron>();
+			mlog.say("no direct iw with only 1 neuron: " + valid_neurons.get(0).getId());
 			
+			mlog.say("original vector:");
+			for (Iterator<INeuron> iterator2 = neurons.iterator(); iterator2.hasNext();) {
+				INeuron n2 = iterator2.next();
+				double[] p = n2.getPosition();
+				mlog.say(""+ n2.getId() + " pos " + p[0] + " " + p[1] + " " + p[2] + " " + p[3]);
+			}
+			return new Vector<INeuron>();
 		}
 		
 		//calculate hypothetical position of pattern of "neurons" (average positions of x,y + some z)
@@ -106,6 +115,7 @@ public class Utils {
 		//(this neuron is a pattern neuron with "neurons" as input pattern already)
 		if(this_p[0] == pos[0] && this_p[1] == pos[1] && 
 				this_p[2] == pos[2] && this_p[3] == pos[3]){
+			mlog.say("this neuron is a pattern neuron with this as input pattern already");
 			return new Vector<INeuron>();
 		}
 		
@@ -117,6 +127,7 @@ public class Utils {
 			this_p = iNeuron.getPosition();
 			if(this_p[0] == pos[0] && this_p[1] == pos[1] && 
 					this_p[2] == pos[2] && this_p[3] == pos[3]){
+				mlog.say("that is the position of one of our inputs already");
 				return new Vector<INeuron>();
 			}
 		}
@@ -134,7 +145,7 @@ public class Utils {
 	 * @return true if there exists a PNeuron in the whole net that can be activated by the "neurons" pattern
 	 * and has an outweight to to_n
 	 */
-	public static boolean patternExists(Vector<INeuron> neurons, INeuron to_n, Collection<INeuron> valid_neurons) {
+	/*public static boolean patternExists(Vector<INeuron> neurons, INeuron to_n, Collection<INeuron> valid_neurons) {
 		boolean b = false;
 		
 		if(neurons.size()==1 && neurons.get(0)==to_n){
@@ -187,38 +198,6 @@ public class Utils {
 			}
 		}
 		
-		/*boolean bad = true;
-		//build the list of original patterns in "neurons", 
-		//check that it is not equal to patterns already coming to this neuron	
-		for (Iterator<INeuron> iterator = neurons.iterator(); iterator.hasNext();) {
-			INeuron n = iterator.next();
-
-			//direct in weights to input neurons
-			Vector<BundleWeight> bws = n.getDirectInWeights();
-			for (Iterator<BundleWeight> iterator2 = bws.iterator(); iterator2.hasNext();) {
-				BundleWeight bw = iterator2.next();
-				
-				//pattern for direct in weight
-				Set<INeuron> set = bw.getInNeurons();
-				for (Iterator<Set<INeuron>> iterator3 = cp.iterator(); iterator3.hasNext();) {
-					Set<INeuron> s = iterator3.next();
-					if(!set.equals(s)){
-						bad = false;
-						break;
-					}
-				}
-				if (!bad) {
-					break;
-				}
-			}
-			
-		}
-			
-		if(bad){
-			return true;
-		}*/
-		
-		
 		//mlog.say("cp size " + cp.size());
 		
 		if(cp.size()==0){
@@ -267,7 +246,7 @@ public class Utils {
 		}
 	
 		return b;
-	}
+	}*/
 
 	
 	/**

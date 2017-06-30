@@ -168,7 +168,6 @@ public class INeuron extends Neuron {
 	//TODO make the difference between bundles
 	public void recalculatePosition() {
 		//recalculate postion
-		//Vector<INeuron> all_in = new Vector<INeuron>();
 		double[] p = {0,0,0,0};
 		int is = directInWeights.size();
 		for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
@@ -177,7 +176,6 @@ public class INeuron extends Neuron {
 			double[] partial = Utils.patternPosition(in);
 			p[0] += partial[0];
 			p[1] += partial[1];
-			//all_in.addAll(bundle.getInNeurons());
 		}
 		p[0] = p[0]/is;
 		p[1] = p[1]/is;

@@ -358,13 +358,13 @@ public class SNetPattern implements ControllableThread {
 				//position
 				int sensor_i = eye_interface[i][0]+(n_n*j);
 				int sensor_j = eye_interface[i][1]+(n_n*j);
-				double[] p = {sensor_i,sensor_j,0,0};
+				double[] p = {sensor_i+1,sensor_j+1,0,0};
 				n.setPosition(p);
 				//make it sensitive to an input
 				eye.linkNeuron(n_id,j, i);
 				n_id++;				
+				
 				INeuron n2 = new INeuron(n_id);
-				//n2.justSnapped = true;//avoid snapping newborn neurons
 				//add direct in weight
 				Vector<INeuron> v = new Vector<INeuron>();
 				v.addElement(n);
@@ -382,7 +382,7 @@ public class SNetPattern implements ControllableThread {
 		//move right or left 
 		for(int i=0; i< eye.getHorizontalMotionResolution();i++){	
 			INeuron n = new INeuron(n_id);
-			double[] p = {-i,0,0,0};
+			double[] p = {-i-1,0,0,0};
 			n.setPosition(p);
 			eyepro_h.add(n);	
 			allINeurons.put(n.getId(), n);
@@ -393,7 +393,7 @@ public class SNetPattern implements ControllableThread {
 		//up or down
 		for(int i=0; i< eye.getVerticalMotionResolution();i++){	
 			INeuron n = new INeuron(n_id);
-			double[] p = {-i,1,0,0};
+			double[] p = {-i-1,1,0,0};
 			n.setPosition(p);
 			eyepro_v.add(n);	
 			allINeurons.put(n.getId(), n);
@@ -642,6 +642,11 @@ public class SNetPattern implements ControllableThread {
 			INeuron n = pair.getValue();
 			//no hierarchy: all activated neurons are remembered, including sensory neurons.
 			//if(n.isMute()) mlog.say("muted "+ n.getId());
+			double[] p = n.getPosition();
+			if(p[0] == 0 && p[1] == 0){
+				mlog.say("============ bad position " + n.getId());
+			}
+			
 			if(n.isActivated() & !n.isMute()){
 				STM.add(n);
 				if(n.getId()>=2208 && n.getId()<2213){
@@ -758,59 +763,59 @@ public class SNetPattern implements ControllableThread {
 							remove.add(preneuron);
 							preneuron.setMute(true);//to ignore it in next loops
 						}*/
-							
-						//no change happened, try building a spatial pattern
-						if(!didChange && !dreaming){	//  
-							if(cpu_limitations && nw>max_new_connections) break;
-							
-							if(!hasMaxLayer(STM)){
-								Vector<INeuron> vn = Utils.patternExists3D(STM, n);
-								if(vn.size()>0){
-									if(the_pattern==null){
-										if(vn.size()>1){
-											mlog.say("******** added pattern neuron id "+ n_id + " to " + n.getId());
-											
-											if(vn.get(vn.size()-1).getId()>2213){
-												mlog.say("***** countains pattern neuron");
+					}	
+					
+					//no change happened, try building a spatial pattern
+					if(!didChange && !dreaming){	//  
+						if(cpu_limitations && nw>max_new_connections) break;
+						
+						if(!hasMaxLayer(STM)){
+							Vector<INeuron> vn = Utils.patternExists3D(STM, n);
+							if(vn.size()>0){
+								if(the_pattern==null){
+									if(vn.size()>1){
+										mlog.say("******** added pattern neuron id "+ n_id + " to " + n.getId());
+										
+										if(vn.get(vn.size()-1).getId()>2213){
+											mlog.say("***** countains pattern neuron");
+										}
+										for (Iterator<INeuron> iterator2 = vn.iterator(); iterator2.hasNext();) {
+											INeuron iNeuron = (INeuron) iterator2.next();
+											mlog.say("ID "+ iNeuron.getId());
+											if(iNeuron.getId()>=2208 && iNeuron.getId()<2213){
+												mlog.say("--------- pattern neuron includes motion neuron "+iNeuron.getId());
 											}
-											for (Iterator<INeuron> iterator2 = vn.iterator(); iterator2.hasNext();) {
-												INeuron iNeuron = (INeuron) iterator2.next();
-												mlog.say("ID "+ iNeuron.getId());
-												if(iNeuron.getId()>=2208 && iNeuron.getId()<2213){
-													mlog.say("--------- pattern neuron includes motion neuron "+iNeuron.getId());
-												}
-											}
-											
-											the_pattern = new INeuron(vn,n,n_id);
-											n_id++;
-											newn.addElement(the_pattern);
-											ProbaWeight weight = the_pattern.getOutWeights().get(n);
-											weight.setActivation(1, null);
-										}else{
-											//only used when debugging
-											INeuron pn = vn.get(0);
-											ProbaWeight p = n.addInWeight(Constants.defaultConnection, pn);
-											pn.addOutWeight(n, p);
-											p.setActivation(1, null);
-											mlog.say("******** added p weight from "+ pn.getId() + " to " + n.getId());
 										}
 										
+										the_pattern = new INeuron(vn,n,n_id);
+										n_id++;
+										newn.addElement(the_pattern);
+										ProbaWeight weight = the_pattern.getOutWeights().get(n);
+										weight.setActivation(1, null);
+									}else{
+										//only used when debugging
+										INeuron pn = vn.get(0);
+										ProbaWeight p = n.addInWeight(Constants.defaultConnection, pn);
+										pn.addOutWeight(n, p);
+										p.setActivation(1, null);
+										mlog.say("******** added p weight from "+ pn.getId() + " to " + n.getId());
+									}
+									
+									nw++;
+									didChange = true;
+								} else{
+									ProbaWeight p = n.addInWeight(Constants.defaultConnection, the_pattern);
+									if(the_pattern.addOutWeight(n, p)){
 										nw++;
 										didChange = true;
-									} else{
-										ProbaWeight p = n.addInWeight(Constants.defaultConnection, the_pattern);
-										if(the_pattern.addOutWeight(n, p)){
-											nw++;
-											didChange = true;
-											p.setActivation(1, null);
-											mlog.say("******** added pattern weight to " + n.getId());
-										}
-									}//*/
-								}
+										p.setActivation(1, null);
+										mlog.say("******** added pattern weight to " + n.getId());
+									}
+								}//*/
 							}
-							
 						}
-					}	
+					}
+					
 					//if it changed, it is good to recalculate predicted activation
 					if(didChange){
 						n.activationCalculated = false;
