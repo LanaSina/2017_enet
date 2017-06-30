@@ -42,8 +42,8 @@ public class Utils {
 		for (Iterator<INeuron> iterator = neurons.iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
 			double[] p = n.getPosition();
-			position[2] = Math.pow(p[2]-position[0], 2);
-			position[3] = Math.pow(p[3]-position[1], 2);
+			position[2] = Math.pow(p[0]-position[0], 2);
+			position[3] = Math.pow(p[1]-position[1], 2);
 		}
 		position[2] = position[2]/ns;
 		position[3] = position[3]/ns;
