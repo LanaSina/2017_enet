@@ -922,7 +922,7 @@ public class SNetPattern implements ControllableThread {
 	 * fuses similar neurons
 	 * */
 	private void snap() {
-		//allINeurons = Utils.snap(allINeurons);
+		allINeurons = Utils.snap(allINeurons);
 	}
 	
 	private void cleanAll() {
@@ -940,13 +940,13 @@ public class SNetPattern implements ControllableThread {
 		//ArrayList<Integer> actionsID = new ArrayList<Integer>();//dirty	
 		
 		//random eye actions
-		h_muscles.clear();
+		/*h_muscles.clear();
 		int act =  (int) Constants.uniformDouble(0,3);//0..2
 		h_muscles.addElement(act);//*/
 		
-		/*v_muscles.clear();
+		v_muscles.clear();
 		int act =  (int) Constants.uniformDouble(0,3);
-		v_muscles.addElement(act);*/
+		v_muscles.addElement(act);//*/
 	}
 	
 	//main thread
