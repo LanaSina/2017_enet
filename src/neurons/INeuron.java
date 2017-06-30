@@ -50,6 +50,8 @@ public class INeuron extends Neuron {
 	boolean predictedActCalculated = false;
 	/** does the prediction corresponds to any kind of input*/
 	private boolean surprised = false;
+	/** for performance caclualtion*/
+	private boolean illusion = false;
 	/** used when pruning neurons*/
 	public boolean justSnapped = true;
 	
@@ -274,6 +276,7 @@ public class INeuron extends Neuron {
 	public void calculateActivation() { //TODO change name to calculateProbaActivation
 		if(!activationCalculated){
 			setSurprised(false);
+			setIllusion(false);
 			//calculate predicted positive activation
 			double pa = 0;
 
@@ -290,9 +293,12 @@ public class INeuron extends Neuron {
 			}	
 			
 
-			if(pro_activation==0 & activation>0){
+			if(pro_activation==0 && activation>0){
 				setSurprised(true);
-			}			
+			}	
+			if(activation==0 && pro_activation>0){
+				setIllusion(false);
+			}
 			
 	
 			pro_activation = pa;
@@ -391,7 +397,10 @@ public class INeuron extends Neuron {
 	public boolean isSurprised() {
 		return surprised;
 	}
-
+	
+	public boolean isIllusion() {
+		return illusion;
+	}
 
 	public double getActivation() {
 		return activation;
@@ -788,6 +797,10 @@ public class INeuron extends Neuron {
 
 	public void setSurprised(boolean surprised) {
 		this.surprised = surprised;
+	}
+	
+	public void setIllusion(boolean i) {
+		this.illusion = i;
 	}
 
 	public int countInWeights() {

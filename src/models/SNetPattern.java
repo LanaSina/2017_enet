@@ -704,14 +704,12 @@ public class SNetPattern implements ControllableThread {
 				if(id>=si_start && id<=si_end){
 					if(n.isActivated()){
 						n_activated++;
-					} else {
-						double pr = n.getPredictedActivation();
-						//false positive
-						if(pr>0){
-							n_illusion++;
-						}
 					}
-				}				
+					if(n.getIllusion()){
+						n_illusion++;
+					}
+				}
+						
 				
 				if(n.isSurprised()){// && !n.isMute() must predict activation of small ones too
 					mlog.say("+++++++++ " + n.getId() + " surprised ");
@@ -762,7 +760,7 @@ public class SNetPattern implements ControllableThread {
 						}*/
 							
 						//no change happened, try building a spatial pattern
-						if(!didChange && !dreaming){	// 
+						if(!dreaming){	// !didChange && 
 							if(cpu_limitations && nw>max_new_connections) break;
 							
 							if(!hasMaxLayer(STM)){
@@ -919,7 +917,7 @@ public class SNetPattern implements ControllableThread {
 	 * fuses similar neurons
 	 * */
 	private void snap() {
-		allINeurons = Utils.snap(allINeurons);
+		//allINeurons = Utils.snap(allINeurons);
 	}
 	
 	private void cleanAll() {
@@ -939,11 +937,11 @@ public class SNetPattern implements ControllableThread {
 		//random eye actions
 		h_muscles.clear();
 		int act =  (int) Constants.uniformDouble(0,3);//0..2
-		h_muscles.addElement(act);
+		h_muscles.addElement(act);//*/
 		
-		v_muscles.clear();
-		act =  (int) Constants.uniformDouble(0,3);
-		v_muscles.addElement(act);
+		/*v_muscles.clear();
+		int act =  (int) Constants.uniformDouble(0,3);
+		v_muscles.addElement(act);*/
 	}
 	
 	//main thread

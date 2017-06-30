@@ -3,9 +3,12 @@
 
 This iPhone SE (Model A1662, A1723, A1724) is running iOS 10.3.1 (14E304), which may not be supported by this version of Xcode.
 
+illusions number is incorrect
+
 perf with and without patterns
 radio button layer + sensors (so we can choose what we see)
 see separate prediction maps?
+actual computing time
 
 need a better thing than "age"
 need several time scales: same time scale = same level for pattern neurons
@@ -22,11 +25,9 @@ why so much time to learn simple time series
 
 1:48
 
+
 ffmpeg -i Oswald_the_Lucky_Rabbit.mp4 -ss 01:47 -r 5/1 walk/$filename%03d.bmp
 
-bug in counting weights -> write tests properly!
-surprise not 0 in cue
-add actual computing time
 
 
 
