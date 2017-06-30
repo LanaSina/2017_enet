@@ -168,13 +168,32 @@ public class INeuron extends Neuron {
 	//TODO make the difference between bundles
 	public void recalculatePosition() {
 		//recalculate postion
-		Vector<INeuron> all_in = new Vector<INeuron>();
+		//Vector<INeuron> all_in = new Vector<INeuron>();
+		double[] p = {0,0,0,0};
+		int is = directInWeights.size();
 		for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
 			BundleWeight bundle = iterator.next();
-			all_in.addAll(bundle.getInNeurons());
+			Vector<INeuron> in = new Vector<INeuron>(bundle.getInNeurons());
+			double[] partial = Utils.patternPosition(in);
+			p[0] += partial[0];
+			p[1] += partial[1];
+			//all_in.addAll(bundle.getInNeurons());
 		}
+		p[0] = p[0]/is;
+		p[1] = p[1]/is;
 		
-		setPosition(Utils.patternPosition(all_in));
+		//once more for the variance
+		for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
+			BundleWeight bundle = iterator.next();
+			Vector<INeuron> in = new Vector<INeuron>(bundle.getInNeurons());
+			double[] partial = Utils.patternPosition(in);
+			p[2] += Math.pow(p[0]-partial[0], 2);
+			p[3] += Math.pow(p[1]-partial[1], 2);
+		}
+		p[2] = p[2]/is;
+		p[3] = p[3]/is;
+		
+		setPosition(p);
 	}
 	
 	/**
@@ -346,13 +365,7 @@ public class INeuron extends Neuron {
 			Map.Entry<INeuron, ProbaWeight> pair = it.next();
 			ProbaWeight pw = pair.getValue();
 			pw.setActivation(1,this);
-			/*if(getId()>2213){
-				mlog.say("^^^^^ outweigths activated " + pair.getKey().getId());
-			}*/
 		}
-		/*if(getId()>2213){
-			mlog.say("^^^^^ outweigths activated " + getId());
-		}*/
 	}
 
 
