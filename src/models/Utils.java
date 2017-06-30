@@ -72,8 +72,8 @@ public class Utils {
 		
 		for (Iterator<INeuron> iterator = neurons.iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
-			for (Iterator<INeuron> iterator2 = neurons.iterator(); iterator.hasNext();) {
-				INeuron n2 = iterator.next();
+			for (Iterator<INeuron> iterator2 = neurons.iterator(); iterator2.hasNext();) {
+				INeuron n2 = iterator2.next();
 				if(n.getId() != n2.getId()){
 					double[] p1 = n.getPosition();
 					double[] p2 = n2.getPosition();

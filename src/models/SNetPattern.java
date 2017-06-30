@@ -705,7 +705,7 @@ public class SNetPattern implements ControllableThread {
 					if(n.isActivated()){
 						n_activated++;
 					}
-					if(n.getIllusion()){
+					if(n.isIllusion()){
 						n_illusion++;
 					}
 				}
@@ -760,7 +760,7 @@ public class SNetPattern implements ControllableThread {
 						}*/
 							
 						//no change happened, try building a spatial pattern
-						if(!dreaming){	// !didChange && 
+						if(!didChange && !dreaming){	//  
 							if(cpu_limitations && nw>max_new_connections) break;
 							
 							if(!hasMaxLayer(STM)){

@@ -297,7 +297,7 @@ public class INeuron extends Neuron {
 				setSurprised(true);
 			}	
 			if(activation==0 && pro_activation>0){
-				setIllusion(false);
+				setIllusion(true);
 			}
 			
 	
