@@ -386,24 +386,18 @@ public class SNetPattern implements ControllableThread {
 			n.setPosition(p);
 			eyepro_h.add(n);	
 			allINeurons.put(n.getId(), n);
-			mlog.say("Proprioception INeuron " + n_id);
+			//mlog.say("Proprioception INeuron " + n_id);
 			n_id++;			
 		}	
 		
 		//up or down
 		for(int i=0; i< eye.getVerticalMotionResolution();i++){	
-			//neuron links to this action
-			/*INeuron m = new INeuron(n_id);
-			eyemotor_v.add(m);	
-			allINeurons.put(m.getId(), m);
-			n_id++;*/
-				
 			INeuron n = new INeuron(n_id);
 			double[] p = {-i,1,0,0};
 			n.setPosition(p);
 			eyepro_v.add(n);	
 			allINeurons.put(n.getId(), n);
-			mlog.say("Proprioception INeuron " + n_id);
+			//mlog.say("Proprioception INeuron " + n_id);
 			n_id++;
 		}
 		pi_end = n_id-1;
@@ -519,18 +513,15 @@ public class SNetPattern implements ControllableThread {
 		int h_m = proprio[1];
 
 		INeuron np = eyepro_v.get(v_m+1);
-		//np.increaseActivation(1);
+		np.increaseActivation(1);
 		np = eyepro_h.get(h_m+1);
 		np.increaseActivation(1);
 		mlog.say("intention "+np.getId());
 
-		
-		
 		String action = "h "+ h_m + " v " + v_m;
 		panel.setAction(action);
 
 		//propagate instantly from eyes
-		//propagateFromEyeNeurons();
 		for (int i = 0; i < eye_neurons.length; i++) {
 			Utils.propagateInstantaneousActivation(eye_neurons[i].values());
 		}
@@ -846,9 +837,6 @@ public class SNetPattern implements ControllableThread {
 			}
 		}
 		
-		/*for(int i=0; i<remove.size();i++){	
-			allINeurons.remove(remove.get(i).getId());
-		}*/
 		
 		for (Iterator<INeuron> iterator = newn.iterator(); iterator.hasNext();) {
 			INeuron neuron = iterator.next();
@@ -953,9 +941,9 @@ public class SNetPattern implements ControllableThread {
 		int act =  (int) Constants.uniformDouble(0,3);//0..2
 		h_muscles.addElement(act);
 		
-		/*v_muscles.clear();
+		v_muscles.clear();
 		act =  (int) Constants.uniformDouble(0,3);
-		v_muscles.addElement(act);*/
+		v_muscles.addElement(act);
 	}
 	
 	//main thread
