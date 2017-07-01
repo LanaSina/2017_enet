@@ -427,6 +427,9 @@ public class INeuron extends Neuron {
 	 */
 	public void integrateActivation() {
 		activation += pro_activation;
+		/*if(activation>0){
+			mlog.say("positive");
+		}*/
 	}
 
 	

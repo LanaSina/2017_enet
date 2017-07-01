@@ -473,7 +473,6 @@ public class SNetPattern implements ControllableThread {
 		
 		//reset activations of ineurons
 		resetNeuronsActivation(allINeurons);
-
 		Utils.resetDirectOutWeights(allINeurons);
 		
 		if(!dreaming){
@@ -502,30 +501,31 @@ public class SNetPattern implements ControllableThread {
 				}
 			}//*/
 		}else{
-			//make dreams: activate 60 sensors at random (total number of non overlapping sensors = 184
-			/*int[][] n_interface = eye.getNeuralInterface();
-			for(int i=0; i<60; i++){
-				//four layers of sensors (greyscale)
-				int l =  (int) Constants.uniformDouble(0,4);//0..3
-				//184 positions
-				int p =  (int) Constants.uniformDouble(0,184);//0..3
-				eye_neurons[l].get(n_interface[l][p]).increaseActivation(1);			
-			}*/
 			
-			if(step%10==0){
+			/*if(step%10==0){
 				//unactivate all neurons (just in case we are overloaded)
 				deactivateAll();
-				activated = 0;
-			}
+				//activated = 0;
+			}*/
 			
+			activated = getActivated();
+
 			Object[] neurons = allINeurons.values().toArray();
 			int max = neurons.length;
 			int total = (max/20) - activated;//don't overload net
+			if(total<0){
+				deactivateAll();
+				activated = 0;
+			}
 			mlog.say("total "+ total + " activated "+ activated);
 			for(int i=0; i<total; i++){
 				int l =  (int) Constants.uniformDouble(0,max);
 				((INeuron) neurons[l]).increaseActivation(1);
+				((INeuron) neurons[l]).calculateActivation();
 			}
+			
+			integrateActivation();	
+			Utils.propagateInstantaneousActivation(allINeurons.values());
 			
 		}
 		
@@ -553,18 +553,6 @@ public class SNetPattern implements ControllableThread {
 		/*Utils.propagateInstantaneousActivation(eyepro_h);
 		Utils.propagateInstantaneousActivation(eyepro_v);*/
 
-		//integrate previously predicted activation to actual activation
-		if(dreaming){
-			Iterator<INeuron> it = allINeurons.values().iterator();
-			while(it.hasNext()){
-				INeuron n  = it.next();
-				if(n.getActivation()>0){
-					n.activateDirectOutWeights();
-				}			
-			}	
-			integrateActivation();	
-			activated = getActivated();
-		}
 		
 		if(save){	
 			double error, surprise, illusion;
@@ -742,9 +730,9 @@ public class SNetPattern implements ControllableThread {
 			while(it.hasNext()){
 				Map.Entry<Integer, INeuron> pair = it.next();
 				INeuron n = pair.getValue();
-				int id = n.getId();
+				/*int id = n.getId();
 				//do not try to predict proprioception: action choice is random for now
-				/*if(id>=pi_start && id<=pi_end){
+				if(id>=pi_start && id<=pi_end){
 					continue;
 				}*/
 	
@@ -759,8 +747,8 @@ public class SNetPattern implements ControllableThread {
 						
 				
 				if(n.isSurprised()){// && !n.isMute() must predict activation of small ones too
-					mlog.say("+++++++++ " + n.getId() + " surprised ");
-					/*if(id>=si_start && id<=si_end){
+					/*mlog.say("+++++++++ " + n.getId() + " surprised ");
+					if(id>=si_start && id<=si_end){
 						n_surprised++;
 					}*/
 					//did we improve future prediction chances?
@@ -808,7 +796,7 @@ public class SNetPattern implements ControllableThread {
 					}	
 					
 					//no change happened, try building a spatial pattern
-					if(!didChange && !dreaming){	//  
+					if(!didChange){// && !dreaming){	//  
 						if(cpu_limitations && nw>max_new_connections) break;
 						
 						if(!hasMaxLayer(STM)){
@@ -816,7 +804,7 @@ public class SNetPattern implements ControllableThread {
 							if(vn.size()>0){
 								if(the_pattern==null){
 									if(vn.size()>1){
-										mlog.say("******** added pattern neuron id "+ n_id + " to " + n.getId());
+										/*mlog.say("******** added pattern neuron id "+ n_id + " to " + n.getId());
 										
 										if(vn.get(vn.size()-1).getId()>2213){
 											mlog.say("***** countains pattern neuron");
@@ -827,7 +815,7 @@ public class SNetPattern implements ControllableThread {
 											if(iNeuron.getId()>=2208 && iNeuron.getId()<2213){
 												mlog.say("--------- pattern neuron includes motion neuron "+iNeuron.getId());
 											}
-										}
+										}*/
 										
 										the_pattern = new INeuron(vn,n,n_id);
 										n_id++;
@@ -1033,18 +1021,18 @@ public class SNetPattern implements ControllableThread {
 		    			long snaptime = System.currentTimeMillis()-before;;
 		    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);//*/
 		    			
-		    			//sleep for 20 steps, every 20 steps
-		    			/*if(step>1){
+		    			//sleep
+		    			if(step>1){
 			    			if(!dreaming){
 			    				dreaming = true;
 			    				cleanAll();
-			    				mlog.say("dreaming");
+			    				mlog.say("********* dreaming");
 			    			}else{	    				
 			    				dreaming = false;
 			    				cleanAll();
-			    				mlog.say("not dreaming");
+			    				mlog.say("********* not dreaming");
 			    			}
-		    			}*/
+		    			}//*/
 		    		}
 		    		
 		    		

@@ -2,6 +2,7 @@
 
 white neurons illusions are weird
 illusion count is sometimes too small after snapping
+dreaming destroys strong connections
 
 need a better thing than "age":
   when wrong, variability changes? or age is just fine
