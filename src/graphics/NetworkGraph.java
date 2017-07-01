@@ -326,8 +326,7 @@ public class NetworkGraph {
                 grayscale = -1;
                 displayed_neurons = neurons;
             	emptyGraph();
-                //frame.getContentPane().remove(vv); 
-            	panel.remove(vv); 
+            	netPanel.remove(vv); 
 
                 switch (s) {
                     case "Neurons":
@@ -353,7 +352,7 @@ public class NetworkGraph {
                         break;
                 } 
                 
-                panel.add(vv, BorderLayout.CENTER); 
+                netPanel.add(vv, BorderLayout.CENTER); 
                 vv.repaint();
                 panel.revalidate();
             }
