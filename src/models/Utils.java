@@ -95,14 +95,14 @@ public class Utils {
 		//if single neuron
 		if(valid_neurons.size()==1){
 			//no direct iw with only 1 neuron
-			mlog.say("no direct iw with only 1 neuron: " + valid_neurons.get(0).getId());
+			/*mlog.say("no direct iw with only 1 neuron: " + valid_neurons.get(0).getId());
 			
 			mlog.say("original vector:");
 			for (Iterator<INeuron> iterator2 = neurons.iterator(); iterator2.hasNext();) {
 				INeuron n2 = iterator2.next();
 				double[] p = n2.getPosition();
 				mlog.say(""+ n2.getId() + " pos " + p[0] + " " + p[1] + " " + p[2] + " " + p[3]);
-			}
+			}*/
 			return new Vector<INeuron>();
 		}
 		
@@ -115,7 +115,7 @@ public class Utils {
 		//(this neuron is a pattern neuron with "neurons" as input pattern already)
 		if(this_p[0] == pos[0] && this_p[1] == pos[1] && 
 				this_p[2] == pos[2] && this_p[3] == pos[3]){
-			mlog.say("this neuron is a pattern neuron with this as input pattern already");
+			//mlog.say("this neuron is a pattern neuron with this as input pattern already");
 			return new Vector<INeuron>();
 		}
 		
@@ -127,7 +127,7 @@ public class Utils {
 			this_p = iNeuron.getPosition();
 			if(this_p[0] == pos[0] && this_p[1] == pos[1] && 
 					this_p[2] == pos[2] && this_p[3] == pos[3]){
-				mlog.say("that is the position of one of our inputs already");
+				//mlog.say("that is the position of one of our inputs already");
 				return new Vector<INeuron>();
 			}
 		}

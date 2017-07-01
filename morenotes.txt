@@ -1,9 +1,7 @@
 
 
-
-This iPhone SE (Model A1662, A1723, A1724) is running iOS 10.3.1 (14E304), which may not be supported by this version of Xcode.
-
 white neurons illusions are weird
+illusion count is sometimes too small after snapping
 
 need a better thing than "age":
   when wrong, variability changes? or age is just fine

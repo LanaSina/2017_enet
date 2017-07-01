@@ -41,7 +41,7 @@ public class SNetPattern implements ControllableThread {
 	ProbaWeight testp;
 	
 	/** data recording*/
-	boolean save = false;
+	boolean save = true;
 	
 	/** graphics*/
 	Surface panel;
@@ -92,11 +92,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/cue/"; 
 	/** leading zeros*/
 	String name_format = "%02d";
 	/** number of images if not using names*/
-	int n_images = 1;//Constants.n_images;
+	int n_images =6;//Constants.n_images;
 	
 	//sensors 
 	/** image sensor*/
@@ -139,9 +139,6 @@ public class SNetPattern implements ControllableThread {
 	    Date date = new Date();
 	    String strDate = dateFormat.format(date);
 	    folderName = Constants.DataPath + "/" + strDate + "/";
-    	if(save){
-    		initDataFiles();
-    	}
     	
     	//graphics
     	panel = new Surface();
@@ -163,6 +160,10 @@ public class SNetPattern implements ControllableThread {
 	    	netGraph = new NetworkGraph((HashMap<Integer, INeuron>) allINeurons.clone(), eye_neurons, eye);
 		    netGraph.show(); 
 	    	panel.setGraph(netGraph);
+    	}
+    	
+    	if(save){
+    		initDataFiles();
     	}
     	
 		//main thread
@@ -199,8 +200,9 @@ public class SNetPattern implements ControllableThread {
         	param_writer.append(str);
         	str = ""+max_presentations + "," +  n_images + "," +  eye_neurons.length*eye_neurons[0].size() +
         			"," + allINeurons.size() + "," + STM.size() + 
-        			"," + eye.has_noise + "," + eye.noise_rate + "," + eye.noise_rate + ",max_layers,"+
+        			"," + eye.has_noise + "," + eye.noise_rate + "," + eye.noise_rate + "," + "infinite" + ","+
         			+ Constants.eres_f + "," + Constants.eres_nf + "," + Constants.gray_scales +","+ /*max_new_connections*/ "infinite" + "," + /*max_in_weights*/ "infinite" + "\n";
+        	param_writer.append(str);
         	param_writer.flush();
         	param_writer.close();
         	
@@ -211,10 +213,10 @@ public class SNetPattern implements ControllableThread {
         	net_param_writer.append(str);
         	net_param_writer.flush();
         	
-        	//surprise 
+        	//performance and surprise 
         	perfWriter = new FileWriter(folderName+"/"+Constants.PerfFileName);
 			mlog.say("stream opened "+Constants.PerfFileName);
-        	str = "iteration,surprise\n";
+        	str = "iteration,error,surprise,illusion \n";
         	perfWriter.append(str);
         	perfWriter.flush();
 		} catch (IOException e) {
@@ -313,8 +315,15 @@ public class SNetPattern implements ControllableThread {
 		}					
 	}
 	
-	private void writeSurprise(double n) {
-		String str = step+","+ n +"\n";
+
+	/**
+	 * 
+	 * @param p performance
+	 * @param s surprise
+	 * @param i illusions
+	 */
+	private void writeError(double p, double s, double i) {
+		String str = step + "," + p + "," + s + "," + i +"\n";
     	try {
 			perfWriter.append(str);
 	    	perfWriter.flush();	
@@ -448,6 +457,13 @@ public class SNetPattern implements ControllableThread {
 	 * activates neurons in eye, activate corresponding weights
 	 */
 	private void buildEyeInput(){	 
+		//for performance calculation
+		//number of surprised neurons at this timestep
+		int n_surprised = 0;
+		//number of sensory activates
+		int n_activated = 0;
+		//predicted, not activated
+		int n_illusion = 0;
 		
 		//reset activations of eye neurons and direct outweights
 		for(int i=0;i<eye_neurons.length;i++){
@@ -472,8 +488,17 @@ public class SNetPattern implements ControllableThread {
 			for(int k = 0; k<n; k++){
 				//values in "in" start at 1, not 0
 				int i = in[k]-1;
+				INeuron eyen = eye_neurons[i].get(n_interface[i][k]);
 				if(i>=0){//>=0 if seeing white
-					eye_neurons[i].get(n_interface[i][k]).increaseActivation(1);
+					eyen.increaseActivation(1);
+					n_activated++;
+					if(eyen.getUpperSurprised()){
+						n_surprised++;
+					}
+				}
+				
+				if(eyen.getUpperIllusion()){
+					n_illusion++;
 				}
 			}//*/
 		}else{
@@ -540,6 +565,22 @@ public class SNetPattern implements ControllableThread {
 			integrateActivation();	
 			activated = getActivated();
 		}
+		
+		if(save){	
+			double error, surprise, illusion;
+			if(n_activated == 0){
+				surprise = 0;
+				illusion = 0;
+				error = -1;
+			}else{
+				surprise = (n_surprised*1.0/n_activated);//false negatives
+				illusion = (n_illusion*1.0/n_activated); //false positives
+				error = surprise + illusion;
+			}
+			writeError(error, surprise, illusion);
+		}
+		mlog.say(" surprised: " + n_surprised + " illusions " + n_illusion + " activated " + n_activated);
+
 	}
 	
 	private void deactivateAll() {
@@ -649,12 +690,12 @@ public class SNetPattern implements ControllableThread {
 			
 			if(n.isActivated() & !n.isMute()){
 				STM.add(n);
-				if(n.getId()>=2208 && n.getId()<2213){
+				/*if(n.getId()>=2208 && n.getId()<2213){
 					mlog.say("000000 STM includes motion neuron");
 				}
 				if(n.getId()>2213){
 					mlog.say("1111111 STM includes pattern neuron");
-				}
+				}*/
 			}
 		}
 		
@@ -674,21 +715,22 @@ public class SNetPattern implements ControllableThread {
 		INeuron the_pattern = null;
 		
 		//number of surprised neurons at this timestep
-		int n_surprised = 0;
+		/*int n_surprised = 0;
 		//number of sensory activates
 		int n_activated = 0;
 		//predicted, not activated
-		int n_illusion = 0;
+		int n_illusion = 0;*/
 		//(maybe we should make this for all, not sensory neurons)
 		//suprise = suprised sensory neurons / number of activated sensory neurons
 		
 		if(STM.size()==0){
 			mlog.say("just woke up");
 			if(save){
-				writeSurprise(0);
+				writeError(1,0,0);
 			}
 			return;
 		}		
+		
 		
 		//ineurons 
 		//todo make order random
@@ -706,21 +748,21 @@ public class SNetPattern implements ControllableThread {
 					continue;
 				}*/
 	
-				if(id>=si_start && id<=si_end){
+				/*if(id>=si_start && id<=si_end){
 					if(n.isActivated()){
 						n_activated++;
 					}
 					if(n.isIllusion()){
 						n_illusion++;
 					}
-				}
+				}*/
 						
 				
 				if(n.isSurprised()){// && !n.isMute() must predict activation of small ones too
 					mlog.say("+++++++++ " + n.getId() + " surprised ");
-					if(id>=si_start && id<=si_end){
+					/*if(id>=si_start && id<=si_end){
 						n_surprised++;
-					}
+					}*/
 					//did we improve future prediction chances?
 					boolean didChange = false;
 					
@@ -851,13 +893,7 @@ public class SNetPattern implements ControllableThread {
 		}
 				
 		mlog.say("added " + nw + " weights and "+ newn.size() + " neurons ");
-		if(save){		
-			double perf = (n_surprised*1.0/n_activated) //false negatives
-					+ (n_illusion*1.0/n_activated); //false positives
-			writeSurprise(perf);
-		}
-		mlog.say(" surprised: " + n_surprised + " illusions " + n_illusion);
-
+		
 	}
 	
 	/**

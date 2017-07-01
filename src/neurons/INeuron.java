@@ -500,9 +500,9 @@ public class INeuron extends Neuron {
 		return sum/directOutWeights.size();
 	}
 	
-	/** for prediction map debug only */
+	/** for prediction map debug and perf calculation */
 	public boolean getUpperSurprised() {
-		if(!isActivated()){
+		/*if(!isActivated()){
 			return false;
 		}
 		
@@ -512,13 +512,34 @@ public class INeuron extends Neuron {
 			if(up.isActivated() && !up.isSurprised()){
 				return false;
 			}
-			if(up.isMute()){
-				return up.getUpperSurprised();
-			}	
 		}
 		
 		//default
-		return true;
+		return true;*/
+		Iterator<INeuron> it = directOutWeights.keySet().iterator();
+		INeuron up = it.next();
+		return up.isSurprised();
+	}
+	
+	public boolean getUpperIllusion(){
+		/*if(isActivated()){
+			return false;
+		}
+		
+		Iterator<INeuron> it = directOutWeights.keySet().iterator();
+		while(it.hasNext()){
+			INeuron up = it.next();
+			if(up.isActivated() && !up.isIllusion()){
+				return false;
+			}
+		}
+		
+		//default
+		return true;*/
+		
+		Iterator<INeuron> it = directOutWeights.keySet().iterator();
+		INeuron up = it.next();
+		return up.isIllusion();
 	}
 	
 	/**
