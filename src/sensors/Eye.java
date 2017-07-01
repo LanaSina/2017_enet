@@ -281,13 +281,6 @@ public class Eye {
 			int sensor_i = eye_interface[k][0]+of_i;
 			int sensor_j = eye_interface[k][1]+of_j;
 			int size = eye_interface[k][2];//size of the zone for this sensor
-			/*if(sensor_i>=0 & sensor_i+size<im_h & sensor_j>=0 & sensor_j+size<im_w){//?w h
-				for(int i=sensor_i; i<sensor_i+size; i++){
-					for(int j=sensor_j; j<sensor_j+size; j++){
-						sums[k]+=bw[i][j];
-					}
-				}		
-			}*/
 			if(sensor_i>=0 & sensor_i+size<im_w & sensor_j>=0 & sensor_j+size<im_h){//?w h
 				for(int i=sensor_i; i<sensor_i+size; i++){
 					for(int j=sensor_j; j<sensor_j+size; j++){
@@ -328,7 +321,9 @@ public class Eye {
 		}
 		
 		//set ui
-		panel.setComponents(image_input, eye_input, eye_input_coarse, focus_center);
+		//if(panel!=null){
+			panel.setComponents(image_input, eye_input, eye_input_coarse, focus_center);
+		//}
 		
 		return coarse;
 	}
@@ -462,7 +457,9 @@ public class Eye {
 			}
 		}
 		
-		panel.setPredicted(prediction);
+		if(panel!=null){
+			panel.setPredicted(prediction);
+		}
 	}
 
 

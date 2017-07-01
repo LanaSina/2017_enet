@@ -50,8 +50,9 @@ public class NetworkGraph {
 	MyLog mlog = new MyLog("graphViz", true);
 	String name = "SNet";
 	
-    JFrame frame = new JFrame(name);
-
+    //JFrame frame = new JFrame(name);
+	JPanel panel = new JPanel();
+	
 	/**Graph<V, E> where V is the type of the vertices and E is the type of the edges*/
 	Graph<NeuronVertex, SynapseEdge> g = new DirectedSparseGraph<NeuronVertex, SynapseEdge>();
     /** visualizer*/
@@ -87,7 +88,6 @@ public class NetworkGraph {
     /** offset graph at t=0 (dirty)*/
     static int done_centering = 0;
     
-    // = eye.getNeuralInterface();
     int[][] n_interface;
     /** maps actual values in world to sensors (square sensory field, can be overlapping) 
 	 * [sensor id][topmost sensor, leftmost sensor, size]*/
@@ -306,15 +306,13 @@ public class NetworkGraph {
         
     
     /**
-     * 
      * @param square true if displaying sensors
      */
     public void show() {
     	squareLayout(false); 
-        //frame.getContentPane().add(vv, BorderLayout.CENTER); 
 
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLayout(new BoxLayout(frame.getContentPane(),BoxLayout.Y_AXIS));
+		panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
+		//panel.setSize(800,700);
 		
 		//pause button
 		JButton pauseButton = new JButton("Start"); 		
@@ -329,7 +327,7 @@ public class NetworkGraph {
 	        	 }	
 	         }          
 	    });
-		frame.add(pauseButton);
+		panel.add(pauseButton);
 		
 		//dropdown list of sensor layers / hidden modules
 		String[] choices = { "Neurons","White", "Gray 1","Gray 2","Gray 3","Gray 4", "Black"};
@@ -342,7 +340,8 @@ public class NetworkGraph {
                 grayscale = -1;
                 displayed_neurons = neurons;
             	emptyGraph();
-                frame.getContentPane().remove(vv); 
+                //frame.getContentPane().remove(vv); 
+            	panel.remove(vv); 
 
                 switch (s) {
                     case "Neurons":
@@ -368,9 +367,9 @@ public class NetworkGraph {
                         break;
                 } 
                 
-                frame.getContentPane().add(vv, BorderLayout.CENTER); 
+                panel.add(vv, BorderLayout.CENTER); 
                 vv.repaint();
-                frame.revalidate();
+                panel.revalidate();
             }
         };
         cb.addActionListener(cbActionListener);
@@ -393,12 +392,12 @@ public class NetworkGraph {
 
 	    selectPanel.add(cb);
 	    selectPanel.add(layerButton);
-	    frame.add(selectPanel);
+	    panel.add(selectPanel);
 		
-        frame.setLocation(310, 150);
-        frame.getContentPane().add(vv, BorderLayout.CENTER); 
-        frame.pack();      
-        frame.setVisible(true);       
+        panel.setLocation(310, 150);
+        panel.add(vv, BorderLayout.CENTER); 
+        //panel.pack();      
+        panel.setVisible(true);       
     }
     
     public void setHiddenLayer(HashMap<Integer, INeuron> d_neurons) {
@@ -544,10 +543,6 @@ public class NetworkGraph {
     	public SynapseEdge(double weight){
     		this.weight = weight;
     	}
-    	
-    	/*public String toString() { 
-    		return label; 
-   	 	}*/
     }
     
     /**
@@ -602,5 +597,9 @@ public class NetworkGraph {
 		emptyGraph();
 		populateGraph(displayed_neurons);
 		vv.repaint();
+	}
+	
+	public JPanel getPanel() {
+		return panel;
 	}
 }

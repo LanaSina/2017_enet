@@ -15,7 +15,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
+import javax.swing.border.EmptyBorder;
 
+import apple.laf.JRSUIUtils.Tree;
 import communication.Constants;
 import communication.ControllableThread;
 import communication.MyLog;
@@ -72,6 +74,11 @@ public class Surface extends JPanel{
 	/** boolean linked to stop/start button*/
 	boolean paused = false;
 	
+	NetworkGraph netGraph;
+	boolean drawNet = true;
+	//network and controls
+	JPanel netPanel = new JPanel();
+	
 	/**
 	 * 
 	 * @param vh visual field h
@@ -80,7 +87,6 @@ public class Surface extends JPanel{
 	 * @param fw focus w
 	 */
 	public Surface(){
-		//setVisualFieldSize(Constants.ih, Constants.iw);
 		setFocusSize(Constants.ef_h, Constants.ef_h);
 		
 		letter = new BufferedImage(visualField_w,visualField_h,BufferedImage.TYPE_INT_RGB);
@@ -92,6 +98,23 @@ public class Surface extends JPanel{
 		
 		buildFrame(this);
 	}
+	
+	/*public Surface(NetworkGraph netGraph){
+		this.netGraph = netGraph;
+		
+		setFocusSize(Constants.ef_h, Constants.ef_h);
+		
+		letter = new BufferedImage(visualField_w,visualField_h,BufferedImage.TYPE_INT_RGB);
+		focused = letter;
+		seen = letter;
+		
+		predicted = new BufferedImage(visualField_w,visualField_h,BufferedImage.TYPE_INT_RGB);
+		warped = new BufferedImage(visualField_w,visualField_h,BufferedImage.TYPE_INT_RGB);
+		
+		buildFrame(this);
+	}*/
+	
+	
 	
 	/**
 	 * add elements to be controlled by the UI
@@ -178,22 +201,25 @@ public class Surface extends JPanel{
 	 */
 	private JFrame buildFrame(Surface s){
 		JFrame frame = new JFrame();
-		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		frame.setSize(300,700);		
-		frame.add(s);
 		frame.setTitle("SNET");
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.X_AXIS));
+		frame.setSize(1000,800);
+		
+		JPanel surfacePanel = new JPanel();
+		surfacePanel.setLayout(new BoxLayout(surfacePanel, BoxLayout.Y_AXIS));
+		s.setVisible(true);
+		surfacePanel.add(s);
+		surfacePanel.setVisible(true);
 		
 		//controls
-		JFrame ctrlFrame = new JFrame();
-		ctrlFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		ctrlFrame.setSize(500,100);
-		ctrlFrame.setLayout(new BoxLayout(ctrlFrame.getContentPane(),BoxLayout.X_AXIS));
-		ctrlFrame.setTitle("Controls");
+		JPanel ctrlPanel = new JPanel();
+		ctrlPanel.setLayout(new BoxLayout(ctrlPanel, BoxLayout.X_AXIS));
 		
 		//pause/start
 		//time label
 		timeLabel = new JLabel("Time: 0");
-		ctrlFrame.add(timeLabel);
+		ctrlPanel.add(timeLabel);
 		//pause button
 		JButton pauseButton = new JButton("Pause"); 		
 		pauseButton.addActionListener(new ActionListener() {
@@ -213,12 +239,12 @@ public class Surface extends JPanel{
 				}
 	         }          
 	    });
-		ctrlFrame.add(pauseButton);
+		ctrlPanel.add(pauseButton);
 		
 		//speed
 		//label
 		speedLabel = new JLabel("Speed: 1");
-		ctrlFrame.add(speedLabel);
+		ctrlPanel.add(speedLabel);
 		//buttons
 		JButton speedDownButton = new JButton("-"); 		
 		speedDownButton.addActionListener(new ActionListener() {
@@ -231,7 +257,7 @@ public class Surface extends JPanel{
 				}
 	         }          
 	    });
-		ctrlFrame.add(speedDownButton);
+		ctrlPanel.add(speedDownButton);
 		
 		JButton speedUpButton = new JButton("+"); 		
 		speedUpButton.addActionListener(new ActionListener() {
@@ -243,7 +269,7 @@ public class Surface extends JPanel{
 				}
 	         }          
 	    });
-		ctrlFrame.add(speedUpButton);
+		ctrlPanel.add(speedUpButton);
 		
 		//save
 		JButton saveButton = new JButton("Save"); 		
@@ -255,7 +281,7 @@ public class Surface extends JPanel{
 				}
 	         }          
 	    });
-		ctrlFrame.add(saveButton);
+		ctrlPanel.add(saveButton);
 		
 		//refresh graph layout
 		JButton refreshButton = new JButton("Redraw"); 		
@@ -268,11 +294,19 @@ public class Surface extends JPanel{
 				}
 	         }          
 	    });
-		ctrlFrame.add(refreshButton);
+		ctrlPanel.add(refreshButton);
+		ctrlPanel.setVisible(true); 
+		
 
+		netPanel.setLayout(new BoxLayout(netPanel, BoxLayout.Y_AXIS));
+		netPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		netPanel.setVisible(true);
+		netPanel.add(ctrlPanel);
+		
+		
 		frame.setVisible(true);   
-		ctrlFrame.setLocation(310, 10);
-		ctrlFrame.setVisible(true); 
+		frame.add(surfacePanel);
+		frame.add(netPanel);
 		
 		//graphics creation
     	int delay = 50; //milliseconds 	
@@ -303,5 +337,14 @@ public class Surface extends JPanel{
 	public void setFocusSize(int ih, int iw) {
 		eyeFocusSize_h = ih;
 		eyeFocusSize_w = iw;
+	}
+
+	public void setGraph(NetworkGraph netGraph) {
+		this.netGraph = netGraph;
+		if(drawNet){
+			netPanel.add(netGraph.getPanel());
+			netPanel.revalidate();
+			netPanel.repaint();
+		}
 	}
 }
