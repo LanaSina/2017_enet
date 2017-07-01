@@ -49,9 +49,10 @@ import sensors.Eye;
 public class NetworkGraph {
 	MyLog mlog = new MyLog("graphViz", true);
 	String name = "SNet";
+	boolean draw = true;
 	
-    //JFrame frame = new JFrame(name);
 	JPanel panel = new JPanel();
+	JPanel netPanel;// = new JPanel();
 	
 	/**Graph<V, E> where V is the type of the vertices and E is the type of the edges*/
 	Graph<NeuronVertex, SynapseEdge> g = new DirectedSparseGraph<NeuronVertex, SynapseEdge>();
@@ -289,7 +290,7 @@ public class NetworkGraph {
 	    	//repaint out of main thread
 	    	Runnable code = new Runnable() {
 	        	public void run() {
-	        		if(!paused){
+	        		if(!paused && draw){
 	        			vv.repaint();
 	        			try {
 			    			Thread.sleep(500);
@@ -312,22 +313,7 @@ public class NetworkGraph {
     	squareLayout(false); 
 
 		panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
-		//panel.setSize(800,700);
 		
-		//pause button
-		JButton pauseButton = new JButton("Start"); 		
-		pauseButton.addActionListener(new ActionListener() {
-	         public void actionPerformed(ActionEvent e) {
-	        	 if(!paused){
-	        		 paused = true;
-	        		 pauseButton.setText("Start");
-	        	 }else{
-	        		 paused = false;
-	        		 pauseButton.setText("Pause");
-	        	 }	
-	         }          
-	    });
-		panel.add(pauseButton);
 		
 		//dropdown list of sensor layers / hidden modules
 		String[] choices = { "Neurons","White", "Gray 1","Gray 2","Gray 3","Gray 4", "Black"};
@@ -375,14 +361,49 @@ public class NetworkGraph {
         cb.addActionListener(cbActionListener);
 	    cb.setVisible(true);
 	    
+	    //pause button
+  		JButton pauseButton = new JButton("Start"); 		
+  		pauseButton.addActionListener(new ActionListener() {
+  	         public void actionPerformed(ActionEvent e) {
+  	        	 if(!paused){
+  	        		 paused = true;
+  	        		 pauseButton.setText("Start");
+  	        	 }else{
+  	        		 paused = false;
+  	        		 pauseButton.setText("Pause");
+  	        	 }	
+  	         }          
+  	    });
+  		
+  		//draw button
+  		JButton drawButton = new JButton("Remove"); 		
+  		drawButton.addActionListener(new ActionListener() {
+  	         public void actionPerformed(ActionEvent e) {
+  	        	 if(!draw){
+  	        		 draw = true;
+  	        		 drawButton.setText("Remove");
+  	        		 panel.add(netPanel);
+  	        		 panel.revalidate();
+
+  	        	 }else{
+  	        		 draw = false;
+  	        		 panel.remove(netPanel);
+  	        		 drawButton.setText("Draw");
+  	        		 panel.revalidate();
+  	        	 }	
+  	         }          
+  	    });
+	    
 	    //neurons layering
   		JButton layerButton = new JButton("Layer"); 		
   		layerButton.addActionListener(new ActionListener() {
   	         public void actionPerformed(ActionEvent e) {
   	        	 if(!layering){
   	        		 layering = true;
+  	        		 layerButton.setText("Remove Layer");
   	        	 }else{
   	        		 layering = false;
+  	        		 layerButton.setText("See layer");
   	        	 }	
   	         }          
   	    });
@@ -391,12 +412,15 @@ public class NetworkGraph {
 	    selectPanel.setLayout(new BoxLayout(selectPanel, BoxLayout.X_AXIS));
 
 	    selectPanel.add(cb);
+	    selectPanel.add(pauseButton);
 	    selectPanel.add(layerButton);
+	    selectPanel.add(drawButton);
 	    panel.add(selectPanel);
 		
-        panel.setLocation(310, 150);
-        panel.add(vv, BorderLayout.CENTER); 
-        //panel.pack();      
+        panel.setLocation(310, 150);//??
+        netPanel = new JPanel();
+        netPanel.add(vv, BorderLayout.CENTER);
+        panel.add(netPanel, BorderLayout.CENTER); 
         panel.setVisible(true);       
     }
     
