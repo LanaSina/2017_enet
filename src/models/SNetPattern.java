@@ -502,11 +502,11 @@ public class SNetPattern implements ControllableThread {
 			}//*/
 		}else{
 			
-			/*if(step%10==0){
-				//unactivate all neurons (just in case we are overloaded)
+			if(step%10==0){
+				//unactivate all neurons
 				deactivateAll();
 				//activated = 0;
-			}*/
+			}
 			
 			activated = getActivated();
 
@@ -517,6 +517,7 @@ public class SNetPattern implements ControllableThread {
 				deactivateAll();
 				activated = 0;
 			}
+			
 			mlog.say("total "+ total + " activated "+ activated);
 			for(int i=0; i<total; i++){
 				int l =  (int) Constants.uniformDouble(0,max);
