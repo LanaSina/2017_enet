@@ -170,26 +170,31 @@ public class INeuron extends Neuron {
 		//recalculate postion
 		double[] p = {0,0,0,0};
 		int is = directInWeights.size();
-		for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
-			BundleWeight bundle = iterator.next();
-			Vector<INeuron> in = new Vector<INeuron>(bundle.getInNeurons());
-			double[] partial = Utils.patternPosition(in);
-			p[0] += partial[0];
-			p[1] += partial[1];
+		if(is==1){
+			Vector<INeuron> in = new Vector<INeuron>(directInWeights.get(0).getInNeurons());
+			p = Utils.patternPosition(in);
+		}else{
+			for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
+				BundleWeight bundle = iterator.next();
+				Vector<INeuron> in = new Vector<INeuron>(bundle.getInNeurons());
+				double[] partial = Utils.patternPosition(in);
+				p[0] += partial[0];
+				p[1] += partial[1];
+			}
+			p[0] = p[0]/is;
+			p[1] = p[1]/is;
+			
+			//once more for the variance
+			for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
+				BundleWeight bundle = iterator.next();
+				Vector<INeuron> in = new Vector<INeuron>(bundle.getInNeurons());
+				double[] partial = Utils.patternPosition(in);
+				p[2] += Math.pow(p[0]-partial[0], 2);
+				p[3] += Math.pow(p[1]-partial[1], 2);
+			}
+			p[2] = p[2]/is;
+			p[3] = p[3]/is;
 		}
-		p[0] = p[0]/is;
-		p[1] = p[1]/is;
-		
-		//once more for the variance
-		for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
-			BundleWeight bundle = iterator.next();
-			Vector<INeuron> in = new Vector<INeuron>(bundle.getInNeurons());
-			double[] partial = Utils.patternPosition(in);
-			p[2] += Math.pow(p[0]-partial[0], 2);
-			p[3] += Math.pow(p[1]-partial[1], 2);
-		}
-		p[2] = p[2]/is;
-		p[3] = p[3]/is;
 		
 		setPosition(p);
 	}
