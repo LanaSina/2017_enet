@@ -114,11 +114,6 @@ public class Eye {
 		int w = 0;
 		//height
 		int h = 0;
-		
-		//int cw = ((vf_w-ef_w)/2)+ef_w;
-		//mlog.say("condition w "+ cw);
-		//int ch = ((vf_h-ef_h)/2)+ef_h;
-		//mlog.say("condition h "+ ch);
 
 		//do in focus first,left to right
 		h = (vf_h-ef_h)/2;
@@ -142,7 +137,6 @@ public class Eye {
 			if(nn>=n){
 				next = false;
 			}
-			mlog.say("h " + h + " w " + w);
 		}
 	
 		//now do outfocus
@@ -208,11 +202,9 @@ public class Eye {
 			        double mean = (b+g+r)/(255*3.0);
 			        if(has_noise){
 			        	if(Constants.uniformDouble(0, 1)<noise_rate){
-			        		//mlog.say("NOISE original "+mean);
 			        		mean = Constants.uniformDouble(mean-(noise_range/255.0), mean+(noise_range/255.0));
 			        		if(mean<0) mean = 0;
 			        		if(mean>1) mean = 1;
-			        		//mlog.say("after "+mean);
 			        	}
 			        }
 			        //high value is black
@@ -222,11 +214,13 @@ public class Eye {
 			}
 			//reset focus point only when eye first created
 			if(init == false){
-				focus_center[0] = im_w/2;
-				focus_center[1] = im_h/2; 
-				mlog.say("3. track[0] "+focus_center[0]);
+				focus_center[0] = im_w/2;//x
+				focus_center[1] = im_h/2; //y
+				mlog.say("focus  "+focus_center[0] + "  " + focus_center[1]);
 				init = true;
-			}				
+			}	
+			
+			mlog.say("focus 2 "+focus_center[0]+ "  " + focus_center[1]);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -250,14 +244,15 @@ public class Eye {
 		int[] coarse = new int[n];	
 		
 		//first, shift focus
-		focus_center[0] +=  h_m*eye_motion_res;//fpw
-		focus_center[1] +=  v_m*eye_motion_res;//fph
+		focus_center[0] +=  h_m*eye_motion_res;//x
+		focus_center[1] +=  v_m*eye_motion_res;//y
 		
 		//limit conditions (cannot look out of image)
-		if((focus_center[0]-(vf_h/2))<0) focus_center[0] = 0;
-		if((focus_center[0]+(vf_h/2))>Constants.h) focus_center[0] = Constants.h;
-		if((focus_center[1]-(vf_w/2))<0) focus_center[1] = 0;
-		if((focus_center[1]+(vf_w/2))>Constants.w) focus_center[1] = Constants.w;
+		//mlog.say("##### conditions " + Constants.w + " focus " + focus_center[0] + " " + vf_h);
+		if((focus_center[0]-(vf_w/2))<0) focus_center[0] = 0;
+		if((focus_center[0]+(vf_w/2))>Constants.w) focus_center[0] = Constants.w;
+		if((focus_center[1]-(vf_h/2))<0) focus_center[1] = 0;
+		if((focus_center[1]+(vf_h/2))>Constants.h) focus_center[1] = Constants.h;
 		
 		
 		//top left corner
@@ -305,11 +300,9 @@ public class Eye {
 			Color color2 = new Color(b,b,b);
 			int rel_j = eye_interface[k][0];//row, y
 			int rel_i = eye_interface[k][1];//col, x
-			mlog.say("i " + rel_i + " j " + rel_j);
+			//mlog.say("i " + rel_i + " j " + rel_j);
 			for(int i=rel_i; i<rel_i+size; i++){//y
 				for(int j=rel_j; j<rel_j+size; j++){//x	
-					mlog.say("ei size " + eye_input.getHeight() + " " + eye_input.getWidth());
-					//mlog.say("i " + i + " j " +j);
 					eye_input.setRGB(i, j, color.getRGB());//j and i
 					eye_input_coarse.setRGB(i, j, color2.getRGB());
 				}

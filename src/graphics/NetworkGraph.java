@@ -10,18 +10,13 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
-
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
-
 import org.apache.commons.collections15.Transformer;
-
 import communication.Constants;
 import communication.MyLog;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
@@ -34,7 +29,6 @@ import edu.uci.ics.jung.visualization.RenderContext;
 import edu.uci.ics.jung.visualization.renderers.Renderer.Vertex;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 import edu.uci.ics.jung.visualization.transform.shape.GraphicsDecorator;
-import graphics.NetworkGraph.NeuronVertex;
 import neurons.BundleWeight;
 import neurons.INeuron;
 import neurons.ProbaWeight;
@@ -49,7 +43,7 @@ import sensors.Eye;
 public class NetworkGraph {
 	MyLog mlog = new MyLog("graphViz", true);
 	String name = "SNet";
-	boolean draw = true;
+	boolean draw = false;
 	
 	JPanel panel = new JPanel();
 	JPanel netPanel;// = new JPanel();
@@ -419,7 +413,7 @@ public class NetworkGraph {
         panel.setLocation(310, 150);//??
         netPanel = new JPanel();
         netPanel.add(vv, BorderLayout.CENTER);
-        panel.add(netPanel, BorderLayout.CENTER); 
+        //panel.add(netPanel, BorderLayout.CENTER); 
         panel.setVisible(true);       
     }
     
