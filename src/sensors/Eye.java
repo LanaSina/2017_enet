@@ -115,9 +115,9 @@ public class Eye {
 		//height
 		int h = 0;
 		
-		int cw = ((vf_w-ef_w)/2)+ef_w;
+		//int cw = ((vf_w-ef_w)/2)+ef_w;
 		//mlog.say("condition w "+ cw);
-		int ch = ((vf_h-ef_h)/2)+ef_h;
+		//int ch = ((vf_h-ef_h)/2)+ef_h;
 		//mlog.say("condition h "+ ch);
 
 		//do in focus first,left to right
@@ -142,6 +142,7 @@ public class Eye {
 			if(nn>=n){
 				next = false;
 			}
+			mlog.say("h " + h + " w " + w);
 		}
 	
 		//now do outfocus
@@ -241,8 +242,8 @@ public class Eye {
 	 */
 	public int[] buildCoarse(){
 		
-		eye_input = new BufferedImage(vf_w, vf_h, BufferedImage.TYPE_INT_RGB);
-		eye_input_coarse = new BufferedImage(vf_w, vf_h, BufferedImage.TYPE_INT_RGB);
+		eye_input = new BufferedImage(vf_w+2, vf_h+2, BufferedImage.TYPE_INT_RGB);
+		eye_input_coarse = new BufferedImage(vf_w+2, vf_h+2, BufferedImage.TYPE_INT_RGB);
 		
 		//size of one grayscale sensitive layer
 		int n = s_neurons[0].length;
@@ -260,8 +261,8 @@ public class Eye {
 		
 		
 		//top left corner
-		int of_i = focus_center[0]-(vf_w/2);
-		int of_j = focus_center[1]-(vf_h/2);
+		int of_i = focus_center[0]-(vf_w/2);//x, col
+		int of_j = focus_center[1]-(vf_h/2);//y, row
 
 		//go through sensors via interface
 		double[] sums = new double[n];
@@ -270,12 +271,12 @@ public class Eye {
 		}	
 		//calculate level of blackness of each sensory field
 		for(int k=0; k<n; k++){//cool stuff can work with overlap too
-			int sensor_i = eye_interface[k][0]+of_i;
-			int sensor_j = eye_interface[k][1]+of_j;
+			int sensor_j = eye_interface[k][0]+of_j;//row
+			int sensor_i = eye_interface[k][1]+of_i;//col
 			int size = eye_interface[k][2];//size of the zone for this sensor
 			if(sensor_i>=0 & sensor_i+size<im_w & sensor_j>=0 & sensor_j+size<im_h){//?w h
-				for(int i=sensor_i; i<sensor_i+size; i++){
-					for(int j=sensor_j; j<sensor_j+size; j++){
+				for(int i=sensor_i; i<sensor_i+size; i++){//row, x
+					for(int j=sensor_j; j<sensor_j+size; j++){//col, y
 						sums[k]+=bw[i][j];//[row][column] 
 					}
 				}		
@@ -302,10 +303,13 @@ public class Eye {
 			val = 1 - val;
 			b = (int) ((val*255)+0.5);
 			Color color2 = new Color(b,b,b);
-			int rel_i = eye_interface[k][0];
-			int rel_j = eye_interface[k][1];
-			for(int i=rel_i; i<rel_i+size; i++){
-				for(int j=rel_j; j<rel_j+size; j++){		       
+			int rel_j = eye_interface[k][0];//row, y
+			int rel_i = eye_interface[k][1];//col, x
+			mlog.say("i " + rel_i + " j " + rel_j);
+			for(int i=rel_i; i<rel_i+size; i++){//y
+				for(int j=rel_j; j<rel_j+size; j++){//x	
+					mlog.say("ei size " + eye_input.getHeight() + " " + eye_input.getWidth());
+					//mlog.say("i " + i + " j " +j);
 					eye_input.setRGB(i, j, color.getRGB());//j and i
 					eye_input_coarse.setRGB(i, j, color2.getRGB());
 				}
@@ -428,7 +432,7 @@ public class Eye {
 	 */
 	public void setPredictedBuffer(double[] coarse) {
 		/** predicted image */
-		BufferedImage prediction = new BufferedImage(vf_w, vf_h, BufferedImage.TYPE_INT_RGB);
+		BufferedImage prediction = new BufferedImage(vf_w+2, vf_h+2, BufferedImage.TYPE_INT_RGB);
 		
 		for(int k=0; k<n; k++){
 			int size = eye_interface[k][2];//size of the zone for this sensor
@@ -440,11 +444,11 @@ public class Eye {
 			}else{
 				color2 = new Color(b,b,b);
 			}
-			int rel_i = eye_interface[k][0];
-			int rel_j = eye_interface[k][1];
+			int rel_i = eye_interface[k][0];//row, y
+			int rel_j = eye_interface[k][1];//col, x
 			for(int i=rel_i; i<rel_i+size; i++){
 				for(int j=rel_j; j<rel_j+size; j++){		       
-					prediction.setRGB(i, j, color2.getRGB());
+					prediction.setRGB(j, i, color2.getRGB());
 				}
 			}
 		}

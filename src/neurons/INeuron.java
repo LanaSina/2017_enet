@@ -427,9 +427,6 @@ public class INeuron extends Neuron {
 	 */
 	public void integrateActivation() {
 		activation += pro_activation;
-		/*if(activation>0){
-			mlog.say("positive");
-		}*/
 	}
 
 	
@@ -583,9 +580,6 @@ public class INeuron extends Neuron {
 				
 				if(n.isActivated()){//but now is activated
 					n.activateDirectOutWeights();
-					if(n.getId()>2213){
-						mlog.say("^^^^^ directly activated "+n.getId());
-					}
 				}			
 			}
 		}	

@@ -7,7 +7,6 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.Vector;
-
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -16,8 +15,6 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
-
-import apple.laf.JRSUIUtils.Tree;
 import communication.Constants;
 import communication.ControllableThread;
 import communication.MyLog;
@@ -87,7 +84,7 @@ public class Surface extends JPanel{
 	 * @param fw focus w
 	 */
 	public Surface(){
-		setFocusSize(Constants.ef_h, Constants.ef_h);
+		//setFocusSize(Constants.ef_h, Constants.ef_w);
 		
 		letter = new BufferedImage(visualField_w,visualField_h,BufferedImage.TYPE_INT_RGB);
 		focused = letter;
@@ -157,7 +154,6 @@ public class Surface extends JPanel{
 		int th = (eyeFocusSize_h)/2;
 		int tw = (eyeFocusSize_w)/2;
 		g.drawRect(origin+track[0]-tw, y+track[1]-th, eyeFocusSize_w, eyeFocusSize_h);
-		//g.drawRect(origin, y, eyeFocusSize_w, eyeFocusSize_h);
 		
 		//complete visual field
 		th = (visualField_h)/2;
@@ -334,10 +330,10 @@ public class Surface extends JPanel{
 		this.action = action;
 	}
 
-	public void setFocusSize(int ih, int iw) {
+	/*public void setFocusSize(int ih, int iw) {
 		eyeFocusSize_h = ih;
 		eyeFocusSize_w = iw;
-	}
+	}*/
 
 	public void setGraph(NetworkGraph netGraph) {
 		this.netGraph = netGraph;
