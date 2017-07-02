@@ -317,7 +317,6 @@ public class SNetPattern implements ControllableThread {
 	
 
 	/**
-	 * 
 	 * @param p performance
 	 * @param s surprise
 	 * @param i illusions
