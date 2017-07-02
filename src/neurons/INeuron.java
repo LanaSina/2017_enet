@@ -612,6 +612,10 @@ public class INeuron extends Neuron {
 	public HashMap<INeuron, BundleWeight> getDirectOutWeights() {
 		return (HashMap<INeuron, BundleWeight>) directOutWeights.clone();		
 	}
+	
+	public void clearDirectOutWeights() {
+		directOutWeights.clear();
+	}
 
 
 	/**

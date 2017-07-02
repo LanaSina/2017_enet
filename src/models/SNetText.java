@@ -1021,5 +1021,11 @@ public class SNetText implements ControllableThread {
 		netGraph.redraw();
 	}
 
+	@Override
+	public void load(File file) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
 

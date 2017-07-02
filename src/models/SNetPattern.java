@@ -1,7 +1,10 @@
 package models;
 
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -1091,6 +1094,123 @@ public class SNetPattern implements ControllableThread {
 	public void refresh() {
 		if(draw_net){
 			netGraph.redraw();
+		}
+	}
+
+	@Override
+	public void load(File file) {
+		//load a network
+		
+		//get correct names
+		File sensor_file, net_file;
+		if(file.getName() == Constants.Sensors_file_name){
+			sensor_file = file;
+			String net_name = file.getParent() + "/" + Constants.Net_file_name;
+			net_file = new File(net_name);
+		}else{
+			net_file = file;
+			String sensor_name = file.getParent() + "/" + Constants.Sensors_file_name;
+			sensor_file = new File(sensor_name);
+		}
+		
+		allINeurons.clear();
+		HashMap<Integer, INeuron> sensors = new HashMap<Integer, INeuron>();
+		for(int i=0; i<eye_neurons.length; i++){
+			Iterator<INeuron> it = eye_neurons[i].values().iterator();
+			while (it.hasNext()) {
+				INeuron n = it.next();
+				sensors.put(n.getId(), n);
+			}
+		}
+		
+		//sensors-to-network links
+		BufferedReader br;
+		try {
+			br = new BufferedReader(new FileReader(sensor_file));
+		
+			String line;
+			int neuron_id = -1;
+	        while ((line = br.readLine()) != null) {
+	            // use comma as separator
+	            String[] info = line.split(",");
+	            INeuron n = null;
+	            //"sensor_ID, neuron_ID, x, y, sx, sy \n";
+	            if(Integer.valueOf(info[0])!=neuron_id){
+	            	neuron_id = Integer.valueOf(info[1]);
+	            	n = new INeuron(neuron_id);
+	            	double[] p = {Double.valueOf(info[2]),Double.valueOf(info[3]),
+	            			Double.valueOf(info[4]),Double.valueOf(info[5])};
+					n.setPosition(p);
+					allINeurons.put(n.getId(), n);
+	            }
+	            	
+	        	//add direct in weight
+	        	INeuron s = sensors.get(Integer.valueOf(info[0]));
+	        	s.clearDirectOutWeights();
+				Vector<INeuron> v = new Vector<INeuron>();
+				v.addElement(s);
+				BundleWeight b = n.addDirectInWeight(v);
+				s.addDirectOutWeight(n, b);
+	         }
+	        
+	        
+	        //network
+	        br = new BufferedReader(new FileReader(net_file));
+	        int id = -1;
+	        int w_id = -1;
+	        int maxid = -1;
+	        BundleWeight bw = null;
+	        INeuron n = null;
+	        while ((line = br.readLine()) != null) {
+	            // use comma as separator
+	            String[] info = line.split(",");
+	            //"ID, weight_type, weight_id, in_neuron, value, age\n";
+	            int id2 = Integer.valueOf(info[0]);
+	            if(id!=id2){
+	            	id = id2;
+	            	if(id>maxid) maxid = id;
+	            	w_id = -1;
+	            	if((n=allINeurons.get(id))==null){
+	            		n = new INeuron(neuron_id);
+		            	/*double[] p = {Double.valueOf(info[2]),Double.valueOf(info[3]),
+		            			Double.valueOf(info[4]),Double.valueOf(info[5])};
+						n.setPosition(p);*/
+						allINeurons.put(n.getId(), n);
+	            	}
+	            }
+	            
+	            String w_type = info[1];
+	            if(w_type=="direct"){
+	            	int w_id2 = Integer.valueOf(info[2]);
+	            	if(w_id2!=w_id){
+	            		w_id = w_id2;
+	            		//new bundle
+	            		bw = new BundleWeight(Constants.fixedConnection);
+	            		n.addDirectInWeight(bw);
+	            	}
+	            	
+	            	int in_id = Integer.valueOf(info[3]);
+	            	INeuron in_n = allINeurons.get(in_id);
+	            	if(in_n==null){
+	            		
+	            	}
+	            	
+	            } else if(w_type=="proba") {
+	            	
+	            }
+	        }
+	        
+	        //recalculate all positions
+	        
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

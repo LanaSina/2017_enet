@@ -1,5 +1,7 @@
 package communication;
 
+import java.io.File;
+
 import javax.swing.JButton;
 
 /**
@@ -17,4 +19,6 @@ public interface ControllableThread {
 	public void save(JButton saveButton);
 	
 	public void refresh();
+
+	public void load(File file);
 }

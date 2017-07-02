@@ -5,10 +5,12 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Iterator;
 import java.util.Vector;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -273,8 +275,33 @@ public class Surface extends JPanel{
 	         }          
 	    });
 		ctrlPanel.add(refreshButton);
-		ctrlPanel.setVisible(true); 
 		
+		//load a network
+		JButton loadButton = new JButton("Load Net"); 		
+
+   	 	loadButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {	
+	        	 JFileChooser fileChooser = new JFileChooser();
+	        	 fileChooser.setDialogTitle("Open Resource File");
+	        	 int returnVal = fileChooser.showOpenDialog(ctrlPanel);//Surface.this);
+
+	             if (returnVal == JFileChooser.APPROVE_OPTION) {
+	                 File file = fileChooser.getSelectedFile();
+	                 //This is where a real application would open the file.
+	                 mlog.say("Opening: " + file.getName());
+	                 for (Iterator<ControllableThread> iterator = puppets.iterator(); iterator.hasNext();) {
+	 					ControllableThread p = iterator.next();
+	 					p.load(file);
+	 				}
+	                 
+	             } else {
+	            	 mlog.say("Open command cancelled by user.");
+	             }
+	         }          
+	    });
+		ctrlPanel.add(loadButton);
+
+		ctrlPanel.setVisible(true); 
 
 		netPanel.setLayout(new BoxLayout(netPanel, BoxLayout.Y_AXIS));
 		netPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
