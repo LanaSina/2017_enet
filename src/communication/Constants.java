@@ -22,7 +22,7 @@ public class Constants {
 	/** sensitivity of the image sensor */
 	public static final int gray_scales = 6;
 	/** resolution of focused area of eye*/
-	public static final int eres_f = 2;
+	public static final int eres_f = 5;
 	public static final int eres_nf = 5;
 	/**size of focused area*/
 	public static final int ef_w = 79;//20;

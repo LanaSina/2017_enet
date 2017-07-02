@@ -216,11 +216,9 @@ public class Eye {
 			if(init == false){
 				focus_center[0] = im_w/2;//x
 				focus_center[1] = im_h/2; //y
-				mlog.say("focus  "+focus_center[0] + "  " + focus_center[1]);
 				init = true;
 			}	
 			
-			mlog.say("focus 2 "+focus_center[0]+ "  " + focus_center[1]);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -236,8 +234,9 @@ public class Eye {
 	 */
 	public int[] buildCoarse(){
 		
-		eye_input = new BufferedImage(vf_w+2, vf_h+2, BufferedImage.TYPE_INT_RGB);
-		eye_input_coarse = new BufferedImage(vf_w+2, vf_h+2, BufferedImage.TYPE_INT_RGB);
+		int plus = Constants.eres_nf;
+		eye_input = new BufferedImage(vf_w+plus, vf_h+plus, BufferedImage.TYPE_INT_RGB);
+		eye_input_coarse = new BufferedImage(vf_w+plus, vf_h+plus, BufferedImage.TYPE_INT_RGB);
 		
 		//size of one grayscale sensitive layer
 		int n = s_neurons[0].length;
@@ -425,7 +424,7 @@ public class Eye {
 	 */
 	public void setPredictedBuffer(double[] coarse) {
 		/** predicted image */
-		BufferedImage prediction = new BufferedImage(vf_w+2, vf_h+2, BufferedImage.TYPE_INT_RGB);
+		BufferedImage prediction = new BufferedImage(vf_w+Constants.eres_nf, vf_h+Constants.eres_nf, BufferedImage.TYPE_INT_RGB);
 		
 		for(int k=0; k<n; k++){
 			int size = eye_interface[k][2];//size of the zone for this sensor

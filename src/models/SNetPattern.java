@@ -41,7 +41,7 @@ public class SNetPattern implements ControllableThread {
 	ProbaWeight testp;
 	
 	/** data recording*/
-	boolean save = false;
+	boolean save = true;
 	
 	/** graphics*/
 	Surface panel;
@@ -702,16 +702,7 @@ public class SNetPattern implements ControllableThread {
 		
 		//in case we made a pattern neuron
 		INeuron the_pattern = null;
-		
-		//number of surprised neurons at this timestep
-		/*int n_surprised = 0;
-		//number of sensory activates
-		int n_activated = 0;
-		//predicted, not activated
-		int n_illusion = 0;*/
-		//(maybe we should make this for all, not sensory neurons)
-		//suprise = suprised sensory neurons / number of activated sensory neurons
-		
+	
 		if(STM.size()==0){
 			mlog.say("just woke up");
 			if(save){
@@ -748,10 +739,7 @@ public class SNetPattern implements ControllableThread {
 						
 				
 				if(n.isSurprised()){// && !n.isMute() must predict activation of small ones too
-					/*mlog.say("+++++++++ " + n.getId() + " surprised ");
-					if(id>=si_start && id<=si_end){
-						n_surprised++;
-					}*/
+					
 					//did we improve future prediction chances?
 					boolean didChange = false;
 					
