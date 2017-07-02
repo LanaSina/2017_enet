@@ -115,7 +115,7 @@ public class INeuron extends Neuron {
 	 * @param n
 	 * @param p
 	 */
-	private void addInWeight(INeuron n, ProbaWeight p) {
+	public void addInWeight(INeuron n, ProbaWeight p) {
 		inWeights.put(n, p);
 	}
 
@@ -159,7 +159,6 @@ public class INeuron extends Neuron {
 		return b;
 	}
 	
-	//TODO make the difference between bundles
 	public void recalculatePosition() {
 		//recalculate postion
 		double[] p = {0,0,0,0};
@@ -192,6 +191,48 @@ public class INeuron extends Neuron {
 		
 		setPosition(p);
 	}
+	
+	/*public void carefullyRecalculatePosition() {
+		if(position[0]==0 && position[1]==0 && position[2]==0 && position[3]==0){
+			int is = directInWeights.size();
+			double[] p = {0,0,0,0};
+			if(is==1){
+				Vector<INeuron> in = new Vector<INeuron>(directInWeights.get(0).getInNeurons());
+				p = Utils.patternPosition(in);
+			}else{
+				for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
+					BundleWeight bundle = iterator.next();
+					Vector<INeuron> in = new Vector<INeuron>(bundle.getInNeurons());
+					for (Iterator<INeuron> iterator2 = in.iterator(); iterator2.hasNext();) {
+						INeuron n = iterator2.next();
+						double[] partial = n.getPosition();
+						if(partial[0]==0 && partial[1]==0 && partial[2]==0 && partial[3]==0){
+							n.carefullyRecalculatePosition();
+						}
+					}
+					
+					double[] partial = Utils.patternPosition(in);
+
+					p[0] += partial[0];
+					p[1] += partial[1];
+				}
+				p[0] = p[0]/is;
+				p[1] = p[1]/is;
+				
+				//once more for the variance
+				for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
+					BundleWeight bundle = iterator.next();
+					Vector<INeuron> in = new Vector<INeuron>(bundle.getInNeurons());
+					double[] partial = Utils.patternPosition(in);
+					p[2] += Math.pow(p[0]-partial[0], 2);
+					p[3] += Math.pow(p[1]-partial[1], 2);
+				}
+				p[2] = p[2]/is;
+				p[3] = p[3]/is;
+			}
+			setPosition(p);
+		}
+	}*/
 	
 	/**
 	 * 
@@ -445,7 +486,7 @@ public class INeuron extends Neuron {
 		}
 		return b;
 	}
-
+	
 
 	/**
 	 * checks direct instantaneous inweights and changes activation accordingly

@@ -1102,16 +1102,26 @@ public class SNetPattern implements ControllableThread {
 		//load a network
 		
 		//get correct names
-		File sensor_file, net_file;
+		//TODO switch
+		File sensor_file, net_file, pos_file;
 		if(file.getName() == Constants.Sensors_file_name){
 			sensor_file = file;
 			String net_name = file.getParent() + "/" + Constants.Net_file_name;
 			net_file = new File(net_name);
-		}else{
+			pos_file = new File(file.getParent() + "/" + Constants.Positions_file_name);
+		}else if(file.getName() == Constants.Net_file_name){
 			net_file = file;
 			String sensor_name = file.getParent() + "/" + Constants.Sensors_file_name;
 			sensor_file = new File(sensor_name);
+			pos_file = new File(file.getParent() + "/" + Constants.Positions_file_name);
+		} else{
+			pos_file = file;
+			String net_name = file.getParent() + "/" + Constants.Net_file_name;
+			net_file = new File(net_name);
+			String sensor_name = file.getParent() + "/" + Constants.Sensors_file_name;
+			sensor_file = new File(sensor_name);
 		}
+		
 		
 		allINeurons.clear();
 		HashMap<Integer, INeuron> sensors = new HashMap<Integer, INeuron>();
@@ -1192,16 +1202,42 @@ public class SNetPattern implements ControllableThread {
 	            	int in_id = Integer.valueOf(info[3]);
 	            	INeuron in_n = allINeurons.get(in_id);
 	            	if(in_n==null){
-	            		
+	            		in_n = new INeuron(in_id);
+						allINeurons.put(in_id, in_n);
 	            	}
 	            	
+	            	ProbaWeight p = new ProbaWeight(Constants.fixedConnection);
+	            	bw.addStrand(in_n, p);
+	            	in_n.addDirectOutWeight(n, bw);
 	            } else if(w_type=="proba") {
+	            	int in_id = Integer.valueOf(info[3]);
+	            	INeuron in_n = allINeurons.get(in_id);
+	            	if(in_n==null){
+	            		in_n = new INeuron(in_id);
+						allINeurons.put(in_id, in_n);
+	            	}
 	            	
+	            	ProbaWeight p = new ProbaWeight(Constants.defaultConnection);
+	            	p.setValue(Integer.valueOf(info[4]));
+	            	p.setAge(Integer.valueOf(info[5]));
+	            	n.addInWeight(in_n, p);
+	            	in_n.addOutWeight(n, p);
 	            }
 	        }
+	        n_id = maxid+1;
 	        
-	        //recalculate all positions
-	        
+	        //set all positions
+	        //network
+	        br = new BufferedReader(new FileReader(pos_file));
+	        while ((line = br.readLine()) != null) {
+	            // use comma as separator
+				//str = "ID, x, y, sx, sy\n";
+	            String[] info = line.split(",");
+	            int nid = Integer.valueOf(info[0]);
+	            double[] pos = {Double.valueOf(info[1]),Double.valueOf(info[2]),Double.valueOf(info[3]),Double.valueOf(info[4])};
+	            allINeurons.get(nid).setPosition(pos);
+	        }
+	       
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

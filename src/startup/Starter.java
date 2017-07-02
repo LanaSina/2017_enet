@@ -1,7 +1,6 @@
 package startup;
 
 import models.CharSNet;
-import models.SNetActions;
 import models.SNetPattern;
 import models.SNetText;
 

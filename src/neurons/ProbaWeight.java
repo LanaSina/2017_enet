@@ -77,6 +77,9 @@ public class ProbaWeight {
 		activation = a;
 	}
 
+	public void setValue(int v) {
+		value = v;
+	}
 
 	/**
 	 * @return the probabilistic value of this weight.

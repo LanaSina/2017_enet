@@ -441,11 +441,27 @@ public class Utils {
 				INeuron to =  n.getDirectOutWeights().keySet().iterator().next();
 				double[] pos = to.getPosition();
 				str = n.getId() + "," + to.getId() + ","
-					+ pos[0] + "," + pos[1] + ","+ pos[2] + "," + pos[3] +  "\n";
+					+ pos[0] + "," + pos[1] + ","+ pos[2] + "," + pos[3] +  "\n";//pos useless
 				sensor_writer.write(str);
 				sensor_writer.flush();
 			}
 			sensor_writer.close();
+			
+			//write neurons positions
+			String pos_file = folderName+"/" + Constants.Positions_file_name;
+			FileWriter pos_writer = new FileWriter(pos_file);
+			str = "ID, x, y, sx, sy\n";
+			pos_writer.write(str);
+			pos_writer.flush();
+			for (Iterator<INeuron> iterator = net.values().iterator(); iterator.hasNext();) {
+				INeuron n = iterator.next();
+				double[] pos = n.getPosition();
+				str = n.getId() + "," + pos[0] + "," + pos[1] + ","+ pos[2] + "," + pos[3] +  "\n";
+				pos_writer.write(str);
+				pos_writer.flush();
+			}
+			
+			pos_writer.close();
 			
 			//write net
 			String net_file = folderName+"/" + Constants.Net_file_name;
