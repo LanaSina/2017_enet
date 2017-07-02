@@ -1137,8 +1137,7 @@ public class SNetPattern implements ControllableThread {
 		BufferedReader br;
 		try {
 			br = new BufferedReader(new FileReader(sensor_file));
-		
-			String line;
+			String line = br.readLine();//skip 1 line
 			int neuron_id = -1;
 	        while ((line = br.readLine()) != null) {
 	            // use comma as separator
@@ -1171,6 +1170,7 @@ public class SNetPattern implements ControllableThread {
 	        int maxid = -1;
 	        BundleWeight bw = null;
 	        INeuron n = null;
+	        line = br.readLine();//skip 1 line
 	        while ((line = br.readLine()) != null) {
 	            // use comma as separator
 	            String[] info = line.split(",");
@@ -1229,6 +1229,7 @@ public class SNetPattern implements ControllableThread {
 	        //set all positions
 	        //network
 	        br = new BufferedReader(new FileReader(pos_file));
+	        line = br.readLine();//skip 1 line
 	        while ((line = br.readLine()) != null) {
 	            // use comma as separator
 				//str = "ID, x, y, sx, sy\n";

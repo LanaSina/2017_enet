@@ -2,18 +2,24 @@
 #
 library(igraph)
 
-netName = "../ECAL_kitti"
-netName = "../ECAL_oswald_bike"
+netName = "../2017_07_02_17_55"
+#netName = "../ECAL_oswald_bike"
 
 #parameters
+fileName = paste(netName,"parameters.csv",sep="/")
+print(fileName)
+param = read.csv(fileName)
+print(param)
+
 fileName = paste(netName,"net_parameters.csv",sep="/")
 print(fileName)
 param = read.csv(fileName)
 
-plot(param$iteration,param$neurons,type="l",col="red",xlab = "Timestep", ylab = "Number of neurons", main=netName
-     #,xlim= c(0,1000), ylim= c(0,1800)
+color = "black"
+plot(param$iteration,param$neurons,type="l",col=color,xlab = "Timestep", ylab = "Number of neurons", main=netName
+     ,ylim= c(0,1000)
      )
-plot(param$iteration,param$connections/1000,type="l",col="red", xlab = "iteration", ylab = "connections",
+plot(param$iteration,param$connections/1000,type="l",col=color, xlab = "Timestep", ylab = "Connections/1000",
      main=netName)
 
 points(param$iteration,param$neurons,type="l",col="purple")
@@ -31,27 +37,37 @@ legend(20,300,  c("No noise","With noise"),
 
 
 #performance
+netName = "../oswald_bike"
 fileName = paste(netName,"performance.csv",sep="/")
 print(fileName)
 perf = read.csv(fileName)
-plot(perf$iteration,perf$surprise,type="l",xlab = "iteration", ylab = "surprise", col="red", main=netName
-     , xlim= c(0,100)
-     )
 
-i=1
-d = c()
-while((i+10)< length(perf$surprise)){
-  d = c(d,mean(perf$surprise[i:(i+10)]))
-  i=i+10
-}
-
-plot(d, type="l",  xlim= c(0,40))
-points(d, type="l", col="red")
+color = "black"
+plot(perf$iteration,perf$error,type="l",xlab = "Timestep", ylab = "Error", col=color,
+     main=netName, xlim = c(0,800))
+plot(perf$iteration,perf$surprise,type="l",xlab = "Timestep", ylab = "Surprise", col=color,
+     main=netName, xlim = c(0,800))
+plot(perf$iteration,perf$illusion,type="l",xlab = "Timestep", ylab = "Illusion", col=color,
+     main=netName, xlim = c(0,800))
 
 plot_surprise(perf)
-points(perf$iteration,perf$surprise,type="l", col="blue")
+
+
+points(perf$iteration,perf$error,type="l", col="red")
 legend(350,400, c("Simple video","Complex video"),lty = 1, bty = "n",lwd=c(2.5,2.5),col=c("blue","red")) 
 abline(v=40)
+
+#neurons in 3d
+library(rgl)
+netName = "../2017_07_02_22_52"
+step = "4"
+fileName = paste(netName,step,"positions.csv",sep="/")
+print(fileName)
+positions = read.csv(fileName)
+#sy
+plot3d(x = positions$x , y = positions$y , z = positions$sx, pch=21)
+browseURL(paste("file://", writeWebGL(dir=file.path(netName, "webGL"), width=500), sep=""))
+
 
 plot_neurons = function(parameters){
   plot(parameters$iteration,parameters$neurons,type="l",col="red",xlab = "Timestep", ylab = "Number of neurons",
@@ -65,7 +81,7 @@ plot_weights = function(parameters){
 
 plot_surprise = function(parameters){
   plot(perf$iteration,perf$surprise,type="l",xlab = "Timestep", ylab = "Surprise", col="red",
-       xlim= c(0,100), ylim= c(0,300), cex.lab=1.5, cex.axis=1.5)
+       xlim= c(0,400), ylim= c(0,300), cex.lab=1.5, cex.axis=1.5)
 }
 
 plot_neurons(param)
@@ -82,7 +98,7 @@ plot_weights(param)
 dev.off()
 
 #weights
-fileName = paste(netName,"weights_800.csv",sep="/")
+fileName = paste(netName,"weights_200.csv",sep="/")
 plotnet()
 
 img_path = paste(netName,"images","net.pdf", sep="/")
@@ -136,25 +152,27 @@ install.packages("ggbiplot")
 library(pixmap)
 library(data.table)
 
-r = 40
+r = 15
 c = 50*50
 df= data.frame(matrix(, nrow=r, ncol=c))
 
-for(i in 0:39){
+j=0
+for(i in 25:39){
   iname = sprintf("%02d.ppm", i);
   filepath = paste("/Users/lana/Desktop/prgm/SNet/images/Oswald/bike/small/ppm/",iname, sep = "")
   img = read.pnm(filepath)
   bw = img@red
   v = unlist(bw)
-  df[(i+1),] = v
+  j=j+1
+  df[j,] = v
 }
 #pca
 pca = prcomp(df, center = TRUE, scale. = TRUE) 
 plot(pca, type = "l")
 plot(pca$x)
-text(pca$x[,1]+5, pca$x[,2], c(1:40))
+text(pca$x[,1]+5, pca$x[,2], c(1:23), col="blue")
 
-points(pca$x, col="blue")
+points(pca$x, col="black")
 
 
 
