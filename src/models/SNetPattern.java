@@ -92,11 +92,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Dataset_01/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Oswald/bike/small/"; 
 	/** leading zeros*/
-	String name_format = "%010d";
+	String name_format = "%02d";
 	/** number of images*/
-	int n_images =83;//Constants.n_images;
+	int n_images = 40;//Constants.n_images;
 	
 	//sensors 
 	/** image sensor*/
@@ -787,7 +787,7 @@ public class SNetPattern implements ControllableThread {
 					if(!didChange){// && !dreaming){	//  
 						if(cpu_limitations && nw>max_new_connections) break;
 						
-						if(!hasMaxLayer(STM)){
+						if(true){//!hasMaxLayer(STM)
 							Vector<INeuron> vn = Utils.patternExists3D(STM, n);
 							if(vn.size()>0){
 								if(the_pattern==null){
