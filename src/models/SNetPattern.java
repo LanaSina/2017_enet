@@ -1077,8 +1077,11 @@ public class SNetPattern implements ControllableThread {
 		//writeWeights();
 		
 		//save net
-		String filename = folderName+"/"+ step + "_" + Constants.Net_file_name;
-		Utils.saveNet(filename);
+		Vector<INeuron> sensors = new Vector<INeuron>();
+		for(int i=0; i<eye_neurons.length; i++){
+			sensors.addAll(eye_neurons[i].values());
+		}
+		Utils.saveNet(allINeurons, sensors, folderName, step);
 		
 		//reactivate button
 		saveButton.setEnabled(true);	

@@ -6,13 +6,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 import java.util.Map.Entry;
-
 import communication.Constants;
 import communication.MyLog;
 import neurons.BundleWeight;
@@ -411,7 +409,7 @@ public class Utils {
 		}
 	}
 	
-	public void saveNet(HashMap<Integer, INeuron> net, Vector<INeuron> sensors, String folder, int step) {
+	public static void saveNet(HashMap<Integer, INeuron> net, Vector<INeuron> sensors, String folder, int step) {
 		try {
 			//first create directory
 			String folderName = folder + "/" + step;
@@ -492,7 +490,7 @@ public class Utils {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 		
+		mlog.say("Network Saved");
 	}
 }
