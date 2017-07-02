@@ -92,11 +92,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/cue/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Dataset_01/"; 
 	/** leading zeros*/
-	String name_format = "%02d";
-	/** number of images if not using names*/
-	int n_images =6;//Constants.n_images;
+	String name_format = "%010d";
+	/** number of images*/
+	int n_images =83;//Constants.n_images;
 	
 	//sensors 
 	/** image sensor*/
@@ -1023,7 +1023,7 @@ public class SNetPattern implements ControllableThread {
 		    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);//*/
 		    			
 		    			//sleep
-		    			if(step>1){
+		    			/*if(step>1){
 			    			if(!dreaming){
 			    				dreaming = true;
 			    				cleanAll();
