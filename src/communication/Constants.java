@@ -25,11 +25,11 @@ public class Constants {
 	public static final int eres_f = 2;
 	public static final int eres_nf = 5;
 	/**size of focused area*/
-	public static final int ef_h = 20;
-	public static final int ef_w = 20;
+	public static final int ef_w = 79;//20;
+	public static final int ef_h = 51;//20;
 	/** size of visual field */
-	public static final int vf_h = 50;
-	public static final int vf_w = 50;
+	public static final int vf_w = 79;//50;
+	public static final int vf_h = 51;//50;
 	/** image dimensions*/
 	public static final int w = 79;//141;
 	public static final int h = 51;//134;

@@ -41,7 +41,7 @@ public class SNetPattern implements ControllableThread {
 	ProbaWeight testp;
 	
 	/** data recording*/
-	boolean save = true;
+	boolean save = false;
 	
 	/** graphics*/
 	Surface panel;

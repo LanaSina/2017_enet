@@ -4,19 +4,11 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Vector;
-
 import javax.imageio.ImageIO;
-
-import com.sun.org.apache.xml.internal.security.Init;
-
 import communication.Constants;
 import communication.MyLog;
 import graphics.Surface;
-import jdk.internal.org.objectweb.asm.tree.IntInsnNode;
-import neurons.INeuron;
-import neurons.MotorNeuron;
 
 /**
  * each sensor is just a list of values that are activated or not.
@@ -48,7 +40,7 @@ public class Eye {
 	//int vf_h = 50, vf_w = 50;
 	/** size of focused area */
 	int ef_h = Constants.ef_h;
-	int ef_w = Constants.ef_h;
+	int ef_w = Constants.ef_w;
 	/** what the net sees */
 	double[][] visual_field;//focus
 	/** resolution of focused area = px/side of square */ 
