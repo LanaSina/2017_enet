@@ -138,31 +138,38 @@ public class Eye {
 				next = false;
 			}
 		}
-	
+		mlog.say("last w of infocus " + w + " size " + eres_f);
+		int out2_start = w + eres_f;
+		
 		//now do outfocus
 		h = 0;
 		w = 0;
 		//go down to next row
 		next = true;
 		while(next){
+			if(h >= vf_h || nn>=n){
+				next = false;
+			}
+			if (!next) {
+				continue;
+			}
 			boolean infocus = (h>=(vf_h-ef_h)/2 & h<((vf_h-ef_h)/2)+ef_h) & (w>=(vf_w-ef_w)/2 & w<((vf_w-ef_w)/2)+ef_w);
 			if(!infocus){
+				//mlog.say(" "+nn);
 				eye_interface[nn][0] = h;//row
 				eye_interface[nn][1] = w;
 				eye_interface[nn][2] = eres_nf;//size
 				w+=eres_nf;//next column
 				nn++;
 			} else{
-				w+=ef_w;
+				w+=out2_start;//ef_w;
 			}
 			if(w >= vf_w){
 				//next row
 				h+=eres_nf;
 				w=0;
 			}				
-			if(h >= vf_h){
-				next = false;
-			}
+			
 		}
 		
 		mlog.say("eye interface sites "+ nn);		

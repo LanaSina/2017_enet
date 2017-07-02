@@ -135,120 +135,7 @@ public class Utils {
 		return valid_neurons;
 	}
 
-	
-	/**
-	 * 
-	 * @author lana
-	 * @param neurons list of neurons
-	 * @param to_n destination
-	 * @param valid_neurons (to avoid counting sensors as neurons)
-	 * @return true if there exists a PNeuron in the whole net that can be activated by the "neurons" pattern
-	 * and has an outweight to to_n
-	 */
-	/*public static boolean patternExists(Vector<INeuron> neurons, INeuron to_n, Collection<INeuron> valid_neurons) {
-		boolean b = false;
-		
-		if(neurons.size()==1 && neurons.get(0)==to_n){
-			return true;
-		}
-		
-		//input neurons
-		Set<INeuron> from_neurons =  to_n.getInWeights().keySet();
-		//collection of patterns predicting this neuron
-		//to check if "neurons" are not just equivalent to patterns we already have
-		Vector<Set<INeuron>> cp = new Vector<Set<INeuron>>();
-		//list of neurons having unique patterns
-		Vector<INeuron> original_n = new Vector<INeuron>();
 
-		//look at each pattern going to this neuron
-		//check if "neurons" is equal to any of the patterns
-		for (Iterator<INeuron> iterator = from_neurons.iterator(); iterator.hasNext();) {
-			INeuron n = iterator.next();
-			//mlog.say("id n "+ n.getId());
-
-			//direct in weights to input neurons
-			Vector<BundleWeight> bws = n.getDirectInWeights();
-			for (Iterator<BundleWeight> iterator2 = bws.iterator(); iterator2.hasNext();) {
-				BundleWeight bw = iterator2.next();
-				
-				//pattern for direct in weight
-				Set<INeuron> set = bw.getInNeurons();
-				
-				if(set.equals(neurons)){
-					return true;
-				}
-				
-				//check if set already exists
-				boolean exists = false;
-				for (Iterator<Set<INeuron>> iterator3 = cp.iterator(); iterator3.hasNext();) {
-					Set<INeuron> pattern = iterator3.next();
-					
-					if(set.equals(pattern) || !valid_neurons.containsAll(set)){
-						exists = true;
-					}
-				}
-				
-				if(!exists){
-					cp.addElement(set);
-					if(!original_n.contains(n)){
-						original_n.addElement(n);
-						mlog.say("added "+n.getId());
-					}
-				}
-			}
-		}
-		
-		//mlog.say("cp size " + cp.size());
-		
-		if(cp.size()==0){
-			//?
-		}
-		
-		//check if the list of "original neurons" is different from "neurons"
-		if(original_n.equals(neurons)){
-			return true;
-		}else{
-			mlog.say("not equal");
-			for (Iterator<INeuron> iterator = neurons.iterator(); iterator.hasNext();) {
-				INeuron n = iterator.next();
-				mlog.say(" " + n.getId());
-			}
-			mlog.say("and ");
-			for (Iterator<INeuron> iterator = original_n.iterator(); iterator.hasNext();) {
-				INeuron n = iterator.next();
-				mlog.say(" " + n.getId());
-			}
-		}
-
-		//next check if there is a new pattern in the proposed neurons (or TODO remove similar patterns)
-		if(cp.size()==1){
-			Set<INeuron> s = cp.get(0);
-			if(s.containsAll(neurons)){
-				return true;
-			}
-			
-			
-			boolean bad2 = true;
-			for (Iterator<INeuron> iterator = neurons.iterator(); iterator.hasNext();) {
-				INeuron n = iterator.next();
-				Vector<BundleWeight> bws = n.getDirectInWeights();
-				for (Iterator iterator2 = bws.iterator(); iterator2.hasNext();) {
-					BundleWeight bw = (BundleWeight) iterator2.next();
-					Set<INeuron> set = bw.getInNeurons();
-					if(!set.equals(s)){
-						bad2 = false;
-					}
-				}
-			}
-			if(bad2){
-				b = true;
-			}
-		}
-	
-		return b;
-	}*/
-
-	
 	/**
 	 * for all neurons in this layer calculate probabilistic activation
 	 * then activate all outside weights 
@@ -443,10 +330,10 @@ public class Utils {
 											dosnap = false;
 											break;
 										}
-									}/* else {
+									} else {
 										dosnap = false;
 										//a bit sad about this but causes strong illusions
-									}*/
+									}//*/
 								}
 							}
 								
