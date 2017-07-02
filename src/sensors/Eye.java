@@ -138,8 +138,6 @@ public class Eye {
 				next = false;
 			}
 		}
-		mlog.say("last w of infocus " + w + " size " + eres_f);
-		int out2_start = w + eres_f;
 		
 		//now do outfocus
 		h = 0;
@@ -162,7 +160,7 @@ public class Eye {
 				w+=eres_nf;//next column
 				nn++;
 			} else{
-				w+=out2_start;//ef_w;
+				w+=ef_w;
 			}
 			if(w >= vf_w){
 				//next row
