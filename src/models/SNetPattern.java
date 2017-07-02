@@ -4,18 +4,13 @@ package models;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.Inet4Address;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.Vector;
 import javax.swing.JButton;
 
@@ -1075,7 +1070,16 @@ public class SNetPattern implements ControllableThread {
 	public void save(JButton saveButton) {
 		//deactivate button
 		saveButton.setEnabled(false);
-		writeWeights();
+		
+		//create folder
+		
+		//write weights
+		//writeWeights();
+		
+		//save net
+		String filename = folderName+"/"+ step + "_" + Constants.Net_file_name;
+		Utils.saveNet(filename);
+		
 		//reactivate button
 		saveButton.setEnabled(true);	
 	}

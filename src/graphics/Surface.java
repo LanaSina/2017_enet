@@ -84,8 +84,6 @@ public class Surface extends JPanel{
 	 * @param fw focus w
 	 */
 	public Surface(){
-		//setFocusSize(Constants.ef_h, Constants.ef_w);
-		
 		letter = new BufferedImage(visualField_w,visualField_h,BufferedImage.TYPE_INT_RGB);
 		focused = letter;
 		seen = letter;
@@ -95,22 +93,6 @@ public class Surface extends JPanel{
 		
 		buildFrame(this);
 	}
-	
-	/*public Surface(NetworkGraph netGraph){
-		this.netGraph = netGraph;
-		
-		setFocusSize(Constants.ef_h, Constants.ef_h);
-		
-		letter = new BufferedImage(visualField_w,visualField_h,BufferedImage.TYPE_INT_RGB);
-		focused = letter;
-		seen = letter;
-		
-		predicted = new BufferedImage(visualField_w,visualField_h,BufferedImage.TYPE_INT_RGB);
-		warped = new BufferedImage(visualField_w,visualField_h,BufferedImage.TYPE_INT_RGB);
-		
-		buildFrame(this);
-	}*/
-	
 	
 	
 	/**
@@ -275,7 +257,7 @@ public class Surface extends JPanel{
 					ControllableThread p = iterator.next();
 					p.save(saveButton);
 				}
-	         }          
+	         }//*/       
 	    });
 		ctrlPanel.add(saveButton);
 		

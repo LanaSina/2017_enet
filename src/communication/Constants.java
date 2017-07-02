@@ -53,7 +53,13 @@ public class Constants {
 	public static final String DataPath = "/Users/lana/Development/SNET_data/";
 	/** network parameters file*/
 	public static final String Net_param_file_name = "net_parameters.csv";
+	/** number of neurons and connections */
 	public static String Param_file_name = "parameters.csv";
+	/** where to save entire net structure */
+	public static String Net_file_name = "net.csv";
+	/** where to save sensor to net structure */
+	public static String Sensors_file_name = "sensors.csv";
+
 
 
 	public static final String PerfFileName = "performance.csv";

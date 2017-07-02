@@ -1,5 +1,8 @@
 package models;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -406,5 +409,90 @@ public class Utils {
 				n.activateDirectOutWeights();
 			}
 		}
+	}
+	
+	public void saveNet(HashMap<Integer, INeuron> net, Vector<INeuron> sensors, String folder, int step) {
+		try {
+			//first create directory
+			String folderName = folder + "/" + step;
+			File theDir = new File(folderName);
+			// if the directory does not exist, create it
+			if (!theDir.exists()) {
+			    mlog.say("creating directory: " + folderName);
+			    boolean result = false;
+			    try{
+			        theDir.mkdir();
+			        result = true;
+			    } 
+			    catch(SecurityException se){
+			    }        
+			    if(result) {    
+			        System.out.println("DIR created");  
+			    }
+			}
+			
+			//write sensors
+			String sensors_file = folderName + "/" + Constants.Sensors_file_name;
+			FileWriter sensor_writer = new FileWriter(sensors_file);
+			String str = "sensor_ID, neuron_ID, x, y, sx, sy \n";
+			sensor_writer.write(str);
+			sensor_writer.flush();
+			
+			for (Iterator<INeuron> iterator = sensors.iterator(); iterator.hasNext();) {
+				INeuron n = iterator.next();
+				INeuron to =  n.getDirectOutWeights().keySet().iterator().next();
+				double[] pos = to.getPosition();
+				str = n.getId() + "," + to.getId() + ","
+					+ pos[0] + "," + pos[1] + ","+ pos[2] + "," + pos[3] +  "\n";
+				sensor_writer.write(str);
+				sensor_writer.flush();
+			}
+			sensor_writer.close();
+			
+			//write net
+			String net_file = folderName+"/" + Constants.Net_file_name;
+			FileWriter net_writer = new FileWriter(net_file);
+			str = "ID, weight_type, weight_id, in_neuron, value, age\n";
+			net_writer.write(str);
+			net_writer.flush();
+			for (Iterator<Entry<Integer, INeuron>> iterator = net.entrySet().iterator(); iterator.hasNext();) {
+				Entry<Integer, INeuron> pair = iterator.next();
+				INeuron n = pair.getValue();
+				Integer id = pair.getKey();
+				
+				//direct inweights 1st
+				Iterator<BundleWeight> it_din = n.getDirectInWeights().iterator();
+				while (it_din.hasNext()) {
+					BundleWeight b = it_din.next();
+					Iterator<Entry<INeuron, ProbaWeight>> it_b = b.getBundle().entrySet().iterator();
+					int i = 0;
+					while (it_b.hasNext()) {
+						Entry<INeuron,ProbaWeight> entry = it_b.next();
+						str = id + ",direct," + i + "," + entry.getKey().getId() + ",20,20\n";
+						net_writer.write(str);
+						net_writer.flush();
+						i++;
+					}
+					
+				}
+				
+				//proba weights
+				Iterator<Entry<INeuron, ProbaWeight>> it_pin = n.getInWeights().entrySet().iterator();
+				while (it_pin.hasNext()) {
+					Entry<INeuron, ProbaWeight> entry = it_pin.next();
+					ProbaWeight p = entry.getValue();
+					str = id + ",proba," + -1 + "," + entry.getKey().getId() + "," + p.getValue() + "," + p.getAge() + "\n";
+					net_writer.write(str);
+					net_writer.flush();
+				}
+			
+			}
+			
+			net_writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		
 	}
 }
