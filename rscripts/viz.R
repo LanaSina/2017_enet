@@ -2,15 +2,9 @@
 #
 library(igraph)
 
-netName = "../2017_07_02_17_55"
-#netName = "../ECAL_oswald_bike"
+netName = "~/Development/SNET_data/2017_07_03_20_27"
 
 #parameters
-fileName = paste(netName,"parameters.csv",sep="/")
-print(fileName)
-param = read.csv(fileName)
-print(param)
-
 fileName = paste(netName,"net_parameters.csv",sep="/")
 print(fileName)
 param = read.csv(fileName)
@@ -60,7 +54,7 @@ abline(v=40)
 #neurons in 3d
 library(rgl)
 netName = "../2017_07_02_22_52"
-step = "4"
+step = "454"
 fileName = paste(netName,step,"positions.csv",sep="/")
 print(fileName)
 positions = read.csv(fileName)
@@ -97,8 +91,16 @@ pdf(file = img_path, width = 4, height = 5, family = "Helvetica")
 plot_weights(param)
 dev.off()
 
+#debug
+netName = "~/Development/SNET_data/2017_07_03_23_58"
+fileName = paste(netName,"net.csv",sep="/")
+net =  read.csv(fileName)
+
+
 #weights
-fileName = paste(netName,"weights_200.csv",sep="/")
+netName = "~/Development/SNET_data/2017_07_03_21_54"
+
+fileName = paste(netName,"weights_50.csv",sep="/")
 plotnet()
 
 img_path = paste(netName,"images","net.pdf", sep="/")

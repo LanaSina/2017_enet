@@ -90,11 +90,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/cue/";//Oswald/bike/small/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/simple/";//Oswald/bike/small/"; 
 	/** leading zeros*/
 	String name_format = "%02d";
 	/** number of images*/
-	int n_images = 6;//50
+	int n_images = 3;//50
 	
 	//sensors 
 	/** image sensor*/
@@ -489,7 +489,7 @@ public class SNetPattern implements ControllableThread {
 				//values in "in" start at 1, not 0
 				int i = in[k]-1;
 				INeuron eyen = eye_neurons[i].get(n_interface[i][k]);
-				if(i>=0){//>=0 if seeing white
+				if(i>0){//>=0 if seeing white
 					eyen.increaseActivation(1);
 					n_activated++;
 					if(eyen.getUpperSurprised()){
@@ -504,7 +504,7 @@ public class SNetPattern implements ControllableThread {
 		}else{
 			
 			if(step%10==0){
-				//unactivate all neurons
+				//deactivate all neurons
 				deactivateAll();
 				//activated = 0;
 			}
@@ -570,7 +570,6 @@ public class SNetPattern implements ControllableThread {
 			writeError(error, surprise, illusion);
 		}
 		mlog.say(" surprised: " + n_surprised + " illusions " + n_illusion + " activated " + n_activated);
-
 	}
 	
 	private void deactivateAll() {
@@ -645,10 +644,7 @@ public class SNetPattern implements ControllableThread {
 		//predicted activation for next step calculated here
 		Utils.calculateAndPropagateActivation(allINeurons);
 		
-		if(testp != null){
-			mlog.say("+++++++ activation "+	testp.getActivation());
-		}
-		//create new weights based on (+) surprise
+		//create new weights based on surprise
 		makeWeights();
 		
 		//look at predictions
@@ -672,7 +668,6 @@ public class SNetPattern implements ControllableThread {
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			//no hierarchy: all activated neurons are remembered, including sensory neurons.
-			//if(n.isMute()) mlog.say("muted "+ n.getId());
 			double[] p = n.getPosition();
 			if(p[0] == 0 && p[1] == 0){
 				mlog.say("============ bad position " + n.getId());
@@ -710,7 +705,7 @@ public class SNetPattern implements ControllableThread {
 				writeError(1,0,0);
 			}
 			return;
-		}		
+		}	
 		
 		
 		//ineurons 
@@ -751,6 +746,9 @@ public class SNetPattern implements ControllableThread {
 						if((cpu_limitations && nw>max_new_connections)) break;
 						
 						//doubloons weights will not be added
+						if(!allINeurons.containsKey(preneuron.getId())){
+							throw new Error("not in collection "+preneuron.getId());
+						}
 						ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
 						if(preneuron.addOutWeight(n,probaWeight)){
 							probaWeight.setActivation(1,null);
@@ -1140,9 +1138,7 @@ public class SNetPattern implements ControllableThread {
 			while (it.hasNext()) {
 				INeuron n = it.next();
 				sensors.put(n.getId(), n);
-				n.clearDirectInWeights();
 				n.clearDirectOutWeights();
-				//n.resetActivation();
 			}
 		}
 		
@@ -1167,12 +1163,12 @@ public class SNetPattern implements ControllableThread {
             			Double.valueOf(info[3]),Double.valueOf(info[4])};
 				n.setPosition(p);
 				allINeurons.put(n.getId(), n);
-				//mlog.say("created " + nid);
 	        }
 	        br.close();
 	        n_id = maxid+1;
 	        	        
 			//sensors-to-network links
+	        //maybe we dont need this?
 			br = new BufferedReader(new FileReader(sensor_file));
 			line = br.readLine();//skip 1 line
 			int neuron_id = -1;
@@ -1257,17 +1253,14 @@ public class SNetPattern implements ControllableThread {
 	        }
 	        br.close();
 	        
-	        //may not be useful
 	        //activate all to be ready for the next timestep
 	        for (int i = 0; i < eye_neurons.length; i++) {
 				Utils.propagateInstantaneousActivation(eye_neurons[i].values());
 			}
 	        //for ineurons
 			Utils.activateOutWeights(allINeurons);	
-			//muting happens here
-			//predicted activation for next step calculated here
 			Utils.calculateAndPropagateActivation(allINeurons);
-	        
+			
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

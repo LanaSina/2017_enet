@@ -95,15 +95,6 @@ public class Utils {
 
 		//if single neuron
 		if(valid_neurons.size()==1){
-			//no direct iw with only 1 neuron
-			/*mlog.say("no direct iw with only 1 neuron: " + valid_neurons.get(0).getId());
-			
-			mlog.say("original vector:");
-			for (Iterator<INeuron> iterator2 = neurons.iterator(); iterator2.hasNext();) {
-				INeuron n2 = iterator2.next();
-				double[] p = n2.getPosition();
-				mlog.say(""+ n2.getId() + " pos " + p[0] + " " + p[1] + " " + p[2] + " " + p[3]);
-			}*/
 			return new Vector<INeuron>();
 		}
 		
@@ -205,6 +196,10 @@ public class Utils {
 			INeuron n =  it.next();
 			if(n.getActivation()>0){
 				n.ageOutWeights();
+				
+				if(n.getId() == 1653){
+					mlog.say("aged 1653 weights");
+				}
 			}
 		}
 	}
@@ -232,6 +227,9 @@ public class Utils {
 			INeuron n = pair.getValue();
 			if(n.getActivation()>0){
 				n.increaseInWeights();
+				if(n.getId() == 1653){
+					mlog.say("increased 1653 in weights");
+				}
 			}
 		}
 	}
@@ -259,8 +257,6 @@ public class Utils {
 			boolean doit = true;
 			
 			if(!n.justSnapped && doit){ 
-				//mlog.say("here 1");
-
 				//look for equivalent neurons (neurons with equivalent outweights)
 				Iterator<Entry<Integer, INeuron>> it2 = allINeurons.entrySet().iterator();
 				while(it2.hasNext()){
@@ -268,8 +264,6 @@ public class Utils {
 					INeuron n2 = pair2.getValue();
 										
 					if((n.getId() != n2.getId()) && !n2.justSnapped && doit){
-						//mlog.say("here 2");
-						
 						boolean dosnap = true;
 
 						//compare all out weights
@@ -282,16 +276,16 @@ public class Utils {
 						//inweights
 						HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
 						HashMap<INeuron,ProbaWeight> in2 = n2.getInWeights();
-						
+						Set<INeuron> i1 = in1.keySet();
+						Set<INeuron> i2 = in2.keySet();
 						
 						//avoid direct recurrent connections
 						if(n.directInWeightsContains(n2) || n2.directInWeightsContains(n) ||
-								//avoid different sets of outweights
-								!s1.equals(s2)){
+								//avoid different sets of outweights and inweights
+								!s1.equals(s2) || !i1.equals(i2)){ 
 							//mlog.say("too different");
 							dosnap = false;
 						} else {
-							//mlog.say("compare outw");
 							//compare outw
 							while(out2it.hasNext()){
 								Map.Entry<INeuron, ProbaWeight> out2pair = out2it.next();
@@ -326,6 +320,11 @@ public class Utils {
 									if(in2.containsKey(c)){
 										ProbaWeight p1 = entry.getValue();
 										ProbaWeight p2 = in2.get(c);
+										if(p1.canLearn() || p2.canLearn()){
+											dosnap = false;
+											break;
+										}
+											
 										if(Math.abs(p1.getProba()-p2.getProba())>Constants.w_error){
 											//mlog.say("wrong in value");
 											dosnap = false;
@@ -333,6 +332,7 @@ public class Utils {
 										}
 									} else {
 										dosnap = false;
+										break;
 										//a bit sad about this but causes strong illusions
 									}//*/
 								}
@@ -344,7 +344,6 @@ public class Utils {
 								remove.add(n2);
 								
 								//report n2 inputs to n if they did not exist
-								//todo error here
 								n2.reportInWeights(n);
 								
 								//do the same for direct inweights
@@ -372,13 +371,21 @@ public class Utils {
 		}
 		
 		
-		//reset "just snapped" values and remove ghost outweights
+		//reset "just snapped" values 
 		it = allINeurons.entrySet().iterator();
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			n.justSnapped = false;
+			//check in weights
+			for (Iterator iterator = remove.iterator(); iterator.hasNext();) {
+				INeuron iNeuron = (INeuron) iterator.next();
+				if(n.getInWeights().get(iNeuron)!=null){
+					throw new java.lang.Error("dead neuron in here");
+				}
+			}
 		}
+		
 		
 		nw = countWeights(allINeurons);
 		mlog.say("after: weights "+ nw + " neurons " + allINeurons.size());
@@ -477,18 +484,17 @@ public class Utils {
 				
 				//direct inweights 1st
 				Iterator<BundleWeight> it_din = n.getDirectInWeights().iterator();
+				int i = 0;
 				while (it_din.hasNext()) {
 					BundleWeight b = it_din.next();
 					Iterator<Entry<INeuron, ProbaWeight>> it_b = b.getBundle().entrySet().iterator();
-					int i = 0;
 					while (it_b.hasNext()) {
 						Entry<INeuron,ProbaWeight> entry = it_b.next();
 						str = id + ",direct," + i + "," + entry.getKey().getId() + ",20,20\n";
 						net_writer.write(str);
 						net_writer.flush();
-						i++;
 					}
-					
+					i++;
 				}
 				
 				//proba weights
@@ -496,6 +502,11 @@ public class Utils {
 				while (it_pin.hasNext()) {
 					Entry<INeuron, ProbaWeight> entry = it_pin.next();
 					ProbaWeight p = entry.getValue();
+					INeuron in = entry.getKey();
+					if(!net.containsKey(in.getId())){
+						mlog.say("dead neuron");
+						throw new java.lang.Error("dead neuron " + in.getId() + " to " + n.getId());
+					}
 					str = id + ",proba," + -1 + "," + entry.getKey().getId() + "," + p.getValue() + "," + p.getAge() + "\n";
 					net_writer.write(str);
 					net_writer.flush();

@@ -305,6 +305,10 @@ public class INeuron extends Neuron {
 			//value is increased if this weight was previously activated
 			if(w.canLearn() & w.isActivated()){
 				w.addValue();
+				if(w.getValue()>Constants.weight_max_age+1){
+					throw new java.lang.Error("Value "  + w.getValue() + " is more than max ag. Current age: " + w.getAge() +
+							". ID " +id+ " from " + pair.getKey().getId());
+				}
 			}
 		}
 	}
@@ -521,18 +525,13 @@ public class INeuron extends Neuron {
 	 */
 	public double getUpperPredictedActivation() {
 		if(directOutWeights.size()>1){
-			mlog.say("=========ERROR");
+			throw new Error("=========ERROR");
 		}
 		//should never be null	
 		Iterator<Entry<INeuron, BundleWeight>> it = directOutWeights.entrySet().iterator();
-		double sum = 0;
-		while(it.hasNext()){
-			Entry<INeuron, BundleWeight> pair = it.next();
-			INeuron neuron = pair.getKey();
-			sum+=neuron.getPredictedActivation();
-		}
-		
-		return sum/directOutWeights.size();
+		Entry<INeuron, BundleWeight> pair = it.next();
+		INeuron neuron = pair.getKey();
+		return neuron.getPredictedActivation();
 	}
 	
 	/** for prediction map debug and perf calculation */
@@ -633,12 +632,6 @@ public class INeuron extends Neuron {
 	 * @param key the input neuron */
 	public void removeInWeight(INeuron key) {
 		inWeights.remove(key);	
-		//remove from bundle weights too
-		/*for (Iterator<BundleWeight> it = bundleWeights.iterator(); it.hasNext();) {
-			BundleWeight b = it.next();
-			b.removeStrand(key);
-		}
-		bundleWeights.remove(key);*/
 	}
 
 
@@ -746,6 +739,7 @@ public class INeuron extends Neuron {
 	 * @param n
 	 */
 	public void reportInWeights(INeuron n) {
+		
 		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = inWeights.entrySet().iterator(); iterator.hasNext();) {
 			Entry<INeuron, ProbaWeight> pair = iterator.next();
 			INeuron from = pair.getKey();
@@ -815,6 +809,7 @@ public class INeuron extends Neuron {
 	 * delete the links from this neuron in other neurons
 	 */
 	public void removeAllOutWeights() {
+		
 		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = outWeights.entrySet().iterator(); iterator.hasNext();) {
 			Entry<INeuron, ProbaWeight> pair = iterator.next();
 			pair.getKey().removeInWeight(this);
