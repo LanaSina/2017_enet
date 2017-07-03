@@ -29,6 +29,7 @@ public class BundleWeight extends ProbaWeight {
 	 */
 	public BundleWeight(int type) {
 		super(type);
+		mlog.setName("BWeight");
 	}
 	
 	/**
@@ -40,14 +41,12 @@ public class BundleWeight extends ProbaWeight {
 		//create age and value
 		super(Constants.defaultConnection);
 		mlog.setName("BWeight");
-		//TODO learning should happen on each strand		
 		
 		//create bundle
 		for (Iterator<INeuron> iterator = from.iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
 			ProbaWeight p = new ProbaWeight(Constants.fixedConnection);
 			bundle.put(n, p);
-			//n.addDirectOutWeight(p, to);
 			n.addDirectOutWeight(to, this);
 		}
 	}

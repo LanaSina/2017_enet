@@ -90,11 +90,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/simple/";//Oswald/bike/small/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/cue/";//Oswald/bike/small/"; 
 	/** leading zeros*/
 	String name_format = "%02d";
 	/** number of images*/
-	int n_images = 3;//50
+	int n_images = 6;//50
 	
 	//sensors 
 	/** image sensor*/
@@ -489,7 +489,7 @@ public class SNetPattern implements ControllableThread {
 				//values in "in" start at 1, not 0
 				int i = in[k]-1;
 				INeuron eyen = eye_neurons[i].get(n_interface[i][k]);
-				if(i>0){//>=0 if seeing white
+				if(i>=0){//>=0 if seeing white
 					eyen.increaseActivation(1);
 					n_activated++;
 					if(eyen.getUpperSurprised()){
@@ -1199,7 +1199,6 @@ public class SNetPattern implements ControllableThread {
 	        br = new BufferedReader(new FileReader(net_file));
 	        int id = -1;
 	        int w_id = -1;
-	       
 	        BundleWeight bw = null;
 	        n = null;
 	        line = br.readLine();//skip 1 line
@@ -1210,7 +1209,9 @@ public class SNetPattern implements ControllableThread {
 	            int id2 = Integer.valueOf(info[0]);
 	            if(id!=id2){
 	            	id = id2;
+	    	        w_id = -1;
 	            	n = allINeurons.get(id);
+	            	mlog.say("do "+id);
 	            	if(n==null){
 						mlog.say("not found " + id);
 	            	}
@@ -1224,6 +1225,7 @@ public class SNetPattern implements ControllableThread {
 	            		//new bundle
 	            		bw = new BundleWeight(Constants.fixedConnection);
 	            		n.addDirectInWeight(bw);
+	            		mlog.say("added bundle weight to " + n.getId());
 	            	}
 	            	
 	            	int in_id = Integer.valueOf(info[3]);
@@ -1231,6 +1233,7 @@ public class SNetPattern implements ControllableThread {
 	            	if(sensors.containsKey(in_id)){
 	            		continue;
 	            	}
+	            	
 	            	INeuron in_n = allINeurons.get(in_id);
 	            	if(in_n==null){
 	            		mlog.say("not found id " + in_id);
@@ -1238,6 +1241,8 @@ public class SNetPattern implements ControllableThread {
 	            	ProbaWeight p = new ProbaWeight(Constants.fixedConnection);
 	            	bw.addStrand(in_n, p);
 	            	in_n.addDirectOutWeight(n, bw);
+	            	mlog.say("added strand from " + in_n.getId());
+	            	
 	            } else if(w_type.equals("proba")) {
 	            	int in_id = Integer.valueOf(info[3]);
 	            	INeuron in_n = allINeurons.get(in_id);

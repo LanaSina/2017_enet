@@ -353,16 +353,6 @@ public class INeuron extends Neuron {
 				if(w>confidence & pw.isActivated()){
 					pa+=1;
 				}
-				if(id == 1195){
-					INeuron test = pair.getKey();
-					mlog.say("1195 predicted by "+ test.getId());
-					if(test.getOutWeights().get(this)!=null){
-						mlog.say("contains us");
-						if(test.getOutWeights().get(this)==pw){
-							mlog.say("is correct pw");
-						}
-					}
-				}
 			}	
 			
 
