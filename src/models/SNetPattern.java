@@ -90,11 +90,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Oswald/bike/small/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/cue/";//Oswald/bike/small/"; 
 	/** leading zeros*/
 	String name_format = "%02d";
 	/** number of images*/
-	int n_images = 40;//Constants.n_images;
+	int n_images = 6;//50
 	
 	//sensors 
 	/** image sensor*/

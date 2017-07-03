@@ -1,4 +1,6 @@
-
+currently adding weights when we should NOT (ball cue)
+(adding weights but not neurons)
+there is a dead pixel (illusion) all of a sudden ->
 
 white neurons illusions are weird
 still strange prediction look like illusion after snapping
