@@ -282,6 +282,9 @@ public class Surface extends JPanel{
    	 	loadButton.addActionListener(new ActionListener() {
 	         public void actionPerformed(ActionEvent e) {	
 	        	 JFileChooser fileChooser = new JFileChooser();
+	        	 String sep = System.getProperty("file.separator");
+	        	 fileChooser.setCurrentDirectory(new File  
+	        			 (System.getProperty("user.home") + sep + "Development" + sep + "SNET_data"));
 	        	 fileChooser.setDialogTitle("Open Resource File");
 	        	 int returnVal = fileChooser.showOpenDialog(ctrlPanel);//Surface.this);
 

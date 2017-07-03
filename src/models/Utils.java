@@ -457,6 +457,7 @@ public class Utils {
 				INeuron n = iterator.next();
 				double[] pos = n.getPosition();
 				str = n.getId() + "," + pos[0] + "," + pos[1] + ","+ pos[2] + "," + pos[3] +  "\n";
+				//mlog.say("saved " + n.getId());
 				pos_writer.write(str);
 				pos_writer.flush();
 			}

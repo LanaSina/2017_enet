@@ -376,12 +376,16 @@ public class SNetPattern implements ControllableThread {
 				BundleWeight b = n2.addDirectInWeight(v);
 				n.addDirectOutWeight(n2,b);
 				allINeurons.put(n_id, n2);
+				//mlog.say("created+ " + n_id);
 				n_id++;				
 			}
 		}	
 		si_end = n_id-1;
 
 		mlog.say("Initial INeurons: id "+ si_start + " to "+ si_end);
+		if(allINeurons.containsKey(0)){
+			mlog.say("contains 0");
+		}
 		
 		/*pi_start = n_id;
 		//move right or left 
@@ -1104,12 +1108,13 @@ public class SNetPattern implements ControllableThread {
 		//get correct names
 		//TODO switch
 		File sensor_file, net_file, pos_file;
-		if(file.getName() == Constants.Sensors_file_name){
+		mlog.say("file parent name "+ file.getParent());
+		if(file.getName().equals(Constants.Sensors_file_name)){
 			sensor_file = file;
 			String net_name = file.getParent() + "/" + Constants.Net_file_name;
 			net_file = new File(net_name);
 			pos_file = new File(file.getParent() + "/" + Constants.Positions_file_name);
-		}else if(file.getName() == Constants.Net_file_name){
+		}else if(file.getName().equals(Constants.Net_file_name)){
 			net_file = file;
 			String sensor_name = file.getParent() + "/" + Constants.Sensors_file_name;
 			sensor_file = new File(sensor_name);
@@ -1122,6 +1127,11 @@ public class SNetPattern implements ControllableThread {
 			sensor_file = new File(sensor_name);
 		}
 		
+		mlog.say("sensors "+ sensor_file.getName());
+		mlog.say("net "+ net_file.getName());
+		mlog.say("position  "+ pos_file.getName());
+
+		
 		
 		allINeurons.clear();
 		HashMap<Integer, INeuron> sensors = new HashMap<Integer, INeuron>();
@@ -1133,24 +1143,47 @@ public class SNetPattern implements ControllableThread {
 			}
 		}
 		
-		//sensors-to-network links
-		BufferedReader br;
 		try {
+			//build all neurons and set all positions
+	        //network
+			BufferedReader br = new BufferedReader(new FileReader(pos_file));
+	        String line = br.readLine();//skip 1 line
+	        mlog.say(line);
+	        int maxid = -1;
+	        while ((line = br.readLine()) != null) {
+	            // use comma as separator
+				//str = "ID, x, y, sx, sy\n";
+	            String[] info = line.split(",");
+	            //mlog.say("line " + line);
+	            //mlog.say("read " + info[0]);
+	            int nid = Integer.valueOf(info[0]);
+	            if(nid>maxid) maxid = nid;
+            	
+	            INeuron n = new INeuron(nid);
+            	double[] p = {Double.valueOf(info[1]),Double.valueOf(info[2]),
+            			Double.valueOf(info[3]),Double.valueOf(info[4])};
+				n.setPosition(p);
+				allINeurons.put(n.getId(), n);
+				//mlog.say("created " + nid);
+	        }
+	        br.close();
+	        n_id = maxid+1;
+	        
+			//sensors-to-network links
 			br = new BufferedReader(new FileReader(sensor_file));
-			String line = br.readLine();//skip 1 line
+			line = br.readLine();//skip 1 line
 			int neuron_id = -1;
+            INeuron n = null;
 	        while ((line = br.readLine()) != null) {
 	            // use comma as separator
 	            String[] info = line.split(",");
-	            INeuron n = null;
 	            //"sensor_ID, neuron_ID, x, y, sx, sy \n";
-	            if(Integer.valueOf(info[0])!=neuron_id){
+	            if(Integer.valueOf(info[1])!=neuron_id){
 	            	neuron_id = Integer.valueOf(info[1]);
-	            	n = new INeuron(neuron_id);
-	            	double[] p = {Double.valueOf(info[2]),Double.valueOf(info[3]),
-	            			Double.valueOf(info[4]),Double.valueOf(info[5])};
-					n.setPosition(p);
-					allINeurons.put(n.getId(), n);
+	            	n = allINeurons.get(neuron_id);
+	            	if(n==null){
+						mlog.say("not found " + neuron_id);
+	            	}
 	            }
 	            	
 	        	//add direct in weight
@@ -1161,15 +1194,15 @@ public class SNetPattern implements ControllableThread {
 				BundleWeight b = n.addDirectInWeight(v);
 				s.addDirectOutWeight(n, b);
 	         }
-	        
-	        
+	        br.close();
+
 	        //network
 	        br = new BufferedReader(new FileReader(net_file));
 	        int id = -1;
 	        int w_id = -1;
-	        int maxid = -1;
+	       
 	        BundleWeight bw = null;
-	        INeuron n = null;
+	        n = null;
 	        line = br.readLine();//skip 1 line
 	        while ((line = br.readLine()) != null) {
 	            // use comma as separator
@@ -1178,15 +1211,11 @@ public class SNetPattern implements ControllableThread {
 	            int id2 = Integer.valueOf(info[0]);
 	            if(id!=id2){
 	            	id = id2;
-	            	if(id>maxid) maxid = id;
-	            	w_id = -1;
-	            	if((n=allINeurons.get(id))==null){
-	            		n = new INeuron(neuron_id);
-		            	/*double[] p = {Double.valueOf(info[2]),Double.valueOf(info[3]),
-		            			Double.valueOf(info[4]),Double.valueOf(info[5])};
-						n.setPosition(p);*/
-						allINeurons.put(n.getId(), n);
+	            	n = allINeurons.get(id);
+	            	if(n==null){
+						mlog.say("not found " + id);
 	            	}
+
 	            }
 	            
 	            String w_type = info[1];
@@ -1224,21 +1253,8 @@ public class SNetPattern implements ControllableThread {
 	            	in_n.addOutWeight(n, p);
 	            }
 	        }
-	        n_id = maxid+1;
+	        br.close();
 	        
-	        //set all positions
-	        //network
-	        br = new BufferedReader(new FileReader(pos_file));
-	        line = br.readLine();//skip 1 line
-	        while ((line = br.readLine()) != null) {
-	            // use comma as separator
-				//str = "ID, x, y, sx, sy\n";
-	            String[] info = line.split(",");
-	            int nid = Integer.valueOf(info[0]);
-	            double[] pos = {Double.valueOf(info[1]),Double.valueOf(info[2]),Double.valueOf(info[3]),Double.valueOf(info[4])};
-	            allINeurons.get(nid).setPosition(pos);
-	        }
-	       
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
