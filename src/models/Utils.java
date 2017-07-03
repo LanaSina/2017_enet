@@ -345,17 +345,14 @@ public class Utils {
 								
 								//report n2 inputs to n if they did not exist
 								n2.reportInWeights(n);
-								
 								//do the same for direct inweights
 								n2.reportDirectInWeights(n);
 								n.recalculatePosition();
-			
 								//now report direct outweights
 								n2.reportDirectOutWeights(n);
 								
 								//notifies output neurons too
 								n2.removeAllOutWeights();
-								
 								n2.clearDirectInWeights();									
 							}
 														

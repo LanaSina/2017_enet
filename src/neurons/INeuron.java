@@ -111,12 +111,14 @@ public class INeuron extends Neuron {
 
 
 	/**
-	 * adds or replace new weight (there isnt supposed to be contradictions in inweights
+	 * adds new weight if it did not exist
 	 * @param n
 	 * @param p
 	 */
 	public void addInWeight(INeuron n, ProbaWeight p) {
-		inWeights.put(n, p);
+		if(!inWeights.containsKey(n)){
+			inWeights.put(n, p);
+		}
 	}
 
 	/**
@@ -350,6 +352,16 @@ public class INeuron extends Neuron {
 				double w  = pw.getProba();
 				if(w>confidence & pw.isActivated()){
 					pa+=1;
+				}
+				if(id == 1195){
+					INeuron test = pair.getKey();
+					mlog.say("1195 predicted by "+ test.getId());
+					if(test.getOutWeights().get(this)!=null){
+						mlog.say("contains us");
+						if(test.getOutWeights().get(this)==pw){
+							mlog.say("is correct pw");
+						}
+					}
 				}
 			}	
 			
@@ -744,6 +756,7 @@ public class INeuron extends Neuron {
 			Entry<INeuron, ProbaWeight> pair = iterator.next();
 			INeuron from = pair.getKey();
 			ProbaWeight w = pair.getValue();
+			
 			//recurrent weight
 			if(from==this){
 				//add the inweight to n

@@ -653,6 +653,7 @@ public class SNetPattern implements ControllableThread {
 		//update short term memory
 		updateSTM();
 		
+		
 		//input activations are reset and updated at the beginning of next step.
 	}
 	
