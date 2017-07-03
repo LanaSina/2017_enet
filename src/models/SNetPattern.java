@@ -1131,15 +1131,18 @@ public class SNetPattern implements ControllableThread {
 		mlog.say("net "+ net_file.getName());
 		mlog.say("position  "+ pos_file.getName());
 
-		
-		
+		//clean up everything	
 		allINeurons.clear();
+		STM.clear();		
 		HashMap<Integer, INeuron> sensors = new HashMap<Integer, INeuron>();
 		for(int i=0; i<eye_neurons.length; i++){
 			Iterator<INeuron> it = eye_neurons[i].values().iterator();
 			while (it.hasNext()) {
 				INeuron n = it.next();
 				sensors.put(n.getId(), n);
+				n.clearDirectInWeights();
+				n.clearDirectOutWeights();
+				//n.resetActivation();
 			}
 		}
 		
@@ -1168,7 +1171,7 @@ public class SNetPattern implements ControllableThread {
 	        }
 	        br.close();
 	        n_id = maxid+1;
-	        
+	        	        
 			//sensors-to-network links
 			br = new BufferedReader(new FileReader(sensor_file));
 			line = br.readLine();//skip 1 line
@@ -1188,12 +1191,11 @@ public class SNetPattern implements ControllableThread {
 	            	
 	        	//add direct in weight
 	        	INeuron s = sensors.get(Integer.valueOf(info[0]));
-	        	s.clearDirectOutWeights();
 				Vector<INeuron> v = new Vector<INeuron>();
 				v.addElement(s);
 				BundleWeight b = n.addDirectInWeight(v);
 				s.addDirectOutWeight(n, b);
-	         }
+	        }
 	        br.close();
 
 	        //network
@@ -1215,11 +1217,10 @@ public class SNetPattern implements ControllableThread {
 	            	if(n==null){
 						mlog.say("not found " + id);
 	            	}
-
 	            }
 	            
 	            String w_type = info[1];
-	            if(w_type=="direct"){
+	            if(w_type.equals("direct")){
 	            	int w_id2 = Integer.valueOf(info[2]);
 	            	if(w_id2!=w_id){
 	            		w_id = w_id2;
@@ -1229,31 +1230,43 @@ public class SNetPattern implements ControllableThread {
 	            	}
 	            	
 	            	int in_id = Integer.valueOf(info[3]);
+	            	//ignore sensors
+	            	if(sensors.containsKey(in_id)){
+	            		continue;
+	            	}
 	            	INeuron in_n = allINeurons.get(in_id);
 	            	if(in_n==null){
-	            		in_n = new INeuron(in_id);
-						allINeurons.put(in_id, in_n);
+	            		mlog.say("not found id " + in_id);
 	            	}
-	            	
 	            	ProbaWeight p = new ProbaWeight(Constants.fixedConnection);
 	            	bw.addStrand(in_n, p);
 	            	in_n.addDirectOutWeight(n, bw);
-	            } else if(w_type=="proba") {
+	            } else if(w_type.equals("proba")) {
 	            	int in_id = Integer.valueOf(info[3]);
 	            	INeuron in_n = allINeurons.get(in_id);
-	            	if(in_n==null){
-	            		in_n = new INeuron(in_id);
-						allINeurons.put(in_id, in_n);
-	            	}
-	            	
 	            	ProbaWeight p = new ProbaWeight(Constants.defaultConnection);
 	            	p.setValue(Integer.valueOf(info[4]));
 	            	p.setAge(Integer.valueOf(info[5]));
 	            	n.addInWeight(in_n, p);
-	            	in_n.addOutWeight(n, p);
+	            	if(in_n.addOutWeight(n, p)){
+	            		//mlog.say("added out weight to " + in_n.getId());
+	            	}
+	            } else {
+	            	mlog.say("*********error");
 	            }
 	        }
 	        br.close();
+	        
+	        //may not be useful
+	        //activate all to be ready for the next timestep
+	        for (int i = 0; i < eye_neurons.length; i++) {
+				Utils.propagateInstantaneousActivation(eye_neurons[i].values());
+			}
+	        //for ineurons
+			Utils.activateOutWeights(allINeurons);	
+			//muting happens here
+			//predicted activation for next step calculated here
+			Utils.calculateAndPropagateActivation(allINeurons);
 	        
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block

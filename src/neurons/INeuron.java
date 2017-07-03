@@ -262,7 +262,7 @@ public class INeuron extends Neuron {
 	 */
 	public boolean addOutWeight(INeuron n, ProbaWeight p) {
 		boolean b = false;
-		if(outWeights.containsValue(p)){
+		if(outWeights.containsKey(n)){
 		}else{
 			outWeights.put(n, p);
 			b = true;
