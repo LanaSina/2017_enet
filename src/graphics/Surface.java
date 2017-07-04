@@ -278,8 +278,11 @@ public class Surface extends JPanel{
 		ctrlPanel.add(refreshButton);
 		
 		//load a network
-		JButton loadButton = new JButton("Load Net"); 		
-
+		JPanel netloadPanel = new JPanel();
+		netloadPanel.setLayout(new BoxLayout(netloadPanel, BoxLayout.X_AXIS));
+		JTextField netFileName = new JTextField("Choose a file");
+		netloadPanel.add(netFileName);
+		JButton loadButton = new JButton("Load Net");
    	 	loadButton.addActionListener(new ActionListener() {
 	         public void actionPerformed(ActionEvent e) {	
 	        	 JFileChooser fileChooser = new JFileChooser();
@@ -301,8 +304,8 @@ public class Surface extends JPanel{
 	             }
 	         }          
 	    });
-		ctrlPanel.add(loadButton);
-		ctrlPanel.setVisible(true); 
+   	 	netloadPanel.add(loadButton);
+   	 	netloadPanel.setVisible(true); 
 		
 		//loading files
 		//load net

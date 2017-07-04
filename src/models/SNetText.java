@@ -1022,7 +1022,7 @@ public class SNetText implements ControllableThread {
 	}
 
 	@Override
-	public void load(File file) {
+	public void load(File file, int type) {
 		// TODO Auto-generated method stub
 		
 	}
