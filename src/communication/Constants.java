@@ -61,6 +61,7 @@ public class Constants {
 	public static String Sensors_file_name = "sensors.csv";
 	public static String Positions_file_name = "positions.csv";
 	public static final String PerfFileName = "performance.csv";
+	public static final String MemoryFileName = "memories.csv";
 	/** network-type file*/
 	public static final int Net_File_type = 0;
 	/** memory-type file*/

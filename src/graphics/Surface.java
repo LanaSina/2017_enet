@@ -392,7 +392,6 @@ public class Surface extends JPanel{
 		predicted = prediction;
 	}
 
-
 	public void setTime(int step) {
 		timeLabel.setText("Time: "+step);	
 	}

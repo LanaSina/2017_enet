@@ -70,6 +70,8 @@ public class SNetPattern implements ControllableThread {
 	FileWriter bWeightsWriter;
 	/** performance (surprise)*/
 	FileWriter perfWriter;
+	/** memories */
+	FileWriter memWriter;
 	
 	/**number of presentations for current image*/
 	int presentations = 0;
@@ -116,6 +118,7 @@ public class SNetPattern implements ControllableThread {
 	//memory
 	BufferedReader memReader;
 	boolean readingMemory = false;
+	File memoryFile;
 	
 	//actions
 //	/**vector of ids of activated muscles (id must correspond to motion value in Eye)*/
@@ -219,6 +222,13 @@ public class SNetPattern implements ControllableThread {
         	str = "iteration,error,surprise,illusion \n";
         	perfWriter.append(str);
         	perfWriter.flush();
+        	
+        	//memory
+        	memWriter = new FileWriter(folderName+"/"+Constants.MemoryFileName);
+			mlog.say("stream opened "+Constants.MemoryFileName);
+        	str = "iteration,id\n";
+        	memWriter.append(str);
+        	memWriter.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}		
@@ -452,11 +462,19 @@ public class SNetPattern implements ControllableThread {
 			Utils.resetDirectOutWeights(allINeurons);
 			
 			//read and activate all neurons in memory
-			String line;
+			
 			try {
-				line = memReader.readLine();
+				String line =  memReader.readLine();
+				if(line== null){
+					//start from 0
+					memReader.close();
+					loadMemory();
+					line =  memReader.readLine();
+				}
+				
 				String[] info = line.split(",");
 				int st = Integer.valueOf(info[0]);
+				step = st;
 				int st2 = st;
 				INeuron n;
 				while ((line = memReader.readLine()) != null) {
@@ -712,12 +730,18 @@ public class SNetPattern implements ControllableThread {
 			
 			if(n.isActivated() & !n.isMute()){
 				STM.add(n);
-				/*if(n.getId()>=2208 && n.getId()<2213){
-					mlog.say("000000 STM includes motion neuron");
+				//memories
+				if(!readingMemory && n.isSurprised()){
+					String str = step + ",-1\n";//filler line
+			    	try {
+			    		memWriter.append(str);
+			    		str = step+","+ n.getId()+"\n";
+			    		memWriter.append(str);
+			    		memWriter.flush();	
+					} catch (IOException e) {
+						e.printStackTrace();
+					}				
 				}
-				if(n.getId()>2213){
-					mlog.say("1111111 STM includes pattern neuron");
-				}*/
 			}
 		}
 		
@@ -760,16 +784,6 @@ public class SNetPattern implements ControllableThread {
 				if(id>=pi_start && id<=pi_end){
 					continue;
 				}*/
-	
-				/*if(id>=si_start && id<=si_end){
-					if(n.isActivated()){
-						n_activated++;
-					}
-					if(n.isIllusion()){
-						n_illusion++;
-					}
-				}*/
-						
 				
 				if(n.isSurprised()){// && !n.isMute() must predict activation of small ones too
 					
@@ -1033,34 +1047,36 @@ public class SNetPattern implements ControllableThread {
 		    		int nw = Utils.countWeights(allINeurons);
 		    		mlog.say("step " + step +" weights "+nw);
 			
-		    		if(step%Constants.snap_freq==0){
-		    			long runtime = System.currentTimeMillis()-before;
-		    			//save
-		    			if(save){
-		    				writeWeights();
-		    				writeParameters();
-		    			}
-		    			//calculate snap time
-		    			before = System.currentTimeMillis();
-		    			net.snap();
-		    			long snaptime = System.currentTimeMillis()-before;;
-		    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);//*/
-		    			
-		    			//sleep
-		    			/*if(step>1){
-			    			if(!dreaming){
-			    				dreaming = true;
-			    				cleanAll();
-			    				mlog.say("********* dreaming");
-			    			}else{	    				
-			    				dreaming = false;
-			    				cleanAll();
-			    				mlog.say("********* not dreaming");
+		    		if(!readingMemory){
+			    		if(step%Constants.snap_freq==0){
+			    			long runtime = System.currentTimeMillis()-before;
+			    			//save
+			    			if(save){
+			    				writeWeights();
+			    				writeParameters();
 			    			}
-		    			}//*/
-		    		}
+			    			//calculate snap time
+			    			before = System.currentTimeMillis();
+			    			net.snap();
+			    			long snaptime = System.currentTimeMillis()-before;;
+			    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);//*/
+			    			
+			    			//sleep
+			    			/*if(step>1){
+				    			if(!dreaming){
+				    				dreaming = true;
+				    				cleanAll();
+				    				mlog.say("********* dreaming");
+				    			}else{	    				
+				    				dreaming = false;
+				    				cleanAll();
+				    				mlog.say("********* not dreaming");
+				    			}
+			    			}//*/
+			    		}
 		    		
-		    		step++;
+		    			step++;
+		    		}
 		    		
 		    		//UI
 				    panel.setTime(step);
@@ -1241,7 +1257,7 @@ public class SNetPattern implements ControllableThread {
 	            	id = id2;
 	    	        w_id = -1;
 	            	n = allINeurons.get(id);
-	            	mlog.say("do "+id);
+	            	//mlog.say("do "+id);
 	            	if(n==null){
 						mlog.say("not found " + id);
 	            	}
@@ -1255,7 +1271,7 @@ public class SNetPattern implements ControllableThread {
 	            		//new bundle
 	            		bw = new BundleWeight(Constants.fixedConnection);
 	            		n.addDirectInWeight(bw);
-	            		mlog.say("added bundle weight to " + n.getId());
+	            		//mlog.say("added bundle weight to " + n.getId());
 	            	}
 	            	
 	            	int in_id = Integer.valueOf(info[3]);
@@ -1271,7 +1287,7 @@ public class SNetPattern implements ControllableThread {
 	            	ProbaWeight p = new ProbaWeight(Constants.fixedConnection);
 	            	bw.addStrand(in_n, p);
 	            	in_n.addDirectOutWeight(n, bw);
-	            	mlog.say("added strand from " + in_n.getId());
+	            	//mlog.say("added strand from " + in_n.getId());
 	            	
 	            } else if(w_type.equals("proba")) {
 	            	int in_id = Integer.valueOf(info[3]);
@@ -1306,16 +1322,15 @@ public class SNetPattern implements ControllableThread {
 		}
 	}
 	
-	private void loadMemory(File file) {
+	private void loadMemory() {
 		
 		//prepare network
 		//deactivate everything
 		cleanAll();
 		readingMemory = true;
-
 		
 		try {
-			memReader = new BufferedReader(new FileReader(file));
+			memReader = new BufferedReader(new FileReader(memoryFile));
 			String line = memReader.readLine();//skip 1st line
 	        mlog.say(line);
 		} catch (IOException e) {
@@ -1331,7 +1346,8 @@ public class SNetPattern implements ControllableThread {
 			loadNetwork(file);
 			break;
 		case Constants.Memory_File_type:
-			loadMemory(file);
+			memoryFile = file;
+			loadMemory();
 			break;
 		default:
 			break;
