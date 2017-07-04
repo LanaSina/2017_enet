@@ -60,9 +60,13 @@ public class Constants {
 	/** where to save sensor to net structure */
 	public static String Sensors_file_name = "sensors.csv";
 	public static String Positions_file_name = "positions.csv";
-
 	public static final String PerfFileName = "performance.csv";
-
+	/** network-type file*/
+	public static final int Net_File_type = 0;
+	/** memory-type file*/
+	public static final int Memory_File_type = 1;
+	
+	
 	/** how much error is tolerated to call 2 neurons "same"*/
 	public static double w_error = 0.1;
 

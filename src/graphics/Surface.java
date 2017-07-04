@@ -14,12 +14,14 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import communication.Constants;
 import communication.ControllableThread;
 import communication.MyLog;
+import models.SNetPattern;
 
 
 /**class that shows images
@@ -57,7 +59,6 @@ public class Surface extends JPanel{
 	BufferedImage warped;
 	/** the action that will be tried next step*/
 	String action = "nothing";
-
 	
 	/** current center of focus in the image [x,y] (eye tracking) */
 	int[] track = {100,100};
@@ -290,26 +291,58 @@ public class Surface extends JPanel{
 
 	             if (returnVal == JFileChooser.APPROVE_OPTION) {
 	                 File file = fileChooser.getSelectedFile();
-	                 //This is where a real application would open the file.
 	                 mlog.say("Opening: " + file.getName());
 	                 for (Iterator<ControllableThread> iterator = puppets.iterator(); iterator.hasNext();) {
 	 					ControllableThread p = iterator.next();
-	 					p.load(file);
+	 					p.load(file, Constants.Net_File_type);
 	 				}
-	                 
 	             } else {
 	            	 mlog.say("Open command cancelled by user.");
 	             }
 	         }          
 	    });
 		ctrlPanel.add(loadButton);
-
 		ctrlPanel.setVisible(true); 
+		
+		//loading files
+		//load net
+		//load memories
+		JPanel memPanel = new JPanel();
+		memPanel.setLayout(new BoxLayout(memPanel, BoxLayout.X_AXIS));
+		JTextField memFileName = new JTextField("Choose a file");
+		memPanel.add(memFileName);
+		//selector
+		JButton loadMemButton = new JButton("Load Memories"); 		
+		loadMemButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {	
+	        	 JFileChooser fileChooser = new JFileChooser();
+	        	 String sep = System.getProperty("file.separator");
+	        	 fileChooser.setCurrentDirectory(new File  
+	        			 (System.getProperty("user.home") + sep + "Development" + sep + "SNET_data"));
+	        	 fileChooser.setDialogTitle("Open Resource File");
+	        	 int returnVal = fileChooser.showOpenDialog(memPanel);
 
+	             if (returnVal == JFileChooser.APPROVE_OPTION) {
+	                 File file = fileChooser.getSelectedFile();
+	                 mlog.say("Opening: " + file.getName());
+	                 for (Iterator<ControllableThread> iterator = puppets.iterator(); iterator.hasNext();) {
+	 					ControllableThread p = iterator.next();
+	 					p.load(file, Constants.Memory_File_type);
+	 				}
+	             } else {
+	            	 mlog.say("Open command cancelled by user.");
+	             }
+	         }          
+	    });
+		memPanel.add(loadMemButton);
+		memPanel.setVisible(true); 
+		
 		netPanel.setLayout(new BoxLayout(netPanel, BoxLayout.Y_AXIS));
 		netPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		netPanel.setVisible(true);
 		netPanel.add(ctrlPanel);
+		netPanel.add(netloadPanel);
+		netPanel.add(memPanel);
 		
 		
 		frame.setVisible(true);   
