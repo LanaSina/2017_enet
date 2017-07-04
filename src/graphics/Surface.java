@@ -1,7 +1,9 @@
 package graphics;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -14,6 +16,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
@@ -78,6 +81,8 @@ public class Surface extends JPanel{
 	boolean drawNet = true;
 	//network and controls
 	JPanel netPanel = new JPanel();
+	JTextField memFileName;
+	JTextField netFileName;
 	
 	/**
 	 * 
@@ -277,10 +282,25 @@ public class Surface extends JPanel{
 	    });
 		ctrlPanel.add(refreshButton);
 		
+		
+		//record memory
+		/*JButton memoryButton = new JButton("Start memory"); 		
+		refreshButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) {	        	 
+	        	 for (Iterator<ControllableThread> iterator = puppets.iterator(); iterator.hasNext();) {
+					ControllableThread p = iterator.next();
+					mlog.say("refresh");
+					p.refresh();
+				}
+	         }          
+	    });
+		ctrlPanel.add(refreshButton);*/
+		
 		//load a network
 		JPanel netloadPanel = new JPanel();
 		netloadPanel.setLayout(new BoxLayout(netloadPanel, BoxLayout.X_AXIS));
-		JTextField netFileName = new JTextField("Choose a file");
+		netFileName = new JTextField("Choose a file");
+		netFileName.setMaximumSize(new Dimension(300,20));
 		netloadPanel.add(netFileName);
 		JButton loadButton = new JButton("Load Net");
    	 	loadButton.addActionListener(new ActionListener() {
@@ -295,6 +315,7 @@ public class Surface extends JPanel{
 	             if (returnVal == JFileChooser.APPROVE_OPTION) {
 	                 File file = fileChooser.getSelectedFile();
 	                 mlog.say("Opening: " + file.getName());
+	                 netFileName.setText(file.getName());
 	                 for (Iterator<ControllableThread> iterator = puppets.iterator(); iterator.hasNext();) {
 	 					ControllableThread p = iterator.next();
 	 					p.load(file, Constants.Net_File_type);
@@ -312,7 +333,8 @@ public class Surface extends JPanel{
 		//load memories
 		JPanel memPanel = new JPanel();
 		memPanel.setLayout(new BoxLayout(memPanel, BoxLayout.X_AXIS));
-		JTextField memFileName = new JTextField("Choose a file");
+		memFileName = new JTextField("Choose a file");
+		memFileName.setMaximumSize(new Dimension(300,20));
 		memPanel.add(memFileName);
 		//selector
 		JButton loadMemButton = new JButton("Load Memories"); 		
@@ -328,6 +350,7 @@ public class Surface extends JPanel{
 	             if (returnVal == JFileChooser.APPROVE_OPTION) {
 	                 File file = fileChooser.getSelectedFile();
 	                 mlog.say("Opening: " + file.getName());
+	                 memFileName.setText(file.getName());
 	                 for (Iterator<ControllableThread> iterator = puppets.iterator(); iterator.hasNext();) {
 	 					ControllableThread p = iterator.next();
 	 					p.load(file, Constants.Memory_File_type);
@@ -377,11 +400,6 @@ public class Surface extends JPanel{
 	public void setAction(String action) {
 		this.action = action;
 	}
-
-	/*public void setFocusSize(int ih, int iw) {
-		eyeFocusSize_h = ih;
-		eyeFocusSize_w = iw;
-	}*/
 
 	public void setGraph(NetworkGraph netGraph) {
 		this.netGraph = netGraph;
