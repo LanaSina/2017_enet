@@ -20,5 +20,5 @@ public interface ControllableThread {
 	
 	public void refresh();
 
-	public void load(File file);
+	public void load(File file, int fileType);
 }

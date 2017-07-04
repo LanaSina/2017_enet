@@ -84,9 +84,8 @@ public class SNetPattern implements ControllableThread {
 	
 	/** phase */
 	boolean dreaming = false;
-	//
+	/** number of activated sensory neurons*/
 	int activated = 0;
-	
 
 	//environment
 	/**images files*/
@@ -114,6 +113,9 @@ public class SNetPattern implements ControllableThread {
 	/**short term memory, contains conscious neurons */
 	Vector<INeuron> STM = new Vector<INeuron>();
 	
+	//memory
+	BufferedReader memReader;
+	boolean readingMemory = false;
 	
 	//actions
 //	/**vector of ids of activated muscles (id must correspond to motion value in Eye)*/
@@ -425,25 +427,57 @@ public class SNetPattern implements ControllableThread {
 	 * and activate all outside weights and action_weights accordingly.
 	 */
 	public void buildInputs(){
-		
-		if(nextImage){
-			presentations = 0;
-			nextImage = false;
-    		//change char
-    		img_id++;
-			if(img_id>=n_images){
-				img_id=0;
+		if(!readingMemory){
+			if(nextImage){
+				presentations = 0;
+				nextImage = false;
+	    		//change char
+	    		img_id++;
+				if(img_id>=n_images){
+					img_id=0;
+				}
+				String iname =  String.format(name_format, img_id); 
+				eye.readImage(iname);
 			}
-			String iname =  String.format(name_format, img_id); 
-			eye.readImage(iname);
+			//build
+			buildEyeInput();
+	
+			presentations++;
+			if(presentations>=max_presentations){
+	    		nextImage = true;	
+			}//*/
+		}else{
+			//reset
+			resetNeuronsActivation(allINeurons);
+			Utils.resetDirectOutWeights(allINeurons);
+			
+			//read and activate all neurons in memory
+			String line;
+			try {
+				line = memReader.readLine();
+				String[] info = line.split(",");
+				int st = Integer.valueOf(info[0]);
+				int st2 = st;
+				INeuron n;
+				while ((line = memReader.readLine()) != null) {
+					//"iteration, ID\n";
+					st2 = Integer.valueOf(info[0]);
+					if(st2!=st){
+						//new line of iteration is just filling: ok to skip it
+						break;
+					}else{
+						//ignore absent neurons
+						if((n = allINeurons.get(Integer.valueOf(info[1])))!=null){
+							n.increaseActivation(1);
+						}
+					}
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			integrateActivation();	
+			Utils.propagateInstantaneousActivation(allINeurons.values());
 		}
-		//build
-		buildEyeInput();
-
-		presentations++;
-		if(presentations>=max_presentations){
-    		nextImage = true;	
-		}//*/
 		
 		//choose actions, activate "proprioceptive" neurons, act at next step
 		//findActions();
@@ -528,7 +562,6 @@ public class SNetPattern implements ControllableThread {
 			
 			integrateActivation();	
 			Utils.propagateInstantaneousActivation(allINeurons.values());
-			
 		}
 		
 		//proprioception here works before actual contraction
@@ -628,14 +661,16 @@ public class SNetPattern implements ControllableThread {
 	 */
 	public void updateSNet() {			
 
-		//update prediction probabilities		
-		Utils.ageOutWeights(allINeurons);
-		Utils.increaseInWeights(allINeurons);
-
-		//reset activation of all w
-		for(int i=0;i<eye_neurons.length;i++){
-			Utils.resetOutWeights(eye_neurons[i]);
-		}		
+		if(!readingMemory){
+			//update prediction probabilities		
+			Utils.ageOutWeights(allINeurons);
+			Utils.increaseInWeights(allINeurons);
+			//reset activation of all w
+			for(int i=0;i<eye_neurons.length;i++){
+				Utils.resetOutWeights(eye_neurons[i]);
+			}	
+		}
+			
 		Utils.resetOutWeights(allINeurons);
 		
 		//for ineurons
@@ -645,14 +680,15 @@ public class SNetPattern implements ControllableThread {
 		Utils.calculateAndPropagateActivation(allINeurons);
 		
 		//create new weights based on surprise
-		makeWeights();
+		if(!readingMemory){
+			makeWeights();
+		}
 		
 		//look at predictions
 		buildPredictionMap();
 				
 		//update short term memory
 		updateSTM();
-		
 		
 		//input activations are reset and updated at the beginning of next step.
 	}
@@ -1024,7 +1060,6 @@ public class SNetPattern implements ControllableThread {
 		    			}//*/
 		    		}
 		    		
-		    		
 		    		step++;
 		    		
 		    		//UI
@@ -1099,13 +1134,10 @@ public class SNetPattern implements ControllableThread {
 			netGraph.redraw();
 		}
 	}
+	
+	private void loadNetwork(File file) {
 
-	@Override
-	public void load(File file) {
-		//load a network
-		
 		//get correct names
-		//TODO switch
 		File sensor_file, net_file, pos_file;
 		mlog.say("file parent name "+ file.getParent());
 		if(file.getName().equals(Constants.Sensors_file_name)){
@@ -1154,8 +1186,6 @@ public class SNetPattern implements ControllableThread {
 	            // use comma as separator
 				//str = "ID, x, y, sx, sy\n";
 	            String[] info = line.split(",");
-	            //mlog.say("line " + line);
-	            //mlog.say("read " + info[0]);
 	            int nid = Integer.valueOf(info[0]);
 	            if(nid>maxid) maxid = nid;
             	
@@ -1267,15 +1297,44 @@ public class SNetPattern implements ControllableThread {
 			Utils.activateOutWeights(allINeurons);	
 			Utils.calculateAndPropagateActivation(allINeurons);
 			
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NumberFormatException e) {
+		}catch (NumberFormatException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+	
+	private void loadMemory(File file) {
+		
+		//prepare network
+		//deactivate everything
+		cleanAll();
+		readingMemory = true;
+
+		
+		try {
+			memReader = new BufferedReader(new FileReader(file));
+			String line = memReader.readLine();//skip 1st line
+	        mlog.say(line);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+       
+	}
+
+	@Override
+	public void load(File file, int type) {
+		switch (type) {
+		case Constants.Net_File_type:
+			loadNetwork(file);
+			break;
+		case Constants.Memory_File_type:
+			loadMemory(file);
+			break;
+		default:
+			break;
 		}
 	}
 
