@@ -2,12 +2,12 @@
 #
 library(igraph)
 
-netName = "~/Development/SNET_data/_kitti_noise"
+netName = "~/Development/SNET_data/_oswald_accordeon"
 
 #parameters
 fileName = paste(netName,"net_parameters.csv",sep="/")
 print(fileName)
-param1 = read.csv(fileName)
+param = read.csv(fileName)
 
 color = "black"
 plot(param$iteration,param$neurons,type="l",col=color,xlab = "Timestep", ylab = "Number of neurons", main=netName
@@ -19,31 +19,31 @@ plot(param$iteration,param$connections/1000,type="l",col=color, xlab = "Timestep
 points(param$iteration,param$neurons,type="l",col="black")
 points(param$iteration,param$connections/1000,type="l",col="black")
 
-plot_neurons(param_accordeon)
-legend(1000,800, c("Bike","Accordeon"),
+plot_neurons(param1)
+legend(2000,1200, c("With noise","No noise"),
        lty = 1, bty = "n",
        lwd=c(2.5,2.5),col=c("black","red")) 
 
-plot_weights(param_accordeon)
-legend(1200,130,  c("Bike","Accordeon"),
+plot_weights(param1)
+legend(1200,130,  c("With noise","No noise"),
        lty = 1, bty = "n",
        lwd=c(2.5,2.5),col=c("black","red")) 
 
 plot_neurons = function(parameters){
   plot(parameters$iteration,parameters$neurons,type="l",col="red",xlab = "Timestep", ylab = "Number of neurons",
-       xlim= c(0,1700), ylim= c(0,1000), cex.lab=1.5, cex.axis=1.5)
+       xlim= c(0,3000), ylim= c(0,1500), cex.lab=1.5, cex.axis=1.5)
 }
 
 plot_weights = function(parameters){
   plot(parameters$iteration,parameters$connections/1000,type="l",col="red",xlab = "Timestep", ylab = "Number of weights / 1,000",
-       xlim= c(0,1700), ylim= c(0,150), cex.lab=1.5, cex.axis=1.5)
+       xlim= c(0,3000), ylim= c(0,200), cex.lab=1.5, cex.axis=1.5)
 }
 
 #performance
 netName = "../oswald_bike"
 fileName = paste(netName,"performance.csv",sep="/")
 print(fileName)
-perf1 = read.csv(fileName)
+perf = read.csv(fileName)
 
 color = "black"
 plot(perf$iteration,perf$error,type="l",xlab = "Timestep", ylab = "Error", col=color,
@@ -55,10 +55,24 @@ plot(perf$iteration,perf$illusion,type="l",xlab = "Timestep", ylab = "Illusion",
 
 plot_surprise(perf)
 
-
 points(perf$iteration,perf$error,type="l", col="red")
 legend(350,400, c("Simple video","Complex video"),lty = 1, bty = "n",lwd=c(2.5,2.5),col=c("blue","red")) 
 abline(v=40)
+
+
+#memories
+netName = "~/Development/SNET_data/_oswald_accordeon"
+fileName = paste(netName,"memories.csv",sep="/")
+print(fileName)
+memories = read.csv(fileName)
+
+per_iteration = c()
+l = memories$iteration[length$memories$iteration]
+for(i in 0:l){
+  per_iteration = c(per_iteration, sum(memories$iteration == i))
+}
+sum(memories$iteration == 0)
+
 
 #neurons in 3d
 library(rgl)

@@ -90,11 +90,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Dataset_01/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Oswald/accordeon/small/"; 
 	/** leading zeros*/
-	String name_format = "%010d";
+	String name_format = "%02d";
 	/** number of images*/
-	int n_images = 83;//
+	int n_images = 40;//
 	
 	//sensors 
 	/** image sensor*/
@@ -461,10 +461,9 @@ public class SNetPattern implements ControllableThread {
 			Utils.resetDirectOutWeights(allINeurons);
 			
 			//read and activate all neurons in memory
-			
 			try {
 				String line =  memReader.readLine();
-				if(line== null){
+				if(line == null){
 					//start from 0
 					memReader.close();
 					loadMemory();
@@ -472,12 +471,14 @@ public class SNetPattern implements ControllableThread {
 				}
 				
 				String[] info = line.split(",");
+				mlog.say("line " + line);
 				int st = Integer.valueOf(info[0]);
 				step = st;
 				int st2 = st;
 				INeuron n;
 				while ((line = memReader.readLine()) != null) {
 					//"iteration, ID\n";
+					info = line.split(",");
 					st2 = Integer.valueOf(info[0]);
 					if(st2!=st){
 						//new line of iteration is just filling: ok to skip it
@@ -718,6 +719,15 @@ public class SNetPattern implements ControllableThread {
 	private void updateSTM() {
 		STM.clear();
 		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
+		
+		String str = step + ",-1\n";//filler line
+    	try {
+    		memWriter.append(str);
+    		memWriter.flush();	
+    	} catch (IOException e) {
+			e.printStackTrace();
+		}	
+    	
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
@@ -730,10 +740,8 @@ public class SNetPattern implements ControllableThread {
 			if(n.isActivated() & !n.isMute()){
 				STM.add(n);
 				//memories
-				if(!readingMemory && n.isSurprised()){
-					String str = step + ",-1\n";//filler line
+				if(n.isSurprised()){
 			    	try {
-			    		memWriter.append(str);
 			    		str = step+","+ n.getId()+"\n";
 			    		memWriter.append(str);
 			    		memWriter.flush();	
@@ -743,8 +751,6 @@ public class SNetPattern implements ControllableThread {
 				}
 			}
 		}
-		
-		//mlog.say("stm "+ STM.size());
 	}
 
 	/**
@@ -1329,11 +1335,18 @@ public class SNetPattern implements ControllableThread {
 		//deactivate everything
 		cleanAll();
 		readingMemory = true;
-		
 		try {
 			memReader = new BufferedReader(new FileReader(memoryFile));
 			String line = memReader.readLine();//skip 1st line
 	        mlog.say(line);
+			//change memory file		
+	        memWriter.close();
+	        memWriter = new FileWriter(folderName+"/reminicsing_"+Constants.MemoryFileName);
+			mlog.say("stream opened "+Constants.MemoryFileName);
+        	String str = "iteration,id\n";
+        	memWriter.append(str);
+        	memWriter.flush();
+	        
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

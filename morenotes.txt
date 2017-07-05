@@ -3,6 +3,8 @@ bug when reading long memory
 time also not work
 --
 prediction becomes weird after 2nd snapping (kitti)
+--
+noise: surprise should not become worse and worse, that's literally impossible
 
 
 dream doesnt reach pattern neurons??
