@@ -2,7 +2,7 @@
 #
 library(igraph)
 
-netName = "~/Development/SNET_data/2017_07_03_20_27"
+netName = "~/Development/SNET_data/_oswald_bike"
 
 #parameters
 fileName = paste(netName,"net_parameters.csv",sep="/")
@@ -16,19 +16,28 @@ plot(param$iteration,param$neurons,type="l",col=color,xlab = "Timestep", ylab = 
 plot(param$iteration,param$connections/1000,type="l",col=color, xlab = "Timestep", ylab = "Connections/1000",
      main=netName)
 
-points(param$iteration,param$neurons,type="l",col="purple")
-points(param$iteration,param$connections/1000,type="l",col="purple")
+points(param$iteration,param$neurons,type="l",col="black")
+points(param$iteration,param$connections/1000,type="l",col="red")
 
-plot_neurons(param1)
-legend(350,2300, c("No noise","With noise"),
+plot_neurons(param_accordeon)
+legend(1000,800, c("Bike","Accordeon"),
        lty = 1, bty = "n",
-       lwd=c(2.5,2.5),col=c("blue","red")) 
+       lwd=c(2.5,2.5),col=c("black","red")) 
 
-plot_weights(param3)
+plot_weights(param_accordeon)
 legend(20,300,  c("No noise","With noise"),
        lty = 1, bty = "n",
        lwd=c(2.5,2.5),col=c("blue","red")) 
 
+plot_neurons = function(parameters){
+  plot(parameters$iteration,parameters$neurons,type="l",col="red",xlab = "Timestep", ylab = "Number of neurons",
+       xlim= c(0,1700), ylim= c(0,1000), cex.lab=1.5, cex.axis=1.5)
+}
+
+plot_weights = function(parameters){
+  plot(parameters$iteration,parameters$connections/1000,type="l",col="red",xlab = "Timestep", ylab = "Number of weights / 1,000",
+       xlim= c(0,1700), ylim= c(0,200), cex.lab=1.5, cex.axis=1.5)
+}
 
 #performance
 netName = "../oswald_bike"
@@ -38,11 +47,11 @@ perf = read.csv(fileName)
 
 color = "black"
 plot(perf$iteration,perf$error,type="l",xlab = "Timestep", ylab = "Error", col=color,
-     main=netName, xlim = c(0,800))
+     main=netName, xlim = c(0,800), ylim = c(0,1))
 plot(perf$iteration,perf$surprise,type="l",xlab = "Timestep", ylab = "Surprise", col=color,
-     main=netName, xlim = c(0,800))
+     main=netName, xlim = c(0,800), ylim = c(0,1))
 plot(perf$iteration,perf$illusion,type="l",xlab = "Timestep", ylab = "Illusion", col=color,
-     main=netName, xlim = c(0,800))
+     main=netName, xlim = c(0,800), ylim = c(0,1))
 
 plot_surprise(perf)
 
@@ -63,15 +72,7 @@ plot3d(x = positions$x , y = positions$y , z = positions$sx, pch=21)
 browseURL(paste("file://", writeWebGL(dir=file.path(netName, "webGL"), width=500), sep=""))
 
 
-plot_neurons = function(parameters){
-  plot(parameters$iteration,parameters$neurons,type="l",col="red",xlab = "Timestep", ylab = "Number of neurons",
-       xlim= c(0,800), ylim= c(0,2310), cex.lab=1.5, cex.axis=1.5)
-}
 
-plot_weights = function(parameters){
-  plot(parameters$iteration,parameters$connections/1000,type="l",col="red",xlab = "Timestep", ylab = "Number of weights x 1,000",
-       xlim= c(0,800), ylim= c(0,300), cex.lab=1.5, cex.axis=1.5)
-}
 
 plot_surprise = function(parameters){
   plot(perf$iteration,perf$surprise,type="l",xlab = "Timestep", ylab = "Surprise", col="red",
