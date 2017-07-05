@@ -2,22 +2,22 @@
 #
 library(igraph)
 
-netName = "~/Development/SNET_data/_oswald_bike"
+netName = "~/Development/SNET_data/_kitti_noise"
 
 #parameters
 fileName = paste(netName,"net_parameters.csv",sep="/")
 print(fileName)
-param = read.csv(fileName)
+param1 = read.csv(fileName)
 
 color = "black"
 plot(param$iteration,param$neurons,type="l",col=color,xlab = "Timestep", ylab = "Number of neurons", main=netName
-     ,ylim= c(0,1000)
+     #,ylim= c(0,1000)
      )
 plot(param$iteration,param$connections/1000,type="l",col=color, xlab = "Timestep", ylab = "Connections/1000",
      main=netName)
 
 points(param$iteration,param$neurons,type="l",col="black")
-points(param$iteration,param$connections/1000,type="l",col="red")
+points(param$iteration,param$connections/1000,type="l",col="black")
 
 plot_neurons(param_accordeon)
 legend(1000,800, c("Bike","Accordeon"),
@@ -25,9 +25,9 @@ legend(1000,800, c("Bike","Accordeon"),
        lwd=c(2.5,2.5),col=c("black","red")) 
 
 plot_weights(param_accordeon)
-legend(20,300,  c("No noise","With noise"),
+legend(1200,130,  c("Bike","Accordeon"),
        lty = 1, bty = "n",
-       lwd=c(2.5,2.5),col=c("blue","red")) 
+       lwd=c(2.5,2.5),col=c("black","red")) 
 
 plot_neurons = function(parameters){
   plot(parameters$iteration,parameters$neurons,type="l",col="red",xlab = "Timestep", ylab = "Number of neurons",
@@ -36,14 +36,14 @@ plot_neurons = function(parameters){
 
 plot_weights = function(parameters){
   plot(parameters$iteration,parameters$connections/1000,type="l",col="red",xlab = "Timestep", ylab = "Number of weights / 1,000",
-       xlim= c(0,1700), ylim= c(0,200), cex.lab=1.5, cex.axis=1.5)
+       xlim= c(0,1700), ylim= c(0,150), cex.lab=1.5, cex.axis=1.5)
 }
 
 #performance
 netName = "../oswald_bike"
 fileName = paste(netName,"performance.csv",sep="/")
 print(fileName)
-perf = read.csv(fileName)
+perf1 = read.csv(fileName)
 
 color = "black"
 plot(perf$iteration,perf$error,type="l",xlab = "Timestep", ylab = "Error", col=color,

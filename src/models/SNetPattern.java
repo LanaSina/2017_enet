@@ -90,11 +90,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Oswald/accordeon/small/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Dataset_01/"; 
 	/** leading zeros*/
-	String name_format = "%02d";
+	String name_format = "%010d";
 	/** number of images*/
-	int n_images = 40;//
+	int n_images = 83;//
 	
 	//sensors 
 	/** image sensor*/
@@ -762,7 +762,7 @@ public class SNetPattern implements ControllableThread {
 		if(STM.size()==0){
 			mlog.say("just woke up");
 			if(save){
-				writeError(1,0,0);
+				writeError(0,0,0);
 			}
 			return;
 		}	
@@ -797,13 +797,14 @@ public class SNetPattern implements ControllableThread {
 						
 						//doubloons weights will not be added
 						if(!allINeurons.containsKey(preneuron.getId())){
-							throw new Error("not in collection "+preneuron.getId());
-						}
-						ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
-						if(preneuron.addOutWeight(n,probaWeight)){
-							probaWeight.setActivation(1,null);
-							nw++;
-							didChange = true;
+							//throw new Error("not in collection "+preneuron.getId()); ok for now
+						}else{
+							ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
+							if(preneuron.addOutWeight(n,probaWeight)){
+								probaWeight.setActivation(1,null);
+								nw++;
+								didChange = true;
+							}
 						}
 						
 						//check for oversnapping in sensory neurons
@@ -984,6 +985,7 @@ public class SNetPattern implements ControllableThread {
 	 * fuses similar neurons
 	 * */
 	private void snap() {
+		//cleanAll();
 		allINeurons = Utils.snap(allINeurons);
 	}
 	

@@ -1,13 +1,8 @@
-better explanation of classification (images)
-drawing of instantaneous weights is bad 
-add or/and explanation
-t=0, t=1 (PW)
-add age and value
 add video of bike / accordeon
 bug when reading long memory
 time also not work
-
-testo>>>
+--
+prediction becomes weird after 2nd snapping (kitti)
 
 
 dream doesnt reach pattern neurons??

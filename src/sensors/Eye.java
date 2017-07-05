@@ -25,7 +25,7 @@ public class Eye {
 	/** becomes true after eye has been 1st initialized with an image*/
 	boolean init = false;
 	
-	public boolean has_noise = false;
+	public boolean has_noise = true;
 	public int noise_range = 50;
 	public double noise_rate = 0.1;
 	
