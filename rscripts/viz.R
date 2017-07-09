@@ -2,7 +2,7 @@
 #
 library(igraph)
 
-netName = "~/Development/SNET_data/_oswald_accordeon"
+netName = "~/Development/SNET_data/2017_07_09_20_39"
 
 #parameters
 fileName = paste(netName,"net_parameters.csv",sep="/")
@@ -61,18 +61,21 @@ abline(v=40)
 
 
 #memories
-netName = "~/Development/SNET_data/_oswald_accordeon"
-fileName = paste(netName,"memories.csv",sep="/")
+netName = "~/Development/SNET_data/2017_07_05_20_35"
+fileName = paste(netName,"memories.csv",sep="/")#reminicsing_
+fileName = paste(netName,"reminiscing_memories.csv",sep="/")#reminicsing_
 print(fileName)
 memories = read.csv(fileName)
 
 per_iteration = c()
-l = memories$iteration[length$memories$iteration]
+l = memories$iteration[length(memories$iteration)]
 for(i in 0:l){
   per_iteration = c(per_iteration, sum(memories$iteration == i))
 }
-sum(memories$iteration == 0)
-
+plot(per_iteration, type="l", xlab = "Timestep", ylab = "Memory Size", main=fileName
+     , xlim = c(0,400)
+     )
+points(per_iteration, type="l", col="red")
 
 #neurons in 3d
 library(rgl)

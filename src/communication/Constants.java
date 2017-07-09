@@ -20,9 +20,9 @@ public class Constants {
 	public static final double confidence_threshold = 0.95;//
 	
 	/** sensitivity of the image sensor */
-	public static final int gray_scales = 6;
+	public static final int gray_scales = 15;
 	/** resolution of focused area of eye*/
-	public static final int eres_f = 4;
+	public static final int eres_f = 2;
 	public static final int eres_nf = 5;
 	/**size of focused area*/
 	public static final int ef_w = 50;//20;

@@ -84,7 +84,7 @@ public class SNetPattern implements ControllableThread {
 	int step = 0;
 	
 	/** phase */
-	boolean dreaming = false;
+	boolean dreaming = true;
 	/** number of activated sensory neurons*/
 	int activated = 0;
 
@@ -462,7 +462,7 @@ public class SNetPattern implements ControllableThread {
 			
 			//read and activate all neurons in memory
 			try {
-				String line =  memReader.readLine();
+				String line = memReader.readLine();
 				if(line == null){
 					//start from 0
 					memReader.close();
@@ -470,13 +470,31 @@ public class SNetPattern implements ControllableThread {
 					line =  memReader.readLine();
 				}
 				
-				String[] info = line.split(",");
-				mlog.say("line " + line);
-				int st = Integer.valueOf(info[0]);
+				int st = -1;
+				String[] info;
+				info = line.split(",");
+				mlog.say("line* " + line);
+				st = Integer.valueOf(info[0]);
+				int i = Integer.valueOf(info[1]);
+				while(i==-1 && !(line==null)){
+					line =  memReader.readLine();
+					mlog.say("line* " + line);
+					info = line.split(",");
+					i = Integer.valueOf(info[1]);
+					st = Integer.valueOf(info[0]);
+				}
+				
+				if(line == null){
+					//start from 0
+					memReader.close();
+					loadMemory();
+					line =  memReader.readLine();
+				}
+				
 				step = st;
 				int st2 = st;
 				INeuron n;
-				while ((line = memReader.readLine()) != null) {
+				while (true) {
 					//"iteration, ID\n";
 					info = line.split(",");
 					st2 = Integer.valueOf(info[0]);
@@ -488,6 +506,10 @@ public class SNetPattern implements ControllableThread {
 						if((n = allINeurons.get(Integer.valueOf(info[1])))!=null){
 							n.increaseActivation(1);
 						}
+					}
+					line = memReader.readLine();
+					if(line==null){
+						break;
 					}
 				}
 			} catch (IOException e) {
@@ -699,7 +721,7 @@ public class SNetPattern implements ControllableThread {
 		
 		//create new weights based on surprise
 		if(!readingMemory){
-			makeWeights();
+			//makeWeights();
 		}
 		
 		//look at predictions
@@ -740,7 +762,7 @@ public class SNetPattern implements ControllableThread {
 			if(n.isActivated() & !n.isMute()){
 				STM.add(n);
 				//memories
-				if(n.isSurprised()){
+				//if(n.isSurprised()){
 			    	try {
 			    		str = step+","+ n.getId()+"\n";
 			    		memWriter.append(str);
@@ -748,7 +770,7 @@ public class SNetPattern implements ControllableThread {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}				
-				}
+				//}
 			}
 		}
 	}
@@ -1058,7 +1080,7 @@ public class SNetPattern implements ControllableThread {
 			    		if(step%Constants.snap_freq==0){
 			    			long runtime = System.currentTimeMillis()-before;
 			    			//save
-			    			if(save){
+			    			/*if(save){
 			    				writeWeights();
 			    				writeParameters();
 			    			}
@@ -1339,9 +1361,11 @@ public class SNetPattern implements ControllableThread {
 			memReader = new BufferedReader(new FileReader(memoryFile));
 			String line = memReader.readLine();//skip 1st line
 	        mlog.say(line);
+	        line = memReader.readLine();//skip 2nd line
+	        mlog.say(line);
 			//change memory file		
 	        memWriter.close();
-	        memWriter = new FileWriter(folderName+"/reminicsing_"+Constants.MemoryFileName);
+	        memWriter = new FileWriter(folderName+"/reminiscing_"+Constants.MemoryFileName);
 			mlog.say("stream opened "+Constants.MemoryFileName);
         	String str = "iteration,id\n";
         	memWriter.append(str);

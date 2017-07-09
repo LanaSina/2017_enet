@@ -1,10 +1,18 @@
-add video of bike / accordeon
+
+not both neurons should have justsnapped=true
+---
 bug when reading long memory
-time also not work
 --
 prediction becomes weird after 2nd snapping (kitti)
 --
 noise: surprise should not become worse and worse, that's literally impossible
+--
+weights should be different after snap:
+-always active at same time -> create pattern (even is not needed?)
+-same proba but not same time -> actually additive
+----
+pattern neurons: add existing probas from input neurons
+
 
 
 dream doesnt reach pattern neurons??

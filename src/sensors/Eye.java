@@ -25,9 +25,9 @@ public class Eye {
 	/** becomes true after eye has been 1st initialized with an image*/
 	boolean init = false;
 	
-	public boolean has_noise = true;
+	public boolean has_noise = false;
 	public int noise_range = 50;
-	public double noise_rate = 0.1;
+	public double noise_rate = 1;
 	
 	/** total number of neurons sensitive to one grayscale value*/
 	int n;
@@ -207,9 +207,10 @@ public class Eye {
 			        double mean = (b+g+r)/(255*3.0);
 			        if(has_noise){
 			        	if(Constants.uniformDouble(0, 1)<noise_rate){
-			        		mean = Constants.uniformDouble(mean-(noise_range/255.0), mean+(noise_range/255.0));
+			        		/*mean = Constants.uniformDouble(mean-(noise_range/255.0), mean+(noise_range/255.0));
 			        		if(mean<0) mean = 0;
-			        		if(mean>1) mean = 1;
+			        		if(mean>1) mean = 1;*/
+			        		mean = Constants.uniformDouble(0,1);
 			        	}
 			        }
 			        //high value is black
