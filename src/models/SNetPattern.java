@@ -19,6 +19,7 @@ import javax.swing.JButton;
 import communication.Constants;
 import communication.ControllableThread;
 import communication.MyLog;
+import communication.Utils;
 import graphics.NetworkGraph;
 import graphics.Surface;
 import neurons.BundleWeight;

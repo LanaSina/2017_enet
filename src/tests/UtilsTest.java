@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import communication.Constants;
 import communication.MyLog;
-import models.Utils;
+import communication.Utils;
 import neurons.BundleWeight;
 import neurons.INeuron;
 import neurons.ProbaWeight;

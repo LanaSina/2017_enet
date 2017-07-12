@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import communication.Constants;
 import communication.MyLog;
-import models.Utils;
+import communication.Utils;
 
 /**
  * Equivalent to previous "CNeuron".

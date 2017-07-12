@@ -1,4 +1,4 @@
-package models;
+package communication;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -11,8 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 import java.util.Map.Entry;
-import communication.Constants;
-import communication.MyLog;
+
 import neurons.BundleWeight;
 import neurons.INeuron;
 import neurons.ProbaWeight;
