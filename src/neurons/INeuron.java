@@ -724,7 +724,6 @@ public class INeuron extends Neuron {
 		
 		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = inWeights.entrySet().iterator(); iterator.hasNext();) {
 			Entry<INeuron, ProbaWeight> pair = iterator.next();
-			INeuron from = pair.getKey();
 			ProbaWeight w = pair.getValue();
 			
 			//calculate new probability depending on co-activation rate
@@ -744,42 +743,7 @@ public class INeuron extends Neuron {
 			wn.setValue((int)proba*Constants.weight_max_age);
 		}
 	}
-	
-	/**
-	 * remaps the in weights of this neuron so they now 
-	 * go to n. In addition, also modifies the mapping in the input neurons.
-	 * @param n
-	 */
-	public void reportInWeight_old(INeuron n) {
-		
-		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = inWeights.entrySet().iterator(); iterator.hasNext();) {
-			Entry<INeuron, ProbaWeight> pair = iterator.next();
-			INeuron from = pair.getKey();
-			ProbaWeight w = pair.getValue();
-			
-			//recurrent weight
-			if(from==this){
-				//add the inweight to n
-				n.addInWeight(n,w);
-				//remove the inweight from this
-				iterator.remove();
-				//clean up
-				from.removeOutWeight(this);
-				//remap
-				from.addOutWeight(n, w);			
-			} else{
-				//add the inweight to n
-				n.addInWeight(from,w);
-				//remove the inweight from this
-				iterator.remove();
-				//clean up
-				from.removeOutWeight(this);
-				//remap
-				from.addOutWeight(n, w);
-			}
-			
-		}
-	}
+
 
 	/**
 	 * remaps the direct in weights of this neuron so they now 
