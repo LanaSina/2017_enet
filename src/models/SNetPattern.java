@@ -120,7 +120,7 @@ public class SNetPattern implements ControllableThread {
 	boolean readingMemory = false;
 	File memoryFile;
 	
-	//actions
+//actions
 //	/**vector of ids of activated muscles (id must correspond to motion value in Eye)*/
 //	Vector<Integer> h_muscles = new Vector<Integer>();
 //	/** vector of ids of activated muscles (id must correspond to motion value in Eye)*/
