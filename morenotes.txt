@@ -12,11 +12,20 @@ weights should be different after snap:
 -same proba but not same time -> actually additive
 ----
 pattern neurons: add existing probas from input neurons
+---
+recalculate co-weights
+---
+save and load co-weights
 
 
-アメリカのデータは、交通事故by latitude and longitudeだった
-これは日本でもm
+export GOOGLE_APPLICATION_CREDENTIALS=/Users/lana/Desktop/mfk/ddetox/DrJailer-9ca78901eef2.json
 
+ya29.ElqHBOtWKUL9s6gt5ewp3pZWeGQIP-oZ8_HI7izodA0iIEQJBHV4CePepfrXkUz8oFzNUyex2HriBSLw4uCnm6htOkyiSmf_wwuce9cMGh0p3JwPHIj-gKrYK2w
+
+curl -s -H "Content-Type: application/json" \
+    -H "Authorization: Bearer ya29.ElqHBFfDMwIauUxXDHQawYlxp2CjcmGOkUUsC0tQmq0zdSM_Jkfcf5s-Bpf1gpqHX513vhoLitTuwnQv9tNc-dA9rA9uqrqe_fMcnQTuBrE1zJ8pWPpNg8SOGaU" \
+    https://speech.googleapis.com/v1/speech:recognize \
+    -d @sync-request.json
 
 dream doesnt reach pattern neurons??
 

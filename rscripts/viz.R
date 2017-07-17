@@ -2,7 +2,7 @@
 #
 library(igraph)
 
-netName = "~/Development/SNET_data/2017_07_09_20_39"
+netName = "~/Development/SNET_data/2017_07_14_19_20"
 
 #parameters
 fileName = paste(netName,"net_parameters.csv",sep="/")

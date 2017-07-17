@@ -22,15 +22,20 @@ import communication.Utils;
 public class INeuron extends Neuron {
 	MyLog mlog = new MyLog("INeuron", true);
 
+	//weigths
 	/** probabilistic input weights*/
 	HashMap<INeuron, ProbaWeight> inWeights = new HashMap<INeuron, ProbaWeight>();
 	/**direct instantaneous weights*/
 	Vector<BundleWeight> directInWeights = new Vector<BundleWeight>();
 	/** direct instantaneous weights to pattern neuron*/
 	HashMap<INeuron, BundleWeight> directOutWeights = new HashMap<INeuron, BundleWeight>();
-
-	/** (id of out neuron, weight) probabilistic outweights*/
+	/** (id of out neuron, weight) probabilistic outweights (dt=1)*/
 	HashMap<INeuron, ProbaWeight> outWeights = new HashMap<INeuron, ProbaWeight>();
+	/** (id of out neuron, weight) co-activation weights (dt=0)*/
+	HashMap<INeuron, ProbaWeight> coWeights = new HashMap<INeuron, ProbaWeight>();
+	HashMap<INeuron, ProbaWeight> inCoWeights = new HashMap<INeuron, ProbaWeight>();
+
+	
 	/** activation of this neuron (real or vitual)*/
 	double activation;
 	/** predicted activation (positive) */
@@ -193,48 +198,6 @@ public class INeuron extends Neuron {
 		
 		setPosition(p);
 	}
-	
-	/*public void carefullyRecalculatePosition() {
-		if(position[0]==0 && position[1]==0 && position[2]==0 && position[3]==0){
-			int is = directInWeights.size();
-			double[] p = {0,0,0,0};
-			if(is==1){
-				Vector<INeuron> in = new Vector<INeuron>(directInWeights.get(0).getInNeurons());
-				p = Utils.patternPosition(in);
-			}else{
-				for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
-					BundleWeight bundle = iterator.next();
-					Vector<INeuron> in = new Vector<INeuron>(bundle.getInNeurons());
-					for (Iterator<INeuron> iterator2 = in.iterator(); iterator2.hasNext();) {
-						INeuron n = iterator2.next();
-						double[] partial = n.getPosition();
-						if(partial[0]==0 && partial[1]==0 && partial[2]==0 && partial[3]==0){
-							n.carefullyRecalculatePosition();
-						}
-					}
-					
-					double[] partial = Utils.patternPosition(in);
-
-					p[0] += partial[0];
-					p[1] += partial[1];
-				}
-				p[0] = p[0]/is;
-				p[1] = p[1]/is;
-				
-				//once more for the variance
-				for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
-					BundleWeight bundle = iterator.next();
-					Vector<INeuron> in = new Vector<INeuron>(bundle.getInNeurons());
-					double[] partial = Utils.patternPosition(in);
-					p[2] += Math.pow(p[0]-partial[0], 2);
-					p[3] += Math.pow(p[1]-partial[1], 2);
-				}
-				p[2] = p[2]/is;
-				p[3] = p[3]/is;
-			}
-			setPosition(p);
-		}
-	}*/
 	
 	/**
 	 * 
@@ -475,7 +438,23 @@ public class INeuron extends Neuron {
 	 * @return input weights of this neuron
 	 */
 	public HashMap<INeuron, ProbaWeight> getInWeights() {
-		return (HashMap<INeuron, ProbaWeight>) inWeights.clone();
+		return inWeights;// (HashMap<INeuron, ProbaWeight>) 
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public HashMap<INeuron, ProbaWeight> getCoWeights() {
+		return coWeights;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public HashMap<INeuron, ProbaWeight> getInCoWeights(){
+		return inCoWeights;
 	}
 
 
@@ -741,6 +720,37 @@ public class INeuron extends Neuron {
 	 * @param n
 	 */
 	public void reportInWeights(INeuron n) {
+		HashMap<INeuron, ProbaWeight> n_inWeights = n.getInWeights();
+		
+		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = inWeights.entrySet().iterator(); iterator.hasNext();) {
+			Entry<INeuron, ProbaWeight> pair = iterator.next();
+			INeuron from = pair.getKey();
+			ProbaWeight w = pair.getValue();
+			
+			//calculate new probability depending on co-activation rate
+			double a = w.getProba();
+			double b = 0;
+			ProbaWeight wn =  n_inWeights.get(pair.getKey());
+			if(wn!=null){
+				b = wn.getProba();
+			}
+			double c = 0;
+			ProbaWeight wc = coWeights.get(n);
+			if(wc!=null){
+				c = wc.getProba();
+			}
+			
+			double proba = b + (1-c)*a;
+			wn.setValue((int)proba*Constants.weight_max_age);
+		}
+	}
+	
+	/**
+	 * remaps the in weights of this neuron so they now 
+	 * go to n. In addition, also modifies the mapping in the input neurons.
+	 * @param n
+	 */
+	public void reportInWeight_old(INeuron n) {
 		
 		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = inWeights.entrySet().iterator(); iterator.hasNext();) {
 			Entry<INeuron, ProbaWeight> pair = iterator.next();
@@ -767,6 +777,7 @@ public class INeuron extends Neuron {
 				//remap
 				from.addOutWeight(n, w);
 			}
+			
 		}
 	}
 
@@ -876,6 +887,26 @@ public class INeuron extends Neuron {
 
 	public int countInWeights() {
 		return inWeights.size();
+	}
+
+	/**
+	 * update mappings in neuron linked to this one
+	 */
+	public void removeCoWeights() {
+		Iterator<Entry<INeuron, ProbaWeight>> co_it = coWeights.entrySet().iterator();
+		while (co_it.hasNext()) {
+			Entry<INeuron, ProbaWeight> pair = co_it.next();
+			INeuron n = pair.getKey();
+			n.getInCoWeights().remove(this);
+		}
+		
+		Iterator<Entry<INeuron, ProbaWeight>> i_co_it = inCoWeights.entrySet().iterator();
+		while (i_co_it.hasNext()) {
+			Entry<INeuron, ProbaWeight> pair = i_co_it.next();
+			INeuron n = pair.getKey();
+			n.getCoWeights().remove(this);
+		}
+		
 	}
 	
 }

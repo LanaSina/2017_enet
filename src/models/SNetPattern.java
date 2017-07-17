@@ -85,7 +85,7 @@ public class SNetPattern implements ControllableThread {
 	int step = 0;
 	
 	/** phase */
-	boolean dreaming = true;
+	boolean dreaming = false;
 	/** number of activated sensory neurons*/
 	int activated = 0;
 
@@ -722,7 +722,7 @@ public class SNetPattern implements ControllableThread {
 		
 		//create new weights based on surprise
 		if(!readingMemory){
-			//makeWeights();
+			makeWeights();
 		}
 		
 		//look at predictions
@@ -763,7 +763,7 @@ public class SNetPattern implements ControllableThread {
 			if(n.isActivated() & !n.isMute()){
 				STM.add(n);
 				//memories
-				//if(n.isSurprised()){
+				if(n.isSurprised()){
 			    	try {
 			    		str = step+","+ n.getId()+"\n";
 			    		memWriter.append(str);
@@ -771,8 +771,13 @@ public class SNetPattern implements ControllableThread {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}				
-				//}
+				}
+			    
+		    	//co-activation
+				Utils.updateCoactivation(n,allINeurons);
 			}
+			
+			
 		}
 	}
 
@@ -795,6 +800,23 @@ public class SNetPattern implements ControllableThread {
 			}
 			return;
 		}	
+		//make intra stm weights
+		for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
+			INeuron n = iterator.next();
+			for (Iterator<INeuron> iterator2 = STM.iterator(); iterator2.hasNext();) {
+				INeuron n2 = iterator2.next();
+				
+				//no self co-activation
+				if(n2!=n){
+					if(!n.getCoWeights().containsKey(n2)){
+						//add it
+						ProbaWeight w = new ProbaWeight(Constants.defaultConnection);
+						n.getCoWeights().put(n2, w);
+						n2.getInCoWeights().put(n, w);
+					}
+				}
+			}
+		}
 		
 		
 		//ineurons 
@@ -872,18 +894,6 @@ public class SNetPattern implements ControllableThread {
 							if(vn.size()>0){
 								if(the_pattern==null){
 									if(vn.size()>1){
-										/*mlog.say("******** added pattern neuron id "+ n_id + " to " + n.getId());
-										
-										if(vn.get(vn.size()-1).getId()>2213){
-											mlog.say("***** countains pattern neuron");
-										}
-										for (Iterator<INeuron> iterator2 = vn.iterator(); iterator2.hasNext();) {
-											INeuron iNeuron = (INeuron) iterator2.next();
-											mlog.say("ID "+ iNeuron.getId());
-											if(iNeuron.getId()>=2208 && iNeuron.getId()<2213){
-												mlog.say("--------- pattern neuron includes motion neuron "+iNeuron.getId());
-											}
-										}*/
 										
 										the_pattern = new INeuron(vn,n,n_id);
 										n_id++;
@@ -1081,7 +1091,7 @@ public class SNetPattern implements ControllableThread {
 			    		if(step%Constants.snap_freq==0){
 			    			long runtime = System.currentTimeMillis()-before;
 			    			//save
-			    			/*if(save){
+			    			if(save){
 			    				writeWeights();
 			    				writeParameters();
 			    			}

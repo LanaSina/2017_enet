@@ -518,8 +518,11 @@ public class Utils {
 							//report n2 inputs to n if they did not exist
 							n2.reportInWeights(n);
 							//update co-activation weights
+							//maybe instead of updating we could rebuild them from dreams...
 							
 							//remove co-activation weights
+							n.removeCoWeights();
+							n2.removeCoWeights();
 							
 							//do the same for direct inweights
 							n2.reportDirectInWeights(n);
