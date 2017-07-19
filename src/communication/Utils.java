@@ -197,10 +197,6 @@ public class Utils {
 			INeuron n =  it.next();
 			if(n.getActivation()>0){
 				n.ageOutWeights();
-				
-				if(n.getId() == 1653){
-					mlog.say("aged 1653 weights");
-				}
 			}
 		}
 	}
@@ -228,9 +224,6 @@ public class Utils {
 			INeuron n = pair.getValue();
 			if(n.getActivation()>0){
 				n.increaseInWeights();
-				if(n.getId() == 1653){
-					mlog.say("increased 1653 in weights");
-				}
 			}
 		}
 	}
@@ -595,5 +588,17 @@ public class Utils {
 				w.addValue();
 			}
 		}
+	}
+
+
+	public static void increaseDirectInWeights(HashMap<Integer, INeuron> layer) {
+		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<Integer, INeuron> pair = it.next();
+			INeuron n = pair.getValue();
+			if(n.getActivation()>0){
+				n.increaseDirectInWeights();
+			}
+		}		
 	}
 }

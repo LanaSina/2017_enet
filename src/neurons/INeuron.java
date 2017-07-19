@@ -79,7 +79,9 @@ public class INeuron extends Neuron {
 	public INeuron(Vector<INeuron> from, INeuron to, int id) {//TODO make "to" as a vector
 		super(id);
 		mlog.setName("Pattern Neuron");
+		
 		addDirectInWeight(from);
+		
 		for (Iterator<INeuron> iterator = from.iterator(); iterator.hasNext();) {
 			INeuron iNeuron = iterator.next();
 			if(iNeuron.level>=level){
@@ -149,22 +151,27 @@ public class INeuron extends Neuron {
 		return p;
 	}
 
+	
 	/**
 	 * add a bundled weight
 	 * @param wtype
 	 * @param vn vector of in neuron
 	 * @return
 	 */
-	public BundleWeight addDirectInWeight(Vector<INeuron> v) {				
+	public BundleWeight addDirectInWeight(Vector<INeuron> v) {	
+		//check that this does not already exist
 		BundleWeight b = lookForWeight(v);
+		
 		if(b==null){
 			b = new BundleWeight(v, this);
 		}
+		
 		directInWeights.addElement(b);
 		recalculatePosition();
 		
 		return b;
 	}
+	
 	
 	public void recalculatePosition() {
 		//recalculate postion
@@ -478,8 +485,6 @@ public class INeuron extends Neuron {
 	 */
 	public void makeDirectActivation() {
 		Iterator<BundleWeight> it = directInWeights.iterator();
-		// pattern contained inside other patterns should be muted
-		//Vector<BundleWeight> activated = new Vector<BundleWeight>();
 				
 		while(it.hasNext()){
 			BundleWeight b = it.next();
@@ -585,7 +590,11 @@ public class INeuron extends Neuron {
 		while(it.hasNext()){
 			Entry<INeuron, BundleWeight> pair = it.next();
 			ProbaWeight pw = pair.getValue();
-			pw.setActivation(1,this);
+			
+			if(pw.canLearn()){
+				pw.increaseAge();
+			}
+			
 			//do the same for all succesive neurons
 			//as long as we find ones that were activated by us
 			INeuron n = pair.getKey();
@@ -871,6 +880,26 @@ public class INeuron extends Neuron {
 			n.getCoWeights().remove(this);
 		}
 		
+	}
+
+	public void increaseDirectInWeights() {
+		Iterator<BundleWeight> it = directInWeights.iterator();
+		while(it.hasNext()){
+			BundleWeight bw = it.next();
+			HashMap<INeuron, ProbaWeight> bundle = bw.getBundle();
+			for (Iterator<Entry<INeuron, ProbaWeight>> it2 = bundle.entrySet().iterator(); it2.hasNext();) {
+				Entry<INeuron, ProbaWeight> pair = it2.next();
+				ProbaWeight w = pair.getValue();
+				//value is increased if this weight was previously activated
+				if(w.canLearn() & w.isActivated()){
+					w.addValue();
+					if(w.getValue()>Constants.weight_max_age+1){
+						throw new java.lang.Error("Value "  + w.getValue() + " is more than max ag. Current age: " + w.getAge() +
+								". ID " +id+ " from " + pair.getKey().getId());
+					}
+				}
+			}
+		}
 	}
 	
 }

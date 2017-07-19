@@ -45,7 +45,7 @@ public class BundleWeight extends ProbaWeight {
 		//create bundle
 		for (Iterator<INeuron> iterator = from.iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
-			ProbaWeight p = new ProbaWeight(Constants.fixedConnection);
+			ProbaWeight p = new ProbaWeight(Constants.defaultConnection);
 			bundle.put(n, p);
 			n.addDirectOutWeight(to, this);
 		}
@@ -68,13 +68,23 @@ public class BundleWeight extends ProbaWeight {
 	 */
 	public boolean bundleIsActivated() {
 		boolean b = true;
-		for (Iterator<INeuron> iterator = bundle.keySet().iterator(); iterator.hasNext();) {
+		/*for (Iterator<INeuron> iterator = bundle.keySet().iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
 			if(!n.isActivated()){
 				b = false;
 				break;
 			}
+		}*/
+		
+		double sum = 0; argh
+		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = bundle.entrySet().iterator(); iterator.hasNext();) {
+			Entry<INeuron, ProbaWeight> pair = iterator.next();
+			ProbaWeight pw = pair.getValue();
+			if(pw.isActivated()){
+				
+			}
 		}
+		
 		return b;
 	}
 	

@@ -629,6 +629,8 @@ public class SNetPattern implements ControllableThread {
 		/*Utils.propagateInstantaneousActivation(eyepro_h);
 		Utils.propagateInstantaneousActivation(eyepro_v);*/
 
+		//add value to activated direct in-weights
+		Utils.increaseDirectInWeights(allINeurons);
 		
 		if(save){	
 			double error, surprise, illusion;
