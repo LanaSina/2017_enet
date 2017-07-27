@@ -7,6 +7,7 @@ import java.util.Vector;
 import org.junit.Test;
 
 import communication.Constants;
+import communication.MyLog;
 import neurons.INeuron;
 import neurons.ProbaWeight;
 
@@ -56,10 +57,30 @@ public class INeuronTest {
 		assertEquals("out", true, from.getOutWeights().containsKey(n));
 	}
 	
-	
 	@Test
+	public void createPattern(){
+		Vector<INeuron> vn = new Vector<INeuron>();
+		
+		//from
+		INeuron n1 = new INeuron(0);
+		INeuron n2 = new INeuron(1);
+		vn.addElement(n1);
+		vn.addElement(n2);
+		
+		//to
+		INeuron n3 = new INeuron(2);
+
+		
+		INeuron the_pattern = new INeuron(vn,n3,3);
+		ProbaWeight weight = the_pattern.getOutWeights().get(n3);
+		assertEquals(weight.getAge(), 20);
+		assertEquals(n3.getInWeights().get(the_pattern), weight);
+	}
+	
+	
+	/*@Test
 	public void reportInWeights_pattern(){
-		/*int id = 0;
+		int id = 0;
 		INeuron from = new INeuron(id);
 		id++;
 		INeuron to = new INeuron(id);
@@ -73,7 +94,7 @@ public class INeuronTest {
 		
 		to.reportInWeights(n);
 		assertEquals("in", true, n.getInWeights().containsKey(from));
-		assertEquals("out", true, from.getOutWeights().containsKey(n));*/
-	}
+		assertEquals("out", true, from.getOutWeights().containsKey(n));
+	}*/
 
 }

@@ -138,7 +138,7 @@ public class INeuron extends Neuron {
 	 */
 	public ProbaWeight addInWeight(int wtype, INeuron n) {		
 		ProbaWeight p = null;
-		if(wtype == Constants.defaultConnection){
+		//if(wtype == Constants.defaultConnection){
 			//normal proba weight
 			if(inWeights.containsKey(n)){
 				//already exists, don't replace
@@ -148,7 +148,7 @@ public class INeuron extends Neuron {
 				p = new ProbaWeight(wtype);
 				inWeights.put(n, p);
 			}
-		} 
+		//}
 		return p;
 	}
 
@@ -402,7 +402,7 @@ public class INeuron extends Neuron {
 	 * @return output weights of this neuron
 	 */
 	public HashMap<INeuron, ProbaWeight>  getOutWeights() {
-		return (HashMap<INeuron, ProbaWeight>) outWeights.clone();
+		return outWeights;
 	}
 
 
