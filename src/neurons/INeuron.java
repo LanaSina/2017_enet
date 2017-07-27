@@ -592,7 +592,7 @@ public class INeuron extends Neuron {
 			Entry<INeuron, BundleWeight> pair = it.next();
 			ProbaWeight pw = pair.getValue();
 			INeuron n = pair.getKey();
-			pw.setActivation(1, n);
+			pw.setActivation(1, this);
 			
 			/*if(pw.canLearn()){
 				pw.increaseAge();

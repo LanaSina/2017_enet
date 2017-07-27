@@ -272,6 +272,9 @@ public class Utils {
 					continue;
 				}
 				
+				//prune direct weights and snap those with same position
+				//TODO
+				
 				//look for equivalent neurons (neurons with equivalent outweights)
 				Iterator<Entry<Integer, INeuron>> it2 = neurons.entrySet().iterator();
 				while(it2.hasNext()){

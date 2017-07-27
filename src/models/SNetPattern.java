@@ -631,6 +631,7 @@ public class SNetPattern implements ControllableThread {
 		Utils.propagateInstantaneousActivation(eyepro_v);*/
 
 		//add value to activated direct in-weights
+		//TODO
 		//Utils.increaseDirectInWeights(allINeurons);
 		
 		if(save){	
@@ -910,8 +911,9 @@ public class SNetPattern implements ControllableThread {
 										}
 									}
 									if (newBundle.size()>2) {
-										bundleWeight.pruneAllBut(newBundle);
+										bundleWeight.decreaseAllBut(newBundle);
 										didChange = true;
+										mlog.say("Degreasing bundle");
 									}
 								}
 							}
