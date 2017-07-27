@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.Vector;
 import javax.swing.JButton;
 
@@ -630,7 +631,7 @@ public class SNetPattern implements ControllableThread {
 		Utils.propagateInstantaneousActivation(eyepro_v);*/
 
 		//add value to activated direct in-weights
-		Utils.increaseDirectInWeights(allINeurons);
+		//Utils.increaseDirectInWeights(allINeurons);
 		
 		if(save){	
 			double error, surprise, illusion;
@@ -886,6 +887,37 @@ public class SNetPattern implements ControllableThread {
 							preneuron.setMute(true);//to ignore it in next loops
 						}*/
 					}	
+					
+					//no change, try pruning spatial patterns
+					//this is so inefficient..
+					if(!didChange){
+						//look at input neuron's bundles vs STM
+						for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
+							INeuron preneuron = iterator.next();
+							
+							if(n.getInWeights().containsKey(preneuron)){
+								//look at those that were activated (ie in STM)
+								Vector<BundleWeight> pr = preneuron.getDirectInWeights();
+								for (Iterator<BundleWeight> iterator2 = pr.iterator(); iterator2.hasNext();) {
+									BundleWeight bundleWeight = iterator2.next();
+									
+									Set<INeuron> bn = bundleWeight.getBundle().keySet();
+									Vector<INeuron> newBundle = new Vector<>();
+									for (Iterator<INeuron> iterator3 = bn.iterator(); iterator3.hasNext();) {
+										INeuron iNeuron =  iterator3.next();
+										if(STM.contains(iNeuron)){
+											newBundle.addElement(iNeuron);
+										}
+									}
+									if (newBundle.size()>2) {
+										bundleWeight.pruneAllBut(newBundle);
+										didChange = true;
+									}
+								}
+							}
+						}
+					}
+					
 					
 					//no change happened, try building a spatial pattern
 					if(!didChange){// && !dreaming){	//  

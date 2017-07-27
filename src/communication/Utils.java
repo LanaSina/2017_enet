@@ -591,7 +591,7 @@ public class Utils {
 	}
 
 
-	public static void increaseDirectInWeights(HashMap<Integer, INeuron> layer) {
+	/*public static void increaseDirectInWeights(HashMap<Integer, INeuron> layer) {
 		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
@@ -600,5 +600,5 @@ public class Utils {
 				n.increaseDirectInWeights();
 			}
 		}		
-	}
+	}*/
 }

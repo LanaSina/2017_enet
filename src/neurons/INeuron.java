@@ -88,8 +88,9 @@ public class INeuron extends Neuron {
 				level = iNeuron.level++;
 			}			
 		}
+		
 		//as outweight from this to To
-		ProbaWeight p = to.addInWeight(Constants.defaultConnection, this);
+		ProbaWeight p = to.addInWeight(Constants.fixedConnection, this);
 		outWeights.put(to, p);
 		
 		//position
@@ -590,14 +591,17 @@ public class INeuron extends Neuron {
 		while(it.hasNext()){
 			Entry<INeuron, BundleWeight> pair = it.next();
 			ProbaWeight pw = pair.getValue();
-			
-			if(pw.canLearn()){
-				pw.increaseAge();
-			}
-			
-			//do the same for all succesive neurons
-			//as long as we find ones that were activated by us
 			INeuron n = pair.getKey();
+			pw.setActivation(1, n);
+			
+			/*if(pw.canLearn()){
+				pw.increaseAge();
+			}*/
+			
+			
+			//do the same for all successive neurons
+			//as long as we find ones that were activated by us
+			
 			if(!n.isActivated()){//wasn't activated
 				//mlog.say("not activated yet "+ n.id);
 				n.makeDirectActivation();

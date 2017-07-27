@@ -1,3 +1,4 @@
+need a conscious and unconscious stm
 
 not both neurons should have justsnapped=true
 ---
@@ -19,6 +20,9 @@ save and load co-weights
 ---
 need to take co-activation into consideration for bundle prediction
 current age/value is mis-calculated for bundle
+
+
+java -jar JailServer
 
 export GOOGLE_APPLICATION_CREDENTIALS=/Users/lana/Desktop/mfk/ddetox/DrJailer-9ca78901eef2.json
 
@@ -54,26 +58,6 @@ why so much time to learn simple time series
 
 
 ffmpeg -i Oswald_the_Lucky_Rabbit.mp4 -ss 01:47 -r 5/1 walk/$filename%03d.bmp
-
-
-
-宮脇様
-
-池上研究室のラナです。
-
-
-1.紅莉栖の稼働率：直近3ヶ月の稼働率
-私が行っていたプロジェクトの1つが、同じ池上研の別の学生が引き続きになって、最近ドワンゴさんのサーバーを使っていません。引き続きの人は、研究室のGPU machineを使っています。
-もう1つは結果が出て終了しました。
-
-2. 紅莉栖での成果：公開済みの成果, 論文タイトル,これまでに紅莉栖で行った実験の概要などをお書きください.
-人工知能学会2017の発表：Video Compression with a Predictive Neural Network
-ビデオframeを予測する深層学習ネットワーク「Prednet」を、そのままビデオ圧縮に使ってmpeg4圧縮との効率と比べた研究。Prednetの予測はmpeg4の予測エンジンより効率が高く、予測のエラー率が低いが、予測のエラー自体は圧縮しにくいという結果になりました。
-
-
-3. 継続利用希望　：継続して利用されたい方は、期限と目的を改めてお書きください
-
-継続を希望しません。面白い研究ができてドワンゴさんに感謝しています。
 
 
 
