@@ -1,5 +1,10 @@
+$ 
+
+
 need a conscious and unconscious stm
 
+the pattern neuron outweight must learn too
+---
 not both neurons should have justsnapped=true
 ---
 bug when reading long memory

@@ -90,7 +90,7 @@ public class INeuron extends Neuron {
 		}
 		
 		//as outweight from this to To
-		ProbaWeight p = to.addInWeight(Constants.fixedConnection, this);
+		ProbaWeight p = to.addInWeight(Constants.defaultConnection, this);
 		outWeights.put(to, p);
 		
 		//position
