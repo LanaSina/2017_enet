@@ -764,7 +764,7 @@ public class SNetPattern implements ControllableThread {
 				mlog.say("============ bad position " + n.getId());
 			}
 			
-			if(n.isActivated() & !n.isMute()){
+			if(n.isActivated()){// & !n.isMute()){
 				STM.add(n);
 				//memories
 				if(n.isSurprised()){
