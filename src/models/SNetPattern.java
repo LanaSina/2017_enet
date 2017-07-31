@@ -1062,7 +1062,7 @@ public class SNetPattern implements ControllableThread {
 	 * */
 	private void snap() {
 		//cleanAll();
-		allINeurons = Utils.snap(allINeurons);
+		//allINeurons = Utils.snap_old(allINeurons);
 	}
 	
 	private void cleanAll() {

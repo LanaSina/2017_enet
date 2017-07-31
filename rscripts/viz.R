@@ -3,7 +3,7 @@
 library(igraph)
 
 netName = "~/Development/SNET_data/hires_accordeon"
-netName = "~/Development/SNET_data/2017_07_29_20_14"
+netName = "~/Development/SNET_data/2017_07_31_19_41"
 
 #parameters
 fileName = paste(netName,"net_parameters.csv",sep="/")
@@ -55,7 +55,7 @@ plot(perf$iteration,perf$illusion,type="l",xlab = "Timestep", ylab = "Illusion",
 
 plot_surprise(perf)
 
-points(perf$iteration,perf$error,type="l", col="blue")
+points(perf$iteration,perf$error,type="l", col="green")
 points(perf$iteration,perf$surprise,type="l", col="red")
 points(perf$iteration,perf$illusion,type="l", col="red")
 legend(350,400, c("Simple video","Complex video"),lty = 1, bty = "n",lwd=c(2.5,2.5),col=c("blue","red")) 

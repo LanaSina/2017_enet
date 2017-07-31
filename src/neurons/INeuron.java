@@ -124,9 +124,8 @@ public class INeuron extends Neuron {
 	 * @param p
 	 */
 	public void addInWeight(INeuron n, ProbaWeight p) {
-		if(!inWeights.containsKey(n)){
+		//if(!inWeights.containsKey(n)){
 			inWeights.put(n, p);
-		}
 	}
 
 	/**
@@ -236,6 +235,7 @@ public class INeuron extends Neuron {
 	public boolean addOutWeight(INeuron n, ProbaWeight p) {
 		boolean b = false;
 		if(outWeights.containsKey(n)){
+			
 		}else{
 			outWeights.put(n, p);
 			b = true;
@@ -243,6 +243,9 @@ public class INeuron extends Neuron {
 		return b;
 	}
 	
+	public void addOrReplaceOutWeight(INeuron n, ProbaWeight p) {
+		outWeights.put(n, p);
+	}
 	
 	/**
 	 * sets activation of the neuron to 0
@@ -725,6 +728,42 @@ public class INeuron extends Neuron {
 			b.replace(replaced, replacement);	
 		}
 		recalculatePosition();
+	}
+	
+
+	/**
+	 * remaps the in weights of this neuron so they now 
+	 * go to n. In addition, also modifies the mapping in the input neurons.
+	 * @param n
+	 */
+	public void reportInWeights_old(INeuron n) {
+		
+		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = inWeights.entrySet().iterator(); iterator.hasNext();) {
+			Entry<INeuron, ProbaWeight> pair = iterator.next();
+			INeuron from = pair.getKey();
+			ProbaWeight w = pair.getValue();
+			
+			//recurrent weight
+			if(from==this){
+				//add the inweight to n
+				n.addInWeight(n,w);
+				//remove the inweight from this
+				iterator.remove();
+				//clean up
+				from.removeOutWeight(this);
+				//remap
+				from.addOrReplaceOutWeight(n, w);			
+			} else{
+				//add the inweight to n
+				n.addInWeight(from,w);
+				//remove the inweight from this
+				iterator.remove();
+				//clean up
+				from.removeOutWeight(this);
+				//remap
+				from.addOrReplaceOutWeight(n, w);
+			}
+		}
 	}
 
 	/**
