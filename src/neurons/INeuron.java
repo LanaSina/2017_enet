@@ -745,7 +745,15 @@ public class INeuron extends Neuron {
 			ProbaWeight wn =  n_inWeights.get(pair.getKey());
 			if(wn!=null){
 				b = wn.getProba();
+			} else{
+				//make it
+				wn = new ProbaWeight(Constants.defaultConnection);
+				wn.setAge(Constants.weight_max_age);
+				//value will be set later
+				n.addInWeight(pair.getKey(),wn);
+				pair.getKey().addOutWeight(n, wn);
 			}
+			
 			double c = 0;
 			ProbaWeight wc = coWeights.get(n);
 			if(wc!=null){
@@ -753,7 +761,7 @@ public class INeuron extends Neuron {
 			}
 			
 			double proba = b + (1-c)*a;
-			wn.setValue((int)proba*Constants.weight_max_age);
+			wn.setValue((int)proba*Constants.weight_max_age);//what is wn null??
 		}
 	}
 

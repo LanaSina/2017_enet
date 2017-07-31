@@ -55,7 +55,8 @@ public class UtilsTest {
 		
 		neurons = Utils.snap(neurons);
 		assertEquals("size ", 1, neurons.keySet().size());
-		INeuron r = neurons.get(3);
+		INeuron r = neurons.values().iterator().next();
+		assertEquals(false, r==null);
 		assertEquals("out weights ", true, r.getOutWeights().containsKey(to));
 		
 		Iterator<Entry<Integer, INeuron>> it = neurons.entrySet().iterator();
@@ -125,10 +126,11 @@ public class UtilsTest {
 		
 		neurons = Utils.snap(neurons);
 		assertEquals("size ", 1, neurons.keySet().size());
-		INeuron r = neurons.get(3);
+		INeuron r = neurons.values().iterator().next();
 		assertEquals("out weights ", true, r.getOutWeights().containsKey(to));
 		assertEquals("direct in weights ", true, r.getDirectInWeights().contains(b));
 	}
+	
 	
 	@Test
 	public void pattern_activation(){

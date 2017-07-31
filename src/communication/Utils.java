@@ -249,6 +249,7 @@ public class Utils {
 			
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
+			//mlog.say("n is "+n.getId());
 			
 			boolean doit = true;
 			boolean dosnap = true;
@@ -309,6 +310,7 @@ public class Utils {
 						//n1 must have all the weights that n2 has
 						Set<INeuron> s1 = out1.keySet();
 						Set<INeuron> s2 = out2.keySet();
+						
 						//inweights
 						HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
 						HashMap<INeuron,ProbaWeight> in2 = n2.getInWeights();
@@ -353,6 +355,9 @@ public class Utils {
 						if(!dosnap){
 							continue;
 						}
+						
+						//check that there are no learning direct inweights?
+						//TODO
 							
 						//finally, only snap if there are no conflicting inweights
 						Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
@@ -410,7 +415,9 @@ public class Utils {
 		
 		//count removed weights (only out weights)
 		for(int i=0; i<remove.size();i++){	
-			allINeurons.remove(remove.get(i).getId());
+			int id = remove.get(i).getId();
+			//mlog.say("remove "+id);
+			allINeurons.remove(id);
 		}
 		
 		

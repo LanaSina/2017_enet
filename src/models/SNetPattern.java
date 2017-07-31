@@ -764,7 +764,7 @@ public class SNetPattern implements ControllableThread {
 				mlog.say("============ bad position " + n.getId());
 			}
 			
-			if(n.isActivated()){// & !n.isMute()){
+			if(n.isActivated() & !n.isMute()){
 				STM.add(n);
 				//memories
 				if(n.isSurprised()){
@@ -848,6 +848,7 @@ public class SNetPattern implements ControllableThread {
 					for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
 						INeuron preneuron = iterator.next();
 						
+						
 						if((cpu_limitations && nw>max_new_connections)) break;
 						
 						//doubloons weights will not be added
@@ -891,7 +892,7 @@ public class SNetPattern implements ControllableThread {
 					
 					//no change, try pruning spatial patterns
 					//this is so inefficient..
-					if(!didChange){
+					/*if(!didChange){
 						//look at input neuron's bundles vs STM
 						for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
 							INeuron preneuron = iterator.next();
@@ -918,7 +919,7 @@ public class SNetPattern implements ControllableThread {
 								}
 							}
 						}
-					}
+					}*/
 					
 					
 					//no change happened, try building a spatial pattern
