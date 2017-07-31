@@ -68,18 +68,18 @@ public class BundleWeight extends ProbaWeight {
 	 * @return true if all weights in bundle are activated, false otherwise
 	 */
 	public boolean bundleIsActivated() {
-		boolean b = false;
-		/*for (Iterator<INeuron> iterator = bundle.keySet().iterator(); iterator.hasNext();) {
+		boolean b = true;
+		for (Iterator<INeuron> iterator = bundle.keySet().iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
 			if(!n.isActivated()){
 				b = false;
 				break;
 			}
-		}*/
+		}//*/
 		
 		//>90% of 0.9 weights must be activated
 		//>70% of 0.7 weights etc
-		int size = bundle.size();
+		/*int size = bundle.size();
 		int activated = 0;
 		double sum = 0; 
 		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = bundle.entrySet().iterator(); iterator.hasNext();) {
@@ -96,7 +96,7 @@ public class BundleWeight extends ProbaWeight {
 		double t = activated*1.0/size;
 		if(t>=threshold){
 			b = true;
-		}
+		}*/
 		
 		return b;
 	}
