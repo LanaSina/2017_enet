@@ -630,10 +630,6 @@ public class SNetPattern implements ControllableThread {
 		/*Utils.propagateInstantaneousActivation(eyepro_h);
 		Utils.propagateInstantaneousActivation(eyepro_v);*/
 
-		//add value to activated direct in-weights
-		//TODO
-		//Utils.increaseDirectInWeights(allINeurons);
-		
 		if(save){	
 			double error, surprise, illusion;
 			if(n_activated == 0){
@@ -795,7 +791,7 @@ public class SNetPattern implements ControllableThread {
 		Vector<INeuron> newn = new Vector<INeuron>();
 		
 		//in case we made a pattern neuron
-		INeuron the_pattern = null;
+		//INeuron the_pattern = null;
 	
 		if(STM.size()==0){
 			mlog.say("just woke up");
@@ -892,7 +888,7 @@ public class SNetPattern implements ControllableThread {
 					
 					//no change, try pruning spatial patterns
 					//this is so inefficient..
-					/*if(!didChange){
+					if(!didChange){
 						//look at input neuron's bundles vs STM
 						for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
 							INeuron preneuron = iterator.next();
@@ -914,12 +910,12 @@ public class SNetPattern implements ControllableThread {
 									if (newBundle.size()>2) {
 										bundleWeight.decreaseAllBut(newBundle);
 										didChange = true;
-										mlog.say("Degreasing bundle");
+										//mlog.say("Degreasing bundle from "+preneuron.getId() + " to " + n.getId());
 									}
 								}
 							}
 						}
-					}*/
+					}
 					
 					
 					//no change happened, try building a spatial pattern
@@ -929,10 +925,10 @@ public class SNetPattern implements ControllableThread {
 						if(true){//!hasMaxLayer(STM)
 							Vector<INeuron> vn = Utils.patternExists3D(STM, n);
 							if(vn.size()>0){
-								if(the_pattern==null){
+								//if(the_pattern==null){
 									if(vn.size()>1){
 										
-										the_pattern = new INeuron(vn,n,n_id);
+										INeuron the_pattern = new INeuron(vn,n,n_id);
 										n_id++;
 										newn.addElement(the_pattern);
 										ProbaWeight weight = the_pattern.getOutWeights().get(n);
@@ -948,7 +944,7 @@ public class SNetPattern implements ControllableThread {
 									
 									nw++;
 									didChange = true;
-								} else{
+								/*} else{
 									ProbaWeight p = n.addInWeight(Constants.defaultConnection, the_pattern);
 									if(the_pattern.addOutWeight(n, p)){
 										nw++;

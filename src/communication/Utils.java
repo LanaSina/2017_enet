@@ -12,8 +12,6 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.Map.Entry;
 
-import com.sun.org.apache.bcel.internal.classfile.Code;
-
 import neurons.BundleWeight;
 import neurons.INeuron;
 import neurons.ProbaWeight;
@@ -346,6 +344,7 @@ public class Utils {
 						}
 							
 						//finally, only snap if there are no conflicting inweights
+						//TODO do we need that
 						Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
 						while(in1it.hasNext()){
 							Map.Entry<INeuron, ProbaWeight> entry = in1it.next();

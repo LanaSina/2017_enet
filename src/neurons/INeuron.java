@@ -137,7 +137,6 @@ public class INeuron extends Neuron {
 	 */
 	public ProbaWeight addInWeight(int wtype, INeuron n) {		
 		ProbaWeight p = null;
-		//if(wtype == Constants.defaultConnection){
 			//normal proba weight
 			if(inWeights.containsKey(n)){
 				//already exists, don't replace
@@ -147,7 +146,6 @@ public class INeuron extends Neuron {
 				p = new ProbaWeight(wtype);
 				inWeights.put(n, p);
 			}
-		//}
 		return p;
 	}
 
@@ -596,11 +594,7 @@ public class INeuron extends Neuron {
 			ProbaWeight pw = pair.getValue();
 			INeuron n = pair.getKey();
 			pw.setActivation(1, this);
-			
-			/*if(pw.canLearn()){
-				pw.increaseAge();
-			}*/
-			
+		
 			
 			//do the same for all successive neurons
 			//as long as we find ones that were activated by us
