@@ -12,7 +12,7 @@ public class Constants {
 	/** controls output of all loggers. Set true for verbose mode, false for dry mode.*/
 	public static final boolean shouldLog = true;
 
-	public static final String image_format = ".bmp";//".bmp";
+	public static final String image_format = ".png";//".bmp";
 
 	/** age at which probabilistic connections stop learning */
 	public static final int weight_max_age = 20;//20

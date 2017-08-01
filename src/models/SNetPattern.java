@@ -92,11 +92,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Oswald/accordeon/small/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/cue/";//Oswald/accordeon/small/"; 
 	/** leading zeros*/
 	String name_format = "%02d";
 	/** number of images*/
-	int n_images = 40;//
+	int n_images = 6;//
 	
 	//sensors 
 	/** image sensor*/
@@ -887,8 +887,7 @@ public class SNetPattern implements ControllableThread {
 					}	
 					
 					//no change, try pruning spatial patterns
-					//this is so inefficient..
-					if(!didChange){
+					/*if(!didChange){
 						//look at input neuron's bundles vs STM
 						for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
 							INeuron preneuron = iterator.next();
@@ -915,13 +914,12 @@ public class SNetPattern implements ControllableThread {
 								}
 							}
 						}
-					}
+					}*/
 					
 					
 					//no change happened, try building a spatial pattern
 					if(!didChange){// && !dreaming){	//  
 						if(cpu_limitations && nw>max_new_connections) break;
-						
 						if(true){//!hasMaxLayer(STM)
 							Vector<INeuron> vn = Utils.patternExists3D(STM, n);
 							if(vn.size()>0){
@@ -933,14 +931,15 @@ public class SNetPattern implements ControllableThread {
 										newn.addElement(the_pattern);
 										ProbaWeight weight = the_pattern.getOutWeights().get(n);
 										weight.setActivation(1, null);
-									}else{
+										mlog.say("******** added pattern neuron");
+									}/*else{
 										//only used when debugging
 										INeuron pn = vn.get(0);
 										ProbaWeight p = n.addInWeight(Constants.defaultConnection, pn);
 										pn.addOutWeight(n, p);
 										p.setActivation(1, null);
 										mlog.say("******** added p weight from "+ pn.getId() + " to " + n.getId());
-									}
+									}*/
 									
 									nw++;
 									didChange = true;
