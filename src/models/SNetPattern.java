@@ -92,11 +92,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/cue/";//Oswald/accordeon/small/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Oswald/accordeon/small/"; 
 	/** leading zeros*/
 	String name_format = "%02d";
 	/** number of images*/
-	int n_images = 6;//
+	int n_images = 40;//
 	
 	//sensors 
 	/** image sensor*/
@@ -565,7 +565,7 @@ public class SNetPattern implements ControllableThread {
 				//values in "in" start at 1, not 0
 				int i = in[k]-1;
 				INeuron eyen = eye_neurons[i].get(n_interface[i][k]);
-				if(i>0){//>=0 if seeing white
+				if(i>=0){//>=0 if seeing white
 					eyen.increaseActivation(1);
 					n_activated++;
 					if(eyen.getUpperSurprised()){
@@ -887,7 +887,7 @@ public class SNetPattern implements ControllableThread {
 					}	
 					
 					//no change, try pruning spatial patterns
-					if(!didChange){
+					/*if(!didChange){
 						//look at input neuron's bundles vs STM
 						for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
 							INeuron preneuron = iterator.next();
