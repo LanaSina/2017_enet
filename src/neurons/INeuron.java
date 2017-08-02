@@ -793,8 +793,14 @@ public class INeuron extends Neuron {
 				c = wc.getProba();
 			}
 			
+			//mlog.say("b c a "+ b + " " +c + " " + a);
 			double proba = b + (1-c)*a;
-			wn.setValue((int)proba*Constants.weight_max_age);//what is wn null??
+			//mlog.say("proba " + proba);
+			wn.setValue((int)(proba*Constants.weight_max_age));
+			//mlog.say("value " + wn.getValue());
+			
+			w = n.getInWeights().get(pair.getKey());
+			//mlog.say("proba " + w.getProba());
 		}
 	}
 

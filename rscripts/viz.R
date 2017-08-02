@@ -41,7 +41,7 @@ plot_weights = function(parameters){
 }
 
 #performance
-netName = "~/Development/SNET_data/2017_08_02_14_47"
+netName = "~/Development/SNET_data/2017_08_02_15_21"
 fileName = paste(netName,"performance.csv",sep="/")
 print(fileName)
 perf = read.csv(fileName)
@@ -56,7 +56,7 @@ plot(perf$iteration,perf$illusion,type="l",xlab = "Timestep", ylab = "Illusion",
 
 plot_surprise(perf)
 
-points(perf$iteration,perf$error,type="l", col="red")
+points(perf$iteration,perf$error,type="l", col="blue")
 points(perf$iteration,perf$surprise,type="l", col="red")
 points(perf$iteration,perf$illusion,type="l", col="red")
 legend(350,400, c("Simple video","Complex video"),lty = 1, bty = "n",lwd=c(2.5,2.5),col=c("blue","red")) 

@@ -92,11 +92,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Oswald/accordeon/small/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/variation/"; 
 	/** leading zeros*/
 	String name_format = "%02d";
 	/** number of images*/
-	int n_images = 40;//
+	int n_images = 6;//
 	
 	//sensors 
 	/** image sensor*/
@@ -811,6 +811,7 @@ public class SNetPattern implements ControllableThread {
 					if(!n.getCoWeights().containsKey(n2)){
 						//add it
 						ProbaWeight w = new ProbaWeight(Constants.defaultConnection);
+						w.setValue(1);
 						n.getCoWeights().put(n2, w);
 						n2.getInCoWeights().put(n, w);
 					}

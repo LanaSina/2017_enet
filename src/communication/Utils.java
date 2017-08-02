@@ -589,7 +589,7 @@ public class Utils {
 							remove.add(n2);
 							
 							//report n2 inputs to n if they did not exist
-							n2.reportInWeights_old(n);
+							n2.reportInWeights(n);
 							//update co-activation weights
 							//maybe instead of updating we could rebuild them from dreams...
 							

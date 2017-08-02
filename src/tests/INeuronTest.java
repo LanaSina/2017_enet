@@ -15,6 +15,7 @@ import neurons.INeuron;
 import neurons.ProbaWeight;
 
 public class INeuronTest {
+	MyLog mlog = new MyLog("INTest", true);
 	
 	@Test
 	public void sameDirectInWeight(){
@@ -58,6 +59,80 @@ public class INeuronTest {
 		to.reportInWeights(n);
 		assertEquals("in", true, n.getInWeights().containsKey(from));
 		assertEquals("out", true, from.getOutWeights().containsKey(n));
+	}
+	
+	@Test
+	public void reportInWeights_no_coactivation(){
+		int id = 0;
+		INeuron from = new INeuron(id);
+		id++;
+		INeuron to = new INeuron(id);
+		id++;
+		
+		ProbaWeight p = to.addInWeight(Constants.defaultConnection, from);
+		p.setAge(4);//0.5
+		from.addOutWeight(to, p);
+		
+		INeuron n = new INeuron(id);
+		id++;
+		p = n.addInWeight(Constants.defaultConnection, from);
+		p.setAge(4);//0.5
+		from.addOutWeight(to, p);
+		
+		//add coactivation
+		ProbaWeight w = new ProbaWeight(Constants.defaultConnection);
+		w.setValue(0);
+		n.getCoWeights().put(to, w);
+		to.getInCoWeights().put(n, w);
+		
+		w = new ProbaWeight(Constants.defaultConnection);
+		w.setValue(0);
+		to.getCoWeights().put(n, w);
+		n.getInCoWeights().put(to, w);
+		
+		to.reportInWeights(n);
+		w = n.getInWeights().get(from);
+		w.setAge(Constants.weight_max_age);
+		mlog.say("proba " + w.getProba());
+		assertEquals(true, w.getProba()==1);
+		assertEquals(true, w.getAge()==Constants.weight_max_age);
+	}
+	
+	
+	@Test
+	public void reportInWeights_coactivation(){
+		int id = 0;
+		INeuron from = new INeuron(id);
+		id++;
+		INeuron to = new INeuron(id);
+		id++;
+		
+		ProbaWeight p = to.addInWeight(Constants.defaultConnection, from);
+		p.setAge(4);//0.5
+		from.addOutWeight(to, p);
+		
+		INeuron n = new INeuron(id);
+		id++;
+		p = n.addInWeight(Constants.defaultConnection, from);
+		p.setAge(4);//0.5
+		from.addOutWeight(to, p);
+		
+		//add coactivation
+		ProbaWeight w = new ProbaWeight(Constants.defaultConnection);
+		w.setValue(1);
+		n.getCoWeights().put(to, w);
+		to.getInCoWeights().put(n, w);
+		
+		w = new ProbaWeight(Constants.defaultConnection);
+		w.setValue(1);
+		to.getCoWeights().put(n, w);
+		n.getInCoWeights().put(to, w);
+		
+		to.reportInWeights(n);
+		w = n.getInWeights().get(from);
+		w.setAge(Constants.weight_max_age);
+		mlog.say("proba " + w.getProba());
+		assertEquals(true, w.getProba()==0.5);
 	}
 	
 	@Test
