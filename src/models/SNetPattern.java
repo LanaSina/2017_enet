@@ -887,7 +887,7 @@ public class SNetPattern implements ControllableThread {
 					}	
 					
 					//no change, try pruning spatial patterns
-					/*if(!didChange){
+					if(!didChange){
 						//look at input neuron's bundles vs STM
 						for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
 							INeuron preneuron = iterator.next();
@@ -1058,7 +1058,7 @@ public class SNetPattern implements ControllableThread {
 	 * */
 	private void snap() {
 		//cleanAll();
-		//allINeurons = Utils.snap_old(allINeurons);
+		allINeurons = Utils.snap(allINeurons);
 	}
 	
 	private void cleanAll() {
