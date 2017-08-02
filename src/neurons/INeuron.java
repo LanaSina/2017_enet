@@ -312,9 +312,9 @@ public class INeuron extends Neuron {
 		if(!activationCalculated){
 			setSurprised(false);
 			setIllusion(false);
+
 			//calculate predicted positive activation
 			double pa = 0;
-
 			double confidence = Constants.confidence_threshold;
 			
 			Iterator<Entry<INeuron, ProbaWeight>> it = inWeights.entrySet().iterator();
@@ -327,15 +327,13 @@ public class INeuron extends Neuron {
 				}
 			}	
 			
-
 			if(pro_activation==0 && activation>0){
 				setSurprised(true);
 			}	
 			if(activation==0 && pro_activation>0){
 				setIllusion(true);
-			}
+			}//*/
 			
-	
 			pro_activation = pa;
 			activationCalculated = true;
 		}
@@ -519,50 +517,20 @@ public class INeuron extends Neuron {
 		Iterator<Entry<INeuron, BundleWeight>> it = directOutWeights.entrySet().iterator();
 		Entry<INeuron, BundleWeight> pair = it.next();
 		INeuron neuron = pair.getKey();
+		
+		setIllusion(false);
+		setSurprised(false);
+
+		if(neuron.getActivation()==0 && neuron.getPredictedActivation()>0){
+			setIllusion(true);
+		}
+		if(neuron.getActivation()>0 && neuron.getPredictedActivation()==0){
+			setSurprised(true);
+		}
+		
 		return neuron.getPredictedActivation();
 	}
 	
-	/** for prediction map debug and perf calculation */
-	public boolean getUpperSurprised() {
-		/*if(!isActivated()){
-			return false;
-		}
-		
-		Iterator<INeuron> it = directOutWeights.keySet().iterator();
-		while(it.hasNext()){
-			INeuron up = it.next();
-			if(up.isActivated() && !up.isSurprised()){
-				return false;
-			}
-		}
-		
-		//default
-		return true;*/
-		Iterator<INeuron> it = directOutWeights.keySet().iterator();
-		INeuron up = it.next();
-		return up.isSurprised();
-	}
-	
-	public boolean getUpperIllusion(){
-		/*if(isActivated()){
-			return false;
-		}
-		
-		Iterator<INeuron> it = directOutWeights.keySet().iterator();
-		while(it.hasNext()){
-			INeuron up = it.next();
-			if(up.isActivated() && !up.isIllusion()){
-				return false;
-			}
-		}
-		
-		//default
-		return true;*/
-		
-		Iterator<INeuron> it = directOutWeights.keySet().iterator();
-		INeuron up = it.next();
-		return up.isIllusion();
-	}
 	
 	/**
 	 * @param n key: output neuron

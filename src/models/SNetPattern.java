@@ -534,13 +534,6 @@ public class SNetPattern implements ControllableThread {
 	 * activates neurons in eye, activate corresponding weights
 	 */
 	private void buildEyeInput(){	 
-		//for performance calculation
-		//number of surprised neurons at this timestep
-		int n_surprised = 0;
-		//number of sensory activates
-		int n_activated = 0;
-		//predicted, not activated
-		int n_illusion = 0;
 		
 		//reset activations of eye neurons and direct outweights
 		for(int i=0;i<eye_neurons.length;i++){
@@ -551,13 +544,12 @@ public class SNetPattern implements ControllableThread {
 		//reset activations of ineurons
 		resetNeuronsActivation(allINeurons);
 		Utils.resetDirectOutWeights(allINeurons);
-		
+	
 		if(!dreaming){
+			
 			//apply blur to selected portion of image
 			//get grayscale values of the image
 			int[] in = eye.buildCoarse();
-			
-			
 			//go through sensory neurons and activate them.
 			int n = in.length;
 			int[][] n_interface = eye.getNeuralInterface();
@@ -565,24 +557,16 @@ public class SNetPattern implements ControllableThread {
 				//values in "in" start at 1, not 0
 				int i = in[k]-1;
 				INeuron eyen = eye_neurons[i].get(n_interface[i][k]);
-				if(i>=0){//>=0 if seeing white
+				if(i>0){//>=0 if seeing white
 					eyen.increaseActivation(1);
-					n_activated++;
-					if(eyen.getUpperSurprised()){
-						n_surprised++;
-					}
 				}
-				
-				if(eyen.getUpperIllusion()){
-					n_illusion++;
-				}
+			
 			}//*/
 		}else{
 			
 			if(step%10==0){
 				//deactivate all neurons
 				deactivateAll();
-				//activated = 0;
 			}
 			
 			activated = getActivated();
@@ -605,7 +589,7 @@ public class SNetPattern implements ControllableThread {
 			integrateActivation();	
 			Utils.propagateInstantaneousActivation(allINeurons.values());
 		}
-		
+	
 		//proprioception here works before actual contraction
 		//useful bc behaviour is random, but in the future proprioception can happen
 		//during motion as normal
@@ -629,21 +613,6 @@ public class SNetPattern implements ControllableThread {
 		}
 		/*Utils.propagateInstantaneousActivation(eyepro_h);
 		Utils.propagateInstantaneousActivation(eyepro_v);*/
-
-		if(save){	
-			double error, surprise, illusion;
-			if(n_activated == 0){
-				surprise = 0;
-				illusion = 0;
-				error = -1;
-			}else{
-				surprise = (n_surprised*1.0/n_activated);//false negatives
-				illusion = (n_illusion*1.0/n_activated); //false positives
-				error = surprise + illusion;
-			}
-			writeError(error, surprise, illusion);
-		}
-		mlog.say(" surprised: " + n_surprised + " illusions " + n_illusion + " activated " + n_activated);
 	}
 	
 	private void deactivateAll() {
@@ -720,10 +689,12 @@ public class SNetPattern implements ControllableThread {
 		//predicted activation for next step calculated here
 		Utils.calculateAndPropagateActivation(allINeurons);
 		
+
 		//create new weights based on surprise
 		if(!readingMemory){
 			makeWeights();
 		}
+		calculatePerf();
 		
 		//look at predictions
 		buildPredictionMap();
@@ -732,6 +703,39 @@ public class SNetPattern implements ControllableThread {
 		updateSTM();
 		
 		//input activations are reset and updated at the beginning of next step.
+	}
+	
+	private void calculatePerf() {
+
+		int n_surprised = 0;
+		//number of sensory activated
+		int n_activated = eye.getN();
+		//predicted, not activated
+		int n_illusion = 0;//*/
+		for (int i = 0; i<eye_neurons.length; i++) {
+			HashMap<Integer, INeuron> l = eye_neurons[i];
+			for (Iterator<Entry<Integer, INeuron>> iterator = l.entrySet().iterator(); iterator.hasNext();) {
+				Entry<Integer, INeuron> pair = iterator.next();
+				INeuron eyen = pair.getValue();
+				if(eyen.isSurprised()){
+					n_surprised++;
+				}
+				if(eyen.isIllusion()){
+					n_illusion++;
+				}
+			}
+			
+		}
+		
+		if(save){	
+			double error, surprise, illusion;
+			surprise = (n_surprised*1.0/n_activated);//false negatives
+			illusion = (n_illusion*1.0/n_activated); //false positives
+			error = surprise + illusion;
+			writeError(error, surprise, illusion);
+		}
+		mlog.say(" surprised: " + n_surprised + " illusions " + n_illusion + " activated " + n_activated);
+		
 	}
 	
 
@@ -962,7 +966,7 @@ public class SNetPattern implements ControllableThread {
 					if(didChange){
 						n.activationCalculated = false;
 						n.calculateActivation();
-						n.setSurprised(true);
+						//n.setSurprised(true);
 					}
 				}
 			}
@@ -1017,17 +1021,25 @@ public class SNetPattern implements ControllableThread {
 	private void buildPredictionMap() {
 		int n = Constants.gray_scales;
 		
+		//number of surprised neurons at this timestep
+		/*int n_surprised = 0;
+		//number of sensory activated
+		int n_activated = 0;
+		//predicted, not activated
+		int n_illusion = 0;*/
+						
 		//go through sensory neurons and build buffer
 		int[][] n_interface = eye.getNeuralInterface();
+		int sensor_layer_count = n_interface[0].length;
 		//black and white buffer for image
 		//[row][column] = blackness level
-		double[] coarse = new double[n_interface[0].length];
+		double[] coarse = new double[sensor_layer_count];
 		//to calculate mean prediction
-		int[] sum = new int[n_interface[0].length];
+		int[] sum = new int[sensor_layer_count];
 
 		//go through interface and build levels of gray
 		for(int i=0; i<Constants.gray_scales; i++){// i = gray scale //n_interface.length
-			for (int j = 0; j < n_interface[0].length; j++) {//j = position in image
+			for (int j = 0; j < sensor_layer_count; j++) {//j = position in image
 				int n_id = n_interface[i][j];
 				INeuron neuron = eye_neurons[i].get(n_id);
 				//if the neuron is not muted, get its prediction
@@ -1050,7 +1062,7 @@ public class SNetPattern implements ControllableThread {
 		}
 		
 		//then put into image
-		eye.setPredictedBuffer(coarse);		
+		eye.setPredictedBuffer(coarse);	
 	}
 
 	

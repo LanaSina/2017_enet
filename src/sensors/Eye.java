@@ -461,5 +461,9 @@ public class Eye {
 		return eye_interface;
 	}
 	
+	/** total number of neurons sensitive to one grayscale value*/
+	public int getN() {
+		return n;
+	}
 	
 }
