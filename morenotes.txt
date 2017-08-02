@@ -1,4 +1,10 @@
+$ 
 
+
+need a conscious and unconscious stm
+
+the pattern neuron outweight must learn too
+---
 not both neurons should have justsnapped=true
 ---
 bug when reading long memory
@@ -16,7 +22,12 @@ pattern neurons: add existing probas from input neurons
 recalculate co-weights
 ---
 save and load co-weights
+---
+need to take co-activation into consideration for bundle prediction
+current age/value is mis-calculated for bundle
 
+
+java -jar JailServer
 
 export GOOGLE_APPLICATION_CREDENTIALS=/Users/lana/Desktop/mfk/ddetox/DrJailer-9ca78901eef2.json
 
@@ -52,7 +63,6 @@ why so much time to learn simple time series
 
 
 ffmpeg -i Oswald_the_Lucky_Rabbit.mp4 -ss 01:47 -r 5/1 walk/$filename%03d.bmp
-
 
 
 

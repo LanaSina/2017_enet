@@ -79,13 +79,16 @@ public class INeuron extends Neuron {
 	public INeuron(Vector<INeuron> from, INeuron to, int id) {//TODO make "to" as a vector
 		super(id);
 		mlog.setName("Pattern Neuron");
+		
 		addDirectInWeight(from);
+		
 		for (Iterator<INeuron> iterator = from.iterator(); iterator.hasNext();) {
 			INeuron iNeuron = iterator.next();
 			if(iNeuron.level>=level){
 				level = iNeuron.level++;
 			}			
 		}
+		
 		//as outweight from this to To
 		ProbaWeight p = to.addInWeight(Constants.defaultConnection, this);
 		outWeights.put(to, p);
@@ -121,9 +124,8 @@ public class INeuron extends Neuron {
 	 * @param p
 	 */
 	public void addInWeight(INeuron n, ProbaWeight p) {
-		if(!inWeights.containsKey(n)){
+		//if(!inWeights.containsKey(n)){
 			inWeights.put(n, p);
-		}
 	}
 
 	/**
@@ -135,7 +137,6 @@ public class INeuron extends Neuron {
 	 */
 	public ProbaWeight addInWeight(int wtype, INeuron n) {		
 		ProbaWeight p = null;
-		if(wtype == Constants.defaultConnection){
 			//normal proba weight
 			if(inWeights.containsKey(n)){
 				//already exists, don't replace
@@ -145,26 +146,30 @@ public class INeuron extends Neuron {
 				p = new ProbaWeight(wtype);
 				inWeights.put(n, p);
 			}
-		} 
 		return p;
 	}
 
+	
 	/**
 	 * add a bundled weight
 	 * @param wtype
 	 * @param vn vector of in neuron
 	 * @return
 	 */
-	public BundleWeight addDirectInWeight(Vector<INeuron> v) {				
+	public BundleWeight addDirectInWeight(Vector<INeuron> v) {	
+		//check that this does not already exist
 		BundleWeight b = lookForWeight(v);
+		
 		if(b==null){
 			b = new BundleWeight(v, this);
 		}
+		
 		directInWeights.addElement(b);
 		recalculatePosition();
 		
 		return b;
 	}
+	
 	
 	public void recalculatePosition() {
 		//recalculate postion
@@ -228,6 +233,7 @@ public class INeuron extends Neuron {
 	public boolean addOutWeight(INeuron n, ProbaWeight p) {
 		boolean b = false;
 		if(outWeights.containsKey(n)){
+			
 		}else{
 			outWeights.put(n, p);
 			b = true;
@@ -235,6 +241,9 @@ public class INeuron extends Neuron {
 		return b;
 	}
 	
+	public void addOrReplaceOutWeight(INeuron n, ProbaWeight p) {
+		outWeights.put(n, p);
+	}
 	
 	/**
 	 * sets activation of the neuron to 0
@@ -394,7 +403,7 @@ public class INeuron extends Neuron {
 	 * @return output weights of this neuron
 	 */
 	public HashMap<INeuron, ProbaWeight>  getOutWeights() {
-		return (HashMap<INeuron, ProbaWeight>) outWeights.clone();
+		return outWeights;
 	}
 
 
@@ -478,8 +487,6 @@ public class INeuron extends Neuron {
 	 */
 	public void makeDirectActivation() {
 		Iterator<BundleWeight> it = directInWeights.iterator();
-		// pattern contained inside other patterns should be muted
-		//Vector<BundleWeight> activated = new Vector<BundleWeight>();
 				
 		while(it.hasNext()){
 			BundleWeight b = it.next();
@@ -585,10 +592,13 @@ public class INeuron extends Neuron {
 		while(it.hasNext()){
 			Entry<INeuron, BundleWeight> pair = it.next();
 			ProbaWeight pw = pair.getValue();
-			pw.setActivation(1,this);
-			//do the same for all succesive neurons
-			//as long as we find ones that were activated by us
 			INeuron n = pair.getKey();
+			pw.setActivation(1, this);
+		
+			
+			//do the same for all successive neurons
+			//as long as we find ones that were activated by us
+			
 			if(!n.isActivated()){//wasn't activated
 				//mlog.say("not activated yet "+ n.id);
 				n.makeDirectActivation();
@@ -713,6 +723,42 @@ public class INeuron extends Neuron {
 		}
 		recalculatePosition();
 	}
+	
+
+	/**
+	 * remaps the in weights of this neuron so they now 
+	 * go to n. In addition, also modifies the mapping in the input neurons.
+	 * @param n
+	 */
+	public void reportInWeights_old(INeuron n) {
+		
+		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = inWeights.entrySet().iterator(); iterator.hasNext();) {
+			Entry<INeuron, ProbaWeight> pair = iterator.next();
+			INeuron from = pair.getKey();
+			ProbaWeight w = pair.getValue();
+			
+			//recurrent weight
+			if(from==this){
+				//add the inweight to n
+				n.addInWeight(n,w);
+				//remove the inweight from this
+				iterator.remove();
+				//clean up
+				from.removeOutWeight(this);
+				//remap
+				from.addOrReplaceOutWeight(n, w);			
+			} else{
+				//add the inweight to n
+				n.addInWeight(from,w);
+				//remove the inweight from this
+				iterator.remove();
+				//clean up
+				from.removeOutWeight(this);
+				//remap
+				from.addOrReplaceOutWeight(n, w);
+			}
+		}
+	}
 
 	/**
 	 * remaps the in weights of this neuron so they now 
@@ -732,7 +778,15 @@ public class INeuron extends Neuron {
 			ProbaWeight wn =  n_inWeights.get(pair.getKey());
 			if(wn!=null){
 				b = wn.getProba();
+			} else{
+				//make it
+				wn = new ProbaWeight(Constants.defaultConnection);
+				wn.setAge(Constants.weight_max_age);
+				//value will be set later
+				n.addInWeight(pair.getKey(),wn);
+				pair.getKey().addOutWeight(n, wn);
 			}
+			
 			double c = 0;
 			ProbaWeight wc = coWeights.get(n);
 			if(wc!=null){
@@ -740,7 +794,7 @@ public class INeuron extends Neuron {
 			}
 			
 			double proba = b + (1-c)*a;
-			wn.setValue((int)proba*Constants.weight_max_age);
+			wn.setValue((int)proba*Constants.weight_max_age);//what is wn null??
 		}
 	}
 
@@ -871,6 +925,26 @@ public class INeuron extends Neuron {
 			n.getCoWeights().remove(this);
 		}
 		
+	}
+
+	public void increaseDirectInWeights() {
+		Iterator<BundleWeight> it = directInWeights.iterator();
+		while(it.hasNext()){
+			BundleWeight bw = it.next();
+			HashMap<INeuron, ProbaWeight> bundle = bw.getBundle();
+			for (Iterator<Entry<INeuron, ProbaWeight>> it2 = bundle.entrySet().iterator(); it2.hasNext();) {
+				Entry<INeuron, ProbaWeight> pair = it2.next();
+				ProbaWeight w = pair.getValue();
+				//value is increased if this weight was previously activated
+				if(w.canLearn() & w.isActivated()){
+					w.addValue();
+					if(w.getValue()>Constants.weight_max_age+1){
+						throw new java.lang.Error("Value "  + w.getValue() + " is more than max ag. Current age: " + w.getAge() +
+								". ID " +id+ " from " + pair.getKey().getId());
+					}
+				}
+			}
+		}
 	}
 	
 }

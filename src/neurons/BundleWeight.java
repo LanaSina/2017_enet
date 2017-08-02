@@ -45,7 +45,8 @@ public class BundleWeight extends ProbaWeight {
 		//create bundle
 		for (Iterator<INeuron> iterator = from.iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
-			ProbaWeight p = new ProbaWeight(Constants.fixedConnection);
+			ProbaWeight p = new ProbaWeight(Constants.defaultConnection);
+			p.setValue(1);
 			bundle.put(n, p);
 			n.addDirectOutWeight(to, this);
 		}
@@ -66,15 +67,36 @@ public class BundleWeight extends ProbaWeight {
 	/**
 	 * @return true if all weights in bundle are activated, false otherwise
 	 */
+	//@Override
 	public boolean bundleIsActivated() {
-		boolean b = true;
+		/*boolean b = true;
 		for (Iterator<INeuron> iterator = bundle.keySet().iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
 			if(!n.isActivated()){
 				b = false;
 				break;
 			}
+		}//*/
+		
+		boolean b = true;
+		//>90% of 0.9 weights must be activated
+		//>70% of 0.7 weights etc
+		//int activated = 0;
+		double sum = 0; 
+		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = bundle.entrySet().iterator(); iterator.hasNext();) {
+			Entry<INeuron, ProbaWeight> pair = iterator.next();
+			ProbaWeight pw = pair.getValue();
+			if(!pw.isActivated()){
+				//activated++;
+				if(pw.getProba()>(1.0/20)){
+					sum+=pw.getProba();
+				}
+				if(sum>=1){
+					return false;
+				}
+			}
 		}
+		
 		return b;
 	}
 	
@@ -193,36 +215,27 @@ public class BundleWeight extends ProbaWeight {
 		for (Iterator<INeuron> iterator3 = bundle.keySet().iterator(); iterator3.hasNext();) {
 			INeuron n = iterator3.next();
 			n.reportDirectOutWeights(from,to);
-		}		
-				
-		//look for common points		
-		/*Vector<BundleWeight> dw = to.getDirectInWeights();
-		for (Iterator<BundleWeight> iterator = dw.iterator(); iterator.hasNext();) {
-			BundleWeight b = iterator.next();
-			Set<INeuron> ins = b.getInNeurons();
-			Vector<INeuron> notCommon = new Vector<>();
-			for (Iterator<INeuron> iterator2 = ins.iterator(); iterator2.hasNext();) {
-				INeuron in = iterator2.next();
-				if(this.getStrand(in)==null){
-					notCommon.add(in);
+		}
+	}
+
+	/**
+	 * decrease probabilities all neurons that are not in newBundle
+	 * @param newBundle
+	 */
+	public void decreaseAllBut(Vector<INeuron> newBundle) {
+		
+		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = bundle.entrySet().iterator(); iterator.hasNext();) {
+			Entry<INeuron, ProbaWeight> pair = iterator.next();
+			ProbaWeight p = pair.getValue();
+			if(p.canLearn()){
+				p.increaseAge();
+				if(newBundle.contains(pair.getKey())){
+					p.addValue();
 				}
+				//mlog.say(" "+p.getProba());
 			}
-			//check if nothing is common
-			if(notCommon.size()==ins.size()){
-				//report all weights
-				for (Iterator<INeuron> iterator3 = bundle.keySet().iterator(); iterator3.hasNext();) {
-					INeuron n = iterator3.next();
-					n.reportDirectOutWeights(from,to);
-				}
-			}else{
-				//remove not common neurons from new neuron
-				for (Iterator<INeuron> iterator2 = notCommon.iterator(); iterator2.hasNext();) {
-					INeuron n = iterator2.next();
-					b.removeStrand(n);
-					n.removeOutWeight(from);
-				}
-			}
-		}*/
+		}
+		//mlog.say("------- ");
 	}
 
 }

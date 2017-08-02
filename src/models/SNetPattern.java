@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.Vector;
 import javax.swing.JButton;
 
@@ -629,7 +630,6 @@ public class SNetPattern implements ControllableThread {
 		/*Utils.propagateInstantaneousActivation(eyepro_h);
 		Utils.propagateInstantaneousActivation(eyepro_v);*/
 
-		
 		if(save){	
 			double error, surprise, illusion;
 			if(n_activated == 0){
@@ -844,6 +844,7 @@ public class SNetPattern implements ControllableThread {
 					for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
 						INeuron preneuron = iterator.next();
 						
+						
 						if((cpu_limitations && nw>max_new_connections)) break;
 						
 						//doubloons weights will not be added
@@ -885,29 +886,61 @@ public class SNetPattern implements ControllableThread {
 						}*/
 					}	
 					
+					//no change, try pruning spatial patterns
+					if(!didChange){
+						//look at input neuron's bundles vs STM
+						for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
+							INeuron preneuron = iterator.next();
+							HashMap<INeuron, ProbaWeight> inw = n.getInWeights();
+							if(inw.containsKey(preneuron) && inw.get(preneuron).getProba()>Constants.confidence_threshold){
+								//look at those that were activated (ie in STM)
+								Vector<BundleWeight> pr = preneuron.getDirectInWeights();
+								for (Iterator<BundleWeight> iterator2 = pr.iterator(); iterator2.hasNext();) {
+									BundleWeight bundleWeight = iterator2.next();
+									
+									Set<INeuron> bn = bundleWeight.getBundle().keySet();
+									Vector<INeuron> newBundle = new Vector<>();
+									for (Iterator<INeuron> iterator3 = bn.iterator(); iterator3.hasNext();) {
+										INeuron iNeuron =  iterator3.next();
+										if(STM.contains(iNeuron)){
+											newBundle.addElement(iNeuron);
+										}
+									}
+									if (newBundle.size()>=2) {
+										bundleWeight.decreaseAllBut(newBundle);
+										didChange = true;
+										//mlog.say("Degreasing bundle from "+preneuron.getId() + " to " + n.getId());
+									}
+								}
+							}
+						}
+					}//*/
+					
+					
 					//no change happened, try building a spatial pattern
 					if(!didChange){// && !dreaming){	//  
 						if(cpu_limitations && nw>max_new_connections) break;
-						
 						if(true){//!hasMaxLayer(STM)
 							Vector<INeuron> vn = Utils.patternExists3D(STM, n);
 							if(vn.size()>0){
 								if(the_pattern==null){
 									if(vn.size()>1){
 										
+										//INeuron 
 										the_pattern = new INeuron(vn,n,n_id);
 										n_id++;
 										newn.addElement(the_pattern);
 										ProbaWeight weight = the_pattern.getOutWeights().get(n);
 										weight.setActivation(1, null);
-									}else{
+										mlog.say("******** added pattern neuron");
+									}/*else{
 										//only used when debugging
 										INeuron pn = vn.get(0);
 										ProbaWeight p = n.addInWeight(Constants.defaultConnection, pn);
 										pn.addOutWeight(n, p);
 										p.setActivation(1, null);
 										mlog.say("******** added p weight from "+ pn.getId() + " to " + n.getId());
-									}
+									}*/
 									
 									nw++;
 									didChange = true;
