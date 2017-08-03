@@ -505,28 +505,31 @@ public class Utils {
 						//compare all out weights
 						HashMap<INeuron,ProbaWeight> out1 = n.getOutWeights();
 						HashMap<INeuron,ProbaWeight> out2 = n2.getOutWeights();
-						Iterator<Entry<INeuron, ProbaWeight>> out2it = out2.entrySet().iterator();
+						//Iterator<Entry<INeuron, ProbaWeight>> out2it = out2.entrySet().iterator();
 						//n1 must have all the weights that n2 has
-						Set<INeuron> s1 = out1.keySet();
-						Set<INeuron> s2 = out2.keySet();
+						//Set<INeuron> s1 = out1.keySet();
+						//Set<INeuron> s2 = out2.keySet();
 						
 						//inweights
 						HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
 						HashMap<INeuron,ProbaWeight> in2 = n2.getInWeights();
-						Set<INeuron> i1 = in1.keySet();
-						Set<INeuron> i2 = in2.keySet();
+						//Set<INeuron> i1 = in1.keySet();
+						//Set<INeuron> i2 = in2.keySet();
 						
 						//avoid direct recurrent connections
-						if(n.directInWeightsContains(n2) || n2.directInWeightsContains(n) ||
-								//avoid different sets of outweights and inweights
-								!s1.equals(s2) || !i1.equals(i2)){ 
+						if(n.directInWeightsContains(n2) || n2.directInWeightsContains(n)
+								//avoid different sets ofinweights
+								 //|| !i1.equals(i2)
+								 ){ 
 							//mlog.say("too different");
 							dosnap = false;
 							continue;
 						} 
 							
+						dosnap = sameWeights(out1, out2);
+						
 						//compare outw
-						while(out2it.hasNext()){
+						/*while(out2it.hasNext()){
 							Map.Entry<INeuron, ProbaWeight> out2pair = out2it.next();
 							ProbaWeight w2 = out2pair.getValue();
 							//can still learn: give up
@@ -549,9 +552,16 @@ public class Utils {
 								dosnap = false;
 								break;
 							};
-						}
+						}*/
 						
 						if(!dosnap){
+							continue;
+						}
+						
+						//coweights must be the same too
+						HashMap<INeuron,ProbaWeight> co1 = n.getCoWeights();
+						HashMap<INeuron,ProbaWeight> co2 = n2.getCoWeights();
+						if(!sameWeights(co1, co2)){
 							continue;
 						}
 						
@@ -559,7 +569,7 @@ public class Utils {
 						//TODO
 							
 						//finally, only snap if there are no conflicting inweights
-						Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
+						/*Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
 						while(in1it.hasNext()){
 							Map.Entry<INeuron, ProbaWeight> entry = in1it.next();
 							INeuron c = entry.getKey();
@@ -580,8 +590,8 @@ public class Utils {
 								dosnap = false;
 								break;
 								//a bit sad about this but causes strong illusions
-							}//*/
-						}
+							}
+						}*/
 						
 						if(dosnap){
 							n.justSnapped = true;
@@ -797,6 +807,45 @@ public class Utils {
 				w.addValue();
 			}
 		}
+	}
+	
+	private static boolean sameWeights(HashMap<INeuron,ProbaWeight> a, HashMap<INeuron,ProbaWeight> b) {
+		boolean same = true;
+		
+		//must contain same units
+		if(!a.equals(b.keySet())){
+			return false;
+		}
+		
+		//compare outw
+		Iterator<Entry<INeuron, ProbaWeight>> ai = a.entrySet().iterator();
+		
+		while(ai.hasNext()){
+			Map.Entry<INeuron, ProbaWeight> pair = ai.next();
+			ProbaWeight w2 = pair.getValue();
+			
+			//can still learn: give up
+			if(w2.canLearn()){
+				//mlog.say("can learn");
+				return false;
+			}
+			
+			//weight to same neuron; check value
+			ProbaWeight w1 = b.get(pair.getKey());
+			
+			if(w1.canLearn()){
+				//mlog.say("can learn");
+				return false;
+			}
+			
+			if(Math.abs(w1.getProba()-w2.getProba())>Constants.w_error){
+				//mlog.say("wrong out value");
+				return false;
+			};
+		}
+		
+		
+		return same;
 	}
 
 
