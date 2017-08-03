@@ -442,6 +442,8 @@ public class Utils {
 		HashMap<Integer, INeuron> neurons = (HashMap<Integer, INeuron>) allINeurons.clone();
 		
 		ArrayList<INeuron> remove = new ArrayList<INeuron>();
+		ArrayList<INeuron> changed = new ArrayList<INeuron>();
+
 		//go through net
 		Iterator<Entry<Integer, INeuron>> it = neurons.entrySet().iterator();
 		while(it.hasNext()){
@@ -505,11 +507,7 @@ public class Utils {
 						//compare all out weights
 						HashMap<INeuron,ProbaWeight> out1 = n.getOutWeights();
 						HashMap<INeuron,ProbaWeight> out2 = n2.getOutWeights();
-						//Iterator<Entry<INeuron, ProbaWeight>> out2it = out2.entrySet().iterator();
-						//n1 must have all the weights that n2 has
-						//Set<INeuron> s1 = out1.keySet();
-						//Set<INeuron> s2 = out2.keySet();
-						
+
 						//inweights
 						HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
 						HashMap<INeuron,ProbaWeight> in2 = n2.getInWeights();
@@ -528,42 +526,16 @@ public class Utils {
 							
 						dosnap = sameWeights(out1, out2);
 						
-						//compare outw
-						/*while(out2it.hasNext()){
-							Map.Entry<INeuron, ProbaWeight> out2pair = out2it.next();
-							ProbaWeight w2 = out2pair.getValue();
-							//can still learn: give up
-							if(w2.canLearn()){
-								//mlog.say("can learn");
-								dosnap = false;
-								break;
-							}
-							
-							//weight to same neuron; check value
-							ProbaWeight w1 = out1.get(out2pair.getKey());
-							if(w1.canLearn()){
-								//mlog.say("can learn");
-								dosnap = false;
-								break;//give up
-							}
-							
-							if(Math.abs(w1.getProba()-w2.getProba())>Constants.w_error){
-								//mlog.say("wrong out value");
-								dosnap = false;
-								break;
-							};
-						}*/
-						
 						if(!dosnap){
 							continue;
 						}
 						
 						//coweights must be the same too
-						HashMap<INeuron,ProbaWeight> co1 = n.getCoWeights();
+						/*HashMap<INeuron,ProbaWeight> co1 = n.getCoWeights();
 						HashMap<INeuron,ProbaWeight> co2 = n2.getCoWeights();
 						if(!sameWeights(co1, co2)){
 							continue;
-						}
+						}*/
 						
 						//check that there are no learning direct inweights?
 						//TODO
@@ -604,8 +576,8 @@ public class Utils {
 							//maybe instead of updating we could rebuild them from dreams...
 							
 							//remove co-activation weights
-							n.removeCoWeights();
 							n2.removeCoWeights();
+							changed.add(n);
 							
 							//do the same for direct inweights
 							n2.reportDirectInWeights(n);
@@ -629,6 +601,12 @@ public class Utils {
 			allINeurons.remove(id);
 		}
 		
+		for(int i=0; i<changed.size();i++){	
+			INeuron n = changed.get(i);
+			n.removeCoWeights();
+		}
+		
+
 		
 		//reset "just snapped" values 
 		it = allINeurons.entrySet().iterator();
@@ -813,7 +791,7 @@ public class Utils {
 		boolean same = true;
 		
 		//must contain same units
-		if(!a.equals(b.keySet())){
+		if(!a.keySet().equals(b.keySet())){
 			return false;
 		}
 		
