@@ -254,7 +254,7 @@ public class Utils {
 			
 			if(!n.justSnapped && doit){ 
 				//avoid co-weigths that still can learn
-				/*HashMap<INeuron,ProbaWeight> co_w = n.getCoWeights();
+				HashMap<INeuron,ProbaWeight> co_w = n.getCoWeights();
 				Iterator<Entry<INeuron, ProbaWeight>> co_it = co_w.entrySet().iterator();
 				while (co_it.hasNext()) {
 					Entry<INeuron, ProbaWeight> pair3 = co_it.next();
@@ -269,7 +269,7 @@ public class Utils {
 					//no need to consider it for future comparisons
 					it.remove();
 					continue;
-				}*/
+				}//*/
 				
 				//prune direct weights and snap those with same position
 				//TODO
@@ -283,7 +283,7 @@ public class Utils {
 					INeuron n2 = pair2.getValue();
 					
 					//avoid co-weigths that still can learn
-					/*HashMap<INeuron,ProbaWeight> co_w2 = n2.getCoWeights();
+					HashMap<INeuron,ProbaWeight> co_w2 = n2.getCoWeights();
 					Iterator<Entry<INeuron, ProbaWeight>> co_it2 = co_w2.entrySet().iterator();
 					while (co_it2.hasNext()) {
 						Entry<INeuron, ProbaWeight> pair3 = co_it2.next();
@@ -292,7 +292,7 @@ public class Utils {
 							dosnap = false;
 							break;
 						}
-					}*/
+					}//*/
 					
 					if(!dosnap){
 						continue;
@@ -339,14 +339,14 @@ public class Utils {
 							}
 						}
 						
-						dosnap = sameWeights(in1, in2);
+						/*dosnap = sameWeights(in1, in2);
 						if(!dosnap){
 							continue;
-						}
+						}*/
 				
 						
 						//check that there are no learning direct inweights
-						/*HashMap<INeuron,ProbaWeight> di1 = n.getCoWeights();
+						HashMap<INeuron,ProbaWeight> di1 = n.getCoWeights();
 						Iterator<Entry<INeuron, ProbaWeight>> di1it = di1.entrySet().iterator();
 						while (di1it.hasNext()) {
 							Entry<INeuron, ProbaWeight> pa = di1it.next();
@@ -370,7 +370,7 @@ public class Utils {
 						}
 						if(!dosnap){
 							continue;
-						}
+						}//*/
 						
 						
 						//no learning inweights either
@@ -396,10 +396,10 @@ public class Utils {
 						}
 						if(!dosnap){
 							continue;
-						}
+						}//*/
 							
 						//finally, only snap if there are no conflicting inweights
-						Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
+						/*Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
 						while(in1it.hasNext()){
 							Map.Entry<INeuron, ProbaWeight> entry = in1it.next();
 							INeuron c = entry.getKey();
@@ -431,13 +431,13 @@ public class Utils {
 							remove.add(n2);
 							
 							//report n2 inputs to n if they did not exist
-							n2.reportInWeights_old(n);
+							n2.reportInWeights(n);
 							//update co-activation weights
 							//maybe instead of updating we could rebuild them from dreams...
 							
 							//remove co-activation weights
-							//n2.removeCoWeights();
-							//changed.add(n);
+							n2.removeCoWeights();
+							changed.add(n);
 							
 							//do the same for direct inweights
 							n2.reportDirectInWeights(n);
@@ -461,10 +461,10 @@ public class Utils {
 			allINeurons.remove(id);
 		}
 		
-		/*for(int i=0; i<changed.size();i++){	
+		for(int i=0; i<changed.size();i++){	
 			INeuron n = changed.get(i);
 			n.removeCoWeights();
-		}*/
+		}//*/
 		
 
 		
@@ -625,7 +625,7 @@ public class Utils {
 	}
 
 
-	/*public static void updateCoactivation(INeuron n, HashMap<Integer, INeuron> allINeurons) {
+	public static void updateCoactivation(INeuron n, HashMap<Integer, INeuron> allINeurons) {
 		
 		//age coactivation weights
 		HashMap<INeuron,ProbaWeight> co_w = n.getCoWeights();
@@ -648,7 +648,7 @@ public class Utils {
 				w.addValue();
 			}
 		}
-	}*/
+	}//*/
 	
 	private static boolean sameWeights(HashMap<INeuron,ProbaWeight> a, HashMap<INeuron,ProbaWeight> b) {
 		boolean same = true;
