@@ -133,6 +133,7 @@ public class INeuronTest {
 		w.setAge(Constants.weight_max_age);
 		mlog.say("proba " + w.getProba());
 		assertEquals(true, w.getProba()==0.5);
+		assertEquals(1, n.getInWeights().size());
 	}
 	
 	@Test

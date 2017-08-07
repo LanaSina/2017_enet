@@ -225,210 +225,7 @@ public class Utils {
 			}
 		}
 	}
-
-	public static HashMap<Integer, INeuron> snap_old(HashMap<Integer, INeuron> allINeurons) {
-		mlog.say("snapping");
-		int nw = countWeights(allINeurons);
-		mlog.say("total connections "+ nw + " neurons "+ allINeurons.size());		
 		
-		//use a modifiable list
-		HashMap<Integer, INeuron> neurons = (HashMap<Integer, INeuron>) allINeurons.clone();
-		
-		ArrayList<INeuron> remove = new ArrayList<INeuron>();
-		//go through net
-		Iterator<Entry<Integer, INeuron>> it = neurons.entrySet().iterator();
-		while(it.hasNext()){
-			
-			Map.Entry<Integer, INeuron> pair = it.next();
-			INeuron n = pair.getValue();
-			
-			boolean doit = true;
-			boolean dosnap = true;
-			
-			if(!n.justSnapped && doit){ 
-				//avoid co-weigths that still can learn
-				HashMap<INeuron,ProbaWeight> co_w = n.getCoWeights();
-				Iterator<Entry<INeuron, ProbaWeight>> co_it = co_w.entrySet().iterator();
-				while (co_it.hasNext()) {
-					Entry<INeuron, ProbaWeight> pair3 = co_it.next();
-					ProbaWeight w = pair3.getValue();
-					if(w.canLearn()){
-						dosnap = false;
-						break;
-					}
-				}
-				
-				if(!dosnap){
-					//no need to consider it for future comparisons
-					it.remove();
-					continue;
-				}
-				
-				//look for equivalent neurons (neurons with equivalent outweights)
-				Iterator<Entry<Integer, INeuron>> it2 = neurons.entrySet().iterator();
-				while(it2.hasNext()){
-					dosnap = true;
-					
-					Map.Entry<Integer, INeuron> pair2 = it2.next();
-					INeuron n2 = pair2.getValue();
-					
-					//avoid co-weigths that still can learn
-					HashMap<INeuron,ProbaWeight> co_w2 = n2.getCoWeights();
-					Iterator<Entry<INeuron, ProbaWeight>> co_it2 = co_w2.entrySet().iterator();
-					while (co_it2.hasNext()) {
-						Entry<INeuron, ProbaWeight> pair3 = co_it2.next();
-						ProbaWeight w = pair3.getValue();
-						if(w.canLearn()){
-							dosnap = false;
-							break;
-						}
-					}
-					
-					if(!dosnap){
-						continue;
-					}
-										
-					if((n.getId() != n2.getId()) && !n2.justSnapped && doit){
-						
-
-						//compare all out weights
-						HashMap<INeuron,ProbaWeight> out1 = n.getOutWeights();
-						HashMap<INeuron,ProbaWeight> out2 = n2.getOutWeights();
-						Iterator<Entry<INeuron, ProbaWeight>> out2it = out2.entrySet().iterator();
-						//n1 must have all the weights that n2 has
-						Set<INeuron> s1 = out1.keySet();
-						Set<INeuron> s2 = out2.keySet();
-						//inweights
-						HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
-						HashMap<INeuron,ProbaWeight> in2 = n2.getInWeights();
-						Set<INeuron> i1 = in1.keySet();
-						Set<INeuron> i2 = in2.keySet();
-						
-						//avoid direct recurrent connections
-						if(n.directInWeightsContains(n2) || n2.directInWeightsContains(n) ||
-								//avoid different sets of outweights and inweights
-								!s1.equals(s2) || !i1.equals(i2)){ 
-							//mlog.say("too different");
-							dosnap = false;
-							continue;
-						} 
-							
-						//compare outw
-						while(out2it.hasNext()){
-							Map.Entry<INeuron, ProbaWeight> out2pair = out2it.next();
-							ProbaWeight w2 = out2pair.getValue();
-							//can still learn: give up
-							if(w2.canLearn()){
-								//mlog.say("can learn");
-								dosnap = false;
-								break;
-							}
-							
-							//weight to same neuron; check value
-							ProbaWeight w1 = out1.get(out2pair.getKey());
-							if(w1.canLearn()){
-								//mlog.say("can learn");
-								dosnap = false;
-								break;//give up
-							}
-							
-							if(Math.abs(w1.getProba()-w2.getProba())>Constants.w_error){
-								//mlog.say("wrong out value");
-								dosnap = false;
-								break;
-							};
-						}
-						
-						if(!dosnap){
-							continue;
-						}
-							
-						//finally, only snap if there are no conflicting inweights
-						//TODO do we need that
-						Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
-						while(in1it.hasNext()){
-							Map.Entry<INeuron, ProbaWeight> entry = in1it.next();
-							INeuron c = entry.getKey();
-							if(in2.containsKey(c)){
-								ProbaWeight p1 = entry.getValue();
-								ProbaWeight p2 = in2.get(c);
-								if(p1.canLearn() || p2.canLearn()){
-									dosnap = false;
-									break;
-								}
-									
-								if(Math.abs(p1.getProba()-p2.getProba())>Constants.w_error){
-									//mlog.say("wrong in value");
-									dosnap = false;
-									break;
-								}
-							} else {
-								dosnap = false;
-								break;
-								//a bit sad about this but causes strong illusions
-							}//*/
-						}
-						
-						if(dosnap){
-							n.justSnapped = true;
-							n2.justSnapped = true;
-							remove.add(n2);
-							
-							//report n2 inputs to n if they did not exist
-							n2.reportInWeights(n);
-							//update co-activation weights
-							
-							//remove co-activation weights
-							
-							//do the same for direct inweights
-							n2.reportDirectInWeights(n);
-							n.recalculatePosition();
-							//now report direct outweights
-							n2.reportDirectOutWeights(n);
-							
-							//notifies output neurons too
-							n2.removeAllOutWeights();
-							n2.clearDirectInWeights();			
-							
-							//remove co-activation weights
-							n.removeCoWeights();
-							n2.removeCoWeights();
-							
-						}
-					}
-				}
-			}
-		}
-		
-		//count removed weights (only out weights)
-		for(int i=0; i<remove.size();i++){	
-			allINeurons.remove(remove.get(i).getId());
-		}
-		
-		
-		//reset "just snapped" values 
-		it = allINeurons.entrySet().iterator();
-		while(it.hasNext()){
-			Map.Entry<Integer, INeuron> pair = it.next();
-			INeuron n = pair.getValue();
-			n.justSnapped = false;
-			//check in weights
-			for (Iterator iterator = remove.iterator(); iterator.hasNext();) {
-				INeuron iNeuron = (INeuron) iterator.next();
-				if(n.getInWeights().get(iNeuron)!=null){
-					throw new java.lang.Error("dead neuron in here");
-				}
-			}
-		}
-		
-		
-		nw = countWeights(allINeurons);
-		mlog.say("after: weights "+ nw + " neurons " + allINeurons.size());
-		
-		return allINeurons;
-	}
-
-	
 
 	/** 
 	 * fuses similar neurons
@@ -511,13 +308,13 @@ public class Utils {
 						//inweights
 						HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
 						HashMap<INeuron,ProbaWeight> in2 = n2.getInWeights();
-						//Set<INeuron> i1 = in1.keySet();
-						//Set<INeuron> i2 = in2.keySet();
+						Set<INeuron> i1 = in1.keySet();
+						Set<INeuron> i2 = in2.keySet();
 						
 						//avoid direct recurrent connections
 						if(n.directInWeightsContains(n2) || n2.directInWeightsContains(n)
 								//avoid different sets ofinweights
-								 //|| !i1.equals(i2)
+								 || !i1.equals(i2)
 								 ){ 
 							//mlog.say("too different");
 							dosnap = false;
@@ -537,8 +334,55 @@ public class Utils {
 							continue;
 						}*/
 						
-						//check that there are no learning direct inweights?
-						//TODO
+						//check that there are no learning direct inweights
+						HashMap<INeuron,ProbaWeight> di1 = n.getCoWeights();
+						Iterator<Entry<INeuron, ProbaWeight>> di1it = di1.entrySet().iterator();
+						while (di1it.hasNext()) {
+							Entry<INeuron, ProbaWeight> pa = di1it.next();
+							if(pa.getValue().canLearn()){
+								dosnap = false;
+								break;
+							}
+						}
+						if(!dosnap){
+							continue;
+						}
+						HashMap<INeuron,ProbaWeight> di2 = n.getCoWeights();
+						Iterator<Entry<INeuron, ProbaWeight>> di2it = di2.entrySet().iterator();
+						while (di2it.hasNext()) {
+							Entry<INeuron, ProbaWeight> pa = di2it.next();
+							if(pa.getValue().canLearn()){
+								dosnap = false;
+								break;
+							}
+						}
+						if(!dosnap){
+							continue;
+						}
+						
+						//no learning inweights either
+						Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
+						while (in1it.hasNext()) {
+							Entry<INeuron, ProbaWeight> pa = in1it.next();
+							if(pa.getValue().canLearn()){
+								dosnap = false;
+								break;
+							}
+						}
+						if(!dosnap){
+							continue;
+						}
+						Iterator<Entry<INeuron, ProbaWeight>> in2it = in2.entrySet().iterator();
+						while (in2it.hasNext()) {
+							Entry<INeuron, ProbaWeight> pa = in2it.next();
+							if(pa.getValue().canLearn()){
+								dosnap = false;
+								break;
+							}
+						}
+						if(!dosnap){
+							continue;
+						}
 							
 						//finally, only snap if there are no conflicting inweights
 						/*Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
@@ -619,6 +463,9 @@ public class Utils {
 				INeuron iNeuron = (INeuron) iterator.next();
 				if(n.getInWeights().get(iNeuron)!=null){
 					throw new java.lang.Error("dead neuron in here");
+				}
+				if(n.getOutWeights().get(iNeuron)!=null){
+					throw new java.lang.Error("dead neuron out here");
 				}
 			}
 		}

@@ -280,7 +280,7 @@ public class INeuron extends Neuron {
 			if(w.canLearn() & w.isActivated()){
 				w.addValue();
 				if(w.getValue()>Constants.weight_max_age+1){
-					throw new java.lang.Error("Value "  + w.getValue() + " is more than max ag. Current age: " + w.getAge() +
+					throw new java.lang.Error("Value "  + w.getValue() + " is more than max age. Current age: " + w.getAge() +
 							". ID " +id+ " from " + pair.getKey().getId());
 				}
 			}
@@ -739,6 +739,7 @@ public class INeuron extends Neuron {
 		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = inWeights.entrySet().iterator(); iterator.hasNext();) {
 			Entry<INeuron, ProbaWeight> pair = iterator.next();
 			ProbaWeight w = pair.getValue();
+			pair.getKey().removeOutWeight(this);
 			
 			//calculate new probability depending on co-activation rate
 			double a = w.getProba();
@@ -763,11 +764,35 @@ public class INeuron extends Neuron {
 			
 			//mlog.say("b c a "+ b + " " +c + " " + a);
 			double proba = b + (1-c)*a;
+			
+			//account for small errors
+			/*if(proba>1.1){
+				int awc = -1;
+				if(wc!=null){
+					awc = wc.getAge();
+				}
+				int aw = -1;
+				if(w!=null){
+					aw = w.getAge();
+				}
+				int awn = -1;
+				if(wn!=null){
+					awn = wn.getAge();
+				}
+				throw new java.lang.Error("Proba > 1 when reporting weight: "+ proba+
+						" b c a " + b + " " + " "+ c + " "+ a +
+						" ages " + awc + " " + aw + " " + awn);
+				//proba = 1;
+			}*/
+			if(proba>1){
+				proba=1;
+			}
+			
 			//mlog.say("proba " + proba);
 			wn.setValue((int)(proba*Constants.weight_max_age));
 			//mlog.say("value " + wn.getValue());
 			
-			w = n.getInWeights().get(pair.getKey());
+			//w = n.getInWeights().get(pair.getKey());
 			//mlog.say("proba " + w.getProba());
 		}
 	}
