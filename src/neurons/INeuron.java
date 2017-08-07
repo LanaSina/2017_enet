@@ -512,6 +512,9 @@ public class INeuron extends Neuron {
 		//should never be null	
 		Iterator<Entry<INeuron, ArrayList<BundleWeight>>> it = directOutWeights.entrySet().iterator();
 		double act = 0;
+		setIllusion(false);
+		setSurprised(true);
+		
 		while (it.hasNext()) {
 			Entry<INeuron, ArrayList<BundleWeight>> pair = it.next();
 			INeuron neuron = pair.getKey();
@@ -527,8 +530,7 @@ public class INeuron extends Neuron {
 					setSurprised(true);
 				}*/
 				
-				setIllusion(false);
-				setSurprised(true);
+				
 				if(!neuron.isSurprised()){
 					setSurprised(false);
 				}

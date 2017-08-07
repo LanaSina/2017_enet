@@ -41,7 +41,7 @@ plot_weights = function(parameters){
 }
 
 #performance
-netName = "~/Development/SNET_data/2017_08_07_22_00"
+netName = "~/Development/SNET_data/2017_08_07_22_55"
 fileName = paste(netName,"performance.csv",sep="/")
 print(fileName)
 perf = read.csv(fileName)
