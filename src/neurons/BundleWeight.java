@@ -108,9 +108,13 @@ public class BundleWeight extends ProbaWeight {
 	public boolean sameBundle(Set<INeuron> neurons) {
 		boolean b = true;
 		//are the 2 sets completely equivalent
-		if(!neurons.containsAll(bundle.keySet())){
+		/*if(!neurons.containsAll(bundle.keySet())){
 			b = false;
 		}else if(!bundle.keySet().containsAll(neurons)){
+			b = false;
+		}*/
+		
+		if(!neurons.equals(bundle.keySet())){
 			b = false;
 		}
 		return b;

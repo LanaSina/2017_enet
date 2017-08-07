@@ -1074,7 +1074,7 @@ public class SNetPattern implements ControllableThread {
 		allINeurons = Utils.snap(allINeurons);
 		if(draw_net){
 			netGraph.setHiddenLayer(allINeurons);
-		}
+		}//*/
 	}
 	
 	private void cleanAll() {

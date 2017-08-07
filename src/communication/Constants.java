@@ -69,7 +69,7 @@ public class Constants {
 	
 	
 	/** how much error is tolerated to call 2 neurons "same"*/
-	public static double w_error = 0.1;
+	public static double w_error = 0.0;
 
 	
 	//functions

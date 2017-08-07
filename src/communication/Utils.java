@@ -322,11 +322,27 @@ public class Utils {
 						} 
 							
 						dosnap = sameWeights(out1, out2);
-						
 						if(!dosnap){
 							continue;
 						}
+						//check weight to self
+						ProbaWeight weight = n.getOutWeights().get(n);
+						ProbaWeight weight2 = n2.getOutWeights().get(n2);
+						if(weight!=null){
+							if(weight2==null){
+								dosnap = false;
+							} else {
+								double d = Math.abs(weight.getProba()-weight2.getProba());
+								if(d>Constants.w_error){
+									dosnap = false;
+								}
+							}
+						}
 						
+						dosnap = sameWeights(in1, in2);
+						if(!dosnap){
+							continue;
+						}
 				
 						
 						//check that there are no learning direct inweights
@@ -407,10 +423,7 @@ public class Utils {
 							}
 						}//*/
 						
-						dosnap = sameWeights(in1, in2);
-						if(!dosnap){
-							continue;
-						}
+						
 						
 						if(dosnap){
 							n.justSnapped = true;
@@ -424,12 +437,12 @@ public class Utils {
 							
 							//remove co-activation weights
 							//n2.removeCoWeights();
-							changed.add(n);
+							//changed.add(n);
 							
 							//do the same for direct inweights
 							n2.reportDirectInWeights(n);
 							n.recalculatePosition();
-							//now report direct outweights
+							//now report direct outweights and remaps too
 							n2.reportDirectOutWeights(n);
 							
 							//notifies output neurons too
@@ -448,10 +461,10 @@ public class Utils {
 			allINeurons.remove(id);
 		}
 		
-		for(int i=0; i<changed.size();i++){	
+		/*for(int i=0; i<changed.size();i++){	
 			INeuron n = changed.get(i);
-			//n.removeCoWeights();
-		}
+			n.removeCoWeights();
+		}*/
 		
 
 		
@@ -654,7 +667,6 @@ public class Utils {
 			
 			//can still learn: give up
 			if(w2.canLearn()){
-				//mlog.say("can learn");
 				return false;
 			}
 			
@@ -662,7 +674,6 @@ public class Utils {
 			ProbaWeight w1 = b.get(pair.getKey());
 			
 			if(w1.canLearn()){
-				//mlog.say("can learn");
 				return false;
 			}
 			
@@ -670,6 +681,7 @@ public class Utils {
 				//mlog.say("wrong out value");
 				return false;
 			};
+			
 		}
 		
 		
