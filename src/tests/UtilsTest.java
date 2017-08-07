@@ -58,6 +58,7 @@ public class UtilsTest {
 		INeuron r = neurons.values().iterator().next();
 		assertEquals(false, r==null);
 		assertEquals("out weights ", true, r.getOutWeights().containsKey(to));
+		assertEquals(1, r.getOutWeights().size());
 		
 		Iterator<Entry<Integer, INeuron>> it = neurons.entrySet().iterator();
 		while (it.hasNext()) {

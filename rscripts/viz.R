@@ -2,8 +2,8 @@
 #
 library(igraph)
 
-netName = "~/Development/SNET_data/hires_accordeon"
-netName = "~/Development/SNET_data/2017_08_02_17_23"
+netName = "~/Development/SNET_data/_cue_save_no_white"
+netName = "~/Development/SNET_data/2017_08_03_22_13"
 
 #parameters
 fileName = paste(netName,"net_parameters.csv",sep="/")
@@ -41,7 +41,7 @@ plot_weights = function(parameters){
 }
 
 #performance
-netName = "~/Development/SNET_data/2017_08_02_22_11"
+netName = "~/Development/SNET_data/2017_08_07_22_55"
 fileName = paste(netName,"performance.csv",sep="/")
 print(fileName)
 perf = read.csv(fileName)

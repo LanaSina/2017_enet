@@ -694,10 +694,11 @@ public class SNetPattern implements ControllableThread {
 		if(!readingMemory){
 			makeWeights();
 		}
-		calculatePerf();
 		
 		//look at predictions
 		buildPredictionMap();
+		
+		calculatePerf();
 				
 		//update short term memory
 		updateSTM();
@@ -819,7 +820,7 @@ public class SNetPattern implements ControllableThread {
 						n.getCoWeights().put(n2, w);
 						n2.getInCoWeights().put(n, w);
 					}
-				}
+				}//*/
 			}
 		}
 		
@@ -938,15 +939,7 @@ public class SNetPattern implements ControllableThread {
 										ProbaWeight weight = the_pattern.getOutWeights().get(n);
 										weight.setActivation(1, null);
 										mlog.say("******** added pattern neuron");
-									}/*else{
-										//only used when debugging
-										INeuron pn = vn.get(0);
-										ProbaWeight p = n.addInWeight(Constants.defaultConnection, pn);
-										pn.addOutWeight(n, p);
-										p.setActivation(1, null);
-										mlog.say("******** added p weight from "+ pn.getId() + " to " + n.getId());
-									}*/
-									
+									}
 									nw++;
 									didChange = true;
 								} else{
@@ -957,10 +950,10 @@ public class SNetPattern implements ControllableThread {
 										p.setActivation(1, null);
 										mlog.say("******** added pattern weight to " + n.getId());
 									}
-								}//*/
+								}
 							}
 						}
-					}
+					}//*/
 					
 					//if it changed, it is good to recalculate predicted activation
 					if(didChange){
@@ -1072,6 +1065,9 @@ public class SNetPattern implements ControllableThread {
 	private void snap() {
 		//cleanAll();
 		allINeurons = Utils.snap(allINeurons);
+		if(draw_net){
+			netGraph.setHiddenLayer(allINeurons);
+		}//*/
 	}
 	
 	private void cleanAll() {

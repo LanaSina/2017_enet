@@ -42,7 +42,7 @@ public class INeuronTest {
 		assertEquals(" ", false, n.addDirectInWeight(n2.getDirectInWeights().get(0)));
 	}
 	
-	@Test
+	/*@Test
 	public void reportInWeights(){
 		int id = 0;
 		INeuron from = new INeuron(id);
@@ -59,9 +59,9 @@ public class INeuronTest {
 		to.reportInWeights(n);
 		assertEquals("in", true, n.getInWeights().containsKey(from));
 		assertEquals("out", true, from.getOutWeights().containsKey(n));
-	}
+	}*/
 	
-	@Test
+	/*@Test
 	public void reportInWeights_no_coactivation(){
 		int id = 0;
 		INeuron from = new INeuron(id);
@@ -96,10 +96,10 @@ public class INeuronTest {
 		mlog.say("proba " + w.getProba());
 		assertEquals(true, w.getProba()==1);
 		assertEquals(true, w.getAge()==Constants.weight_max_age);
-	}
+	}*/
 	
 	
-	@Test
+	/*@Test
 	public void reportInWeights_coactivation(){
 		int id = 0;
 		INeuron from = new INeuron(id);
@@ -120,8 +120,8 @@ public class INeuronTest {
 		//add coactivation
 		ProbaWeight w = new ProbaWeight(Constants.defaultConnection);
 		w.setValue(1);
-		n.getCoWeights().put(to, w);
-		to.getInCoWeights().put(n, w);
+		//n.getCoWeights().put(to, w);
+		//to.getInCoWeights().put(n, w);
 		
 		w = new ProbaWeight(Constants.defaultConnection);
 		w.setValue(1);
@@ -133,7 +133,8 @@ public class INeuronTest {
 		w.setAge(Constants.weight_max_age);
 		mlog.say("proba " + w.getProba());
 		assertEquals(true, w.getProba()==0.5);
-	}
+		assertEquals(1, n.getInWeights().size());
+	}*/
 	
 	@Test
 	public void createPattern(){
