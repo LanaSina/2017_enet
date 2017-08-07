@@ -852,7 +852,7 @@ public class SNetText implements ControllableThread {
 									remove.add(n2);
 									
 									//report n2 inputs to n if they did not exist
-									n2.reportInWeights(n);
+									//n2.reportInWeights(n);
 									
 									//do the same for direct inweights
 									n2.reportDirectInWeights(n);

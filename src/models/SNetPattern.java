@@ -778,7 +778,7 @@ public class SNetPattern implements ControllableThread {
 				}
 			    
 		    	//co-activation
-				Utils.updateCoactivation(n,allINeurons);
+				//Utils.updateCoactivation(n,allINeurons);
 			}
 			
 			
@@ -811,7 +811,7 @@ public class SNetPattern implements ControllableThread {
 				INeuron n2 = iterator2.next();
 				
 				//no self co-activation
-				if(n2!=n){
+				/*if(n2!=n){
 					if(!n.getCoWeights().containsKey(n2)){
 						//add it
 						ProbaWeight w = new ProbaWeight(Constants.defaultConnection);
@@ -819,7 +819,7 @@ public class SNetPattern implements ControllableThread {
 						n.getCoWeights().put(n2, w);
 						n2.getInCoWeights().put(n, w);
 					}
-				}
+				}*/
 			}
 		}
 		

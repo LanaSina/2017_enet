@@ -32,8 +32,8 @@ public class INeuron extends Neuron {
 	/** (id of out neuron, weight) probabilistic outweights (dt=1)*/
 	HashMap<INeuron, ProbaWeight> outWeights = new HashMap<INeuron, ProbaWeight>();
 	/** (id of out neuron, weight) co-activation weights (dt=0)*/
-	HashMap<INeuron, ProbaWeight> coWeights = new HashMap<INeuron, ProbaWeight>();
-	HashMap<INeuron, ProbaWeight> inCoWeights = new HashMap<INeuron, ProbaWeight>();
+	/*HashMap<INeuron, ProbaWeight> coWeights = new HashMap<INeuron, ProbaWeight>();
+	HashMap<INeuron, ProbaWeight> inCoWeights = new HashMap<INeuron, ProbaWeight>();*/
 
 	
 	/** activation of this neuron (real or vitual)*/
@@ -448,21 +448,14 @@ public class INeuron extends Neuron {
 		return inWeights;// (HashMap<INeuron, ProbaWeight>) 
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
-	public HashMap<INeuron, ProbaWeight> getCoWeights() {
+
+	/*public HashMap<INeuron, ProbaWeight> getCoWeights() {
 		return coWeights;
 	}
-	
-	/**
-	 * 
-	 * @return
-	 */
+
 	public HashMap<INeuron, ProbaWeight> getInCoWeights(){
 		return inCoWeights;
-	}
+	}*/
 
 
 	/**
@@ -733,7 +726,7 @@ public class INeuron extends Neuron {
 	 * go to n. In addition, also modifies the mapping in the input neurons.
 	 * @param n
 	 */
-	public void reportInWeights(INeuron n) {
+	/*public void reportInWeights(INeuron n) {
 		HashMap<INeuron, ProbaWeight> n_inWeights = n.getInWeights();
 		
 		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = inWeights.entrySet().iterator(); iterator.hasNext();) {
@@ -765,25 +758,6 @@ public class INeuron extends Neuron {
 			//mlog.say("b c a "+ b + " " +c + " " + a);
 			double proba = b + (1-c)*a;
 			
-			//account for small errors
-			/*if(proba>1.1){
-				int awc = -1;
-				if(wc!=null){
-					awc = wc.getAge();
-				}
-				int aw = -1;
-				if(w!=null){
-					aw = w.getAge();
-				}
-				int awn = -1;
-				if(wn!=null){
-					awn = wn.getAge();
-				}
-				throw new java.lang.Error("Proba > 1 when reporting weight: "+ proba+
-						" b c a " + b + " " + " "+ c + " "+ a +
-						" ages " + awc + " " + aw + " " + awn);
-				//proba = 1;
-			}*/
 			if(proba>1){
 				proba=1;
 			}
@@ -795,7 +769,7 @@ public class INeuron extends Neuron {
 			//w = n.getInWeights().get(pair.getKey());
 			//mlog.say("proba " + w.getProba());
 		}
-	}
+	}*/
 
 
 	/**
@@ -909,7 +883,7 @@ public class INeuron extends Neuron {
 	/**
 	 * update mappings in neuron linked to this one
 	 */
-	public void removeCoWeights() {
+	/*public void removeCoWeights() {
 		Iterator<Entry<INeuron, ProbaWeight>> co_it = coWeights.entrySet().iterator();
 		while (co_it.hasNext()) {
 			Entry<INeuron, ProbaWeight> pair = co_it.next();
@@ -924,7 +898,7 @@ public class INeuron extends Neuron {
 			n.getCoWeights().remove(this);
 		}
 		
-	}
+	}*/
 
 	public void increaseDirectInWeights() {
 		Iterator<BundleWeight> it = directInWeights.iterator();
