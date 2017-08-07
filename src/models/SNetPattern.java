@@ -92,11 +92,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/variation/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Oswald/accordeon/small/"; 
 	/** leading zeros*/
 	String name_format = "%02d";
 	/** number of images*/
-	int n_images = 6;//
+	int n_images = 40;//
 	
 	//sensors 
 	/** image sensor*/
@@ -557,7 +557,7 @@ public class SNetPattern implements ControllableThread {
 				//values in "in" start at 1, not 0
 				int i = in[k]-1;
 				INeuron eyen = eye_neurons[i].get(n_interface[i][k]);
-				if(i>0){//>=0 if seeing white
+				if(i>=0){//>=0 if seeing white
 					eyen.increaseActivation(1);
 				}
 			
