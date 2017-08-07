@@ -924,7 +924,7 @@ public class SNetPattern implements ControllableThread {
 					
 					
 					//no change happened, try building a spatial pattern
-					/*if(!didChange){// && !dreaming){	//  
+					if(!didChange){// && !dreaming){	//  
 						if(cpu_limitations && nw>max_new_connections) break;
 						if(true){//!hasMaxLayer(STM)
 							Vector<INeuron> vn = Utils.patternExists3D(STM, n);
@@ -953,7 +953,7 @@ public class SNetPattern implements ControllableThread {
 								}
 							}
 						}
-					}*/
+					}//*/
 					
 					//if it changed, it is good to recalculate predicted activation
 					if(didChange){
