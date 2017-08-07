@@ -506,25 +506,44 @@ public class INeuron extends Neuron {
 	 * @return the activation of the 1st neuron in the list of directOutWeights
 	 */
 	public double getUpperPredictedActivation() {
-		if(directOutWeights.size()>1){
+		/*if(directOutWeights.size()>1){
 			throw new Error("=========ERROR");
-		}
+		}*/
 		//should never be null	
 		Iterator<Entry<INeuron, ArrayList<BundleWeight>>> it = directOutWeights.entrySet().iterator();
-		Entry<INeuron, ArrayList<BundleWeight>> pair = it.next();
-		INeuron neuron = pair.getKey();
-		
-		setIllusion(false);
-		setSurprised(false);
-
-		if(neuron.getActivation()==0 && neuron.getPredictedActivation()>0){
-			setIllusion(true);
+		double act = 0;
+		while (it.hasNext()) {
+			Entry<INeuron, ArrayList<BundleWeight>> pair = it.next();
+			INeuron neuron = pair.getKey();
+			if(pair.getValue().size()==1){
+				
+				/*setIllusion(false);
+				setSurprised(false);
+	
+				if(neuron.getActivation()==0 && neuron.getPredictedActivation()>0){
+					setIllusion(true);
+				}
+				if(neuron.getActivation()>0 && neuron.getPredictedActivation()==0){
+					setSurprised(true);
+				}*/
+				
+				setIllusion(false);
+				setSurprised(true);
+				if(!neuron.isSurprised()){
+					setSurprised(false);
+				}
+				if(neuron.isIllusion()){
+					setIllusion(true);
+				}
+				
+				
+				if(neuron.getPredictedActivation()>act){
+					act = neuron.getPredictedActivation();
+				}
+			}
 		}
-		if(neuron.getActivation()>0 && neuron.getPredictedActivation()==0){
-			setSurprised(true);
-		}
 		
-		return neuron.getPredictedActivation();
+		return act;
 	}
 	
 	
