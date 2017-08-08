@@ -1,6 +1,7 @@
 package models;
 
 
+import java.awt.List;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -8,6 +9,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -52,12 +55,12 @@ public class SNetPattern implements ControllableThread {
 	int speed = 1;
 	boolean draw_net = true;
 	/** max number of new connections per step*/
-	int max_new_connections = 5000;
+	int max_new_connections = 10000;
 	/** max inweights per neuron */
 	//int max_in_weights = 500;
-	int max_total_connections = 50000;
+	int max_total_connections = 5000000;
 	//int max_layers = 10;//6
-	boolean cpu_limitations = false;
+	boolean cpu_limitations = true;
 	boolean add_weights = true;
 
 
@@ -92,11 +95,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Oswald/accordeon/small/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Oswald/full/small/file_"; 
 	/** leading zeros*/
-	String name_format = "%02d";
+	String name_format = "%05d";
 	/** number of images*/
-	int n_images = 40;//
+	int n_images = 334;//
 	
 	//sensors 
 	/** image sensor*/
@@ -826,15 +829,19 @@ public class SNetPattern implements ControllableThread {
 		
 		
 		//ineurons 
-		//todo make order random
-		Iterator<Entry<Integer, INeuron>> it = allINeurons.entrySet().iterator();
+		//random 
+		Vector<INeuron> shuffled = new Vector<INeuron>(allINeurons.values());
+		Collections.shuffle(shuffled);
+		
+		Iterator<INeuron> it = shuffled.iterator();
 		int nw = 0;
-		int total = Utils.countWeights(allINeurons);		
+		int total = Utils.countWeights(allINeurons);	
+		
 		
 		if(add_weights){
 			while(it.hasNext()){
-				Map.Entry<Integer, INeuron> pair = it.next();
-				INeuron n = pair.getValue();
+				INeuron n = it.next();
+				
 				/*int id = n.getId();
 				//do not try to predict proprioception: action choice is random for now
 				if(id>=pi_start && id<=pi_end){
@@ -846,8 +853,10 @@ public class SNetPattern implements ControllableThread {
 					//did we improve future prediction chances?
 					boolean didChange = false;
 					
-					//go through STM
-					for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
+					//go through STM 
+					//random
+					Vector<INeuron> shuffled_stm =  new Vector<INeuron>(STM);
+					for (Iterator<INeuron> iterator = shuffled_stm.iterator(); iterator.hasNext();) {
 						INeuron preneuron = iterator.next();
 						
 						
@@ -895,7 +904,7 @@ public class SNetPattern implements ControllableThread {
 					//no change, try pruning spatial patterns
 					if(!didChange){
 						//look at input neuron's bundles vs STM
-						for (Iterator<INeuron> iterator = STM.iterator(); iterator.hasNext();) {
+						for (Iterator<INeuron> iterator = shuffled_stm.iterator(); iterator.hasNext();) {
 							INeuron preneuron = iterator.next();
 							HashMap<INeuron, ProbaWeight> inw = n.getInWeights();
 							if(inw.containsKey(preneuron) && inw.get(preneuron).getProba()>Constants.confidence_threshold){
@@ -908,7 +917,7 @@ public class SNetPattern implements ControllableThread {
 									Vector<INeuron> newBundle = new Vector<>();
 									for (Iterator<INeuron> iterator3 = bn.iterator(); iterator3.hasNext();) {
 										INeuron iNeuron =  iterator3.next();
-										if(STM.contains(iNeuron)){
+										if(shuffled_stm.contains(iNeuron)){
 											newBundle.addElement(iNeuron);
 										}
 									}
@@ -927,7 +936,7 @@ public class SNetPattern implements ControllableThread {
 					if(!didChange){// && !dreaming){	//  
 						if(cpu_limitations && nw>max_new_connections) break;
 						if(true){//!hasMaxLayer(STM)
-							Vector<INeuron> vn = Utils.patternExists3D(STM, n);
+							Vector<INeuron> vn = Utils.patternExists3D(shuffled_stm, n);
 							if(vn.size()>0){
 								if(the_pattern==null){
 									if(vn.size()>1){

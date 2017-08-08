@@ -2,8 +2,8 @@
 #
 library(igraph)
 
-netName = "~/Development/SNET_data/_cue_save_no_white"
-netName = "~/Development/SNET_data/2017_08_03_22_13"
+netName = "~/Development/SNET_data/hires_accordeon"
+netName = "~/Development/SNET_data/2017_08_08_00_32"
 
 #parameters
 fileName = paste(netName,"net_parameters.csv",sep="/")
@@ -48,11 +48,11 @@ perf = read.csv(fileName)
 
 color = "black"
 plot(perf$iteration,perf$error,type="l",xlab = "Timestep", ylab = "Error", col=color,
-     main=netName, xlim = c(0,800), ylim = c(0,1))
+     main=netName, xlim = c(0,800), ylim = c(0,2))
 plot(perf$iteration,perf$surprise,type="l",xlab = "Timestep", ylab = "Surprise", col=color,
      main=netName, xlim = c(0,800), ylim = c(0,1))
 plot(perf$iteration,perf$illusion,type="l",xlab = "Timestep", ylab = "Illusion", col=color,
-     main=netName, xlim = c(0,800), ylim = c(0,1))
+     main=netName, xlim = c(0,800), ylim = c(0,3))
 
 plot_surprise(perf)
 
