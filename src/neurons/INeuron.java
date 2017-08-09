@@ -113,7 +113,7 @@ public class INeuron extends Neuron {
 	}
 	
 	public double[] getPosition() {
-		return position.clone();
+		return position;
 	}
 
 	public void setCanSnap(boolean canSnap) {
@@ -496,7 +496,7 @@ public class INeuron extends Neuron {
 
 
 	public Vector<BundleWeight> getDirectInWeights() {		
-		return (Vector<BundleWeight>) directInWeights.clone();//TODO why clone
+		return  directInWeights;
 	}
 
 

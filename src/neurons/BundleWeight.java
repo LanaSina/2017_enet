@@ -56,11 +56,11 @@ public class BundleWeight extends ProbaWeight {
 	 * @param p on direct inweights: mean(x), mean (y), var(x), var(y))
 	 */
 	public void setPosition(double[] p) {
-		position = p.clone();
+		position = p;
 	}
 	
 	public double[] getPosition() {
-		return position.clone();
+		return position;
 	}
 
 	
@@ -175,7 +175,7 @@ public class BundleWeight extends ProbaWeight {
 	
 	@Override
 	public HashMap<INeuron, ProbaWeight> getBundle() {
-		return (HashMap<INeuron, ProbaWeight>) bundle.clone();
+		return bundle;
 	}
 	
 	

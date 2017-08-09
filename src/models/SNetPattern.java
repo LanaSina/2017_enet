@@ -939,7 +939,7 @@ public class SNetPattern implements ControllableThread {
 							if(vn.size()>0){
 								if(the_pattern==null){
 									if(vn.size()>1){
-										
+										clone
 										//INeuron 
 										the_pattern = new INeuron(vn,n,n_id);
 										n_id++;
