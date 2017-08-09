@@ -1,7 +1,6 @@
 package models;
 
 
-import java.awt.List;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -9,7 +8,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -18,6 +16,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
+
 import javax.swing.JButton;
 
 import communication.Constants;
@@ -55,12 +54,12 @@ public class SNetPattern implements ControllableThread {
 	int speed = 1;
 	boolean draw_net = true;
 	/** max number of new connections per step*/
-	int max_new_connections = 10000;
+	int max_new_connections = 50000;
 	/** max inweights per neuron */
 	//int max_in_weights = 500;
 	int max_total_connections = 5000000;
 	//int max_layers = 10;//6
-	boolean cpu_limitations = true;
+	boolean cpu_limitations = false;
 	boolean add_weights = true;
 
 
