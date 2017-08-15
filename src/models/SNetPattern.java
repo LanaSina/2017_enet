@@ -1144,11 +1144,13 @@ public class SNetPattern implements ControllableThread {
 			    				//writeWeights();
 			    				writeParameters();
 			    			}
-			    			//calculate snap time
-			    			before = System.currentTimeMillis();
-			    			net.snap();
-			    			long snaptime = System.currentTimeMillis()-before;;
-			    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);//*/
+			    			if(step>0){
+				    			//calculate snap time
+				    			before = System.currentTimeMillis();
+				    			net.snap();
+				    			long snaptime = System.currentTimeMillis()-before;;
+				    			mlog.say("runtime "+runtime + " snaptime "+ snaptime);//*/
+			    			}
 			    			
 			    			//sleep
 			    			/*if(step>1){

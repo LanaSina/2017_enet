@@ -253,6 +253,11 @@ public class Utils {
 			//might need unsnapping later...
 			if(n.getOutWeights().size()==0){
 				it.remove();
+				remove.add(n);
+				//notifies output neurons too
+				n.removeAllOutWeights();
+				n.removeAllInWeights();
+				n.clearDirectInWeights();									
 				continue;
 			}
 			
@@ -677,21 +682,18 @@ public class Utils {
 		while(ai.hasNext()){
 			Map.Entry<INeuron, ProbaWeight> pair = ai.next();
 			ProbaWeight w2 = pair.getValue();
-			
-			//can still learn: give up
-			if(w2.canLearn()){
-				return false;
-			}
-			
-			//weight to same neuron; check value
 			ProbaWeight w1 = b.get(pair.getKey());
 			
-			if(w1.canLearn()){
+			//can still learn: give up
+			/*if(w2.canLearn()){
 				return false;
-			}
-			
+			}*/
+			/*if(w1.canLearn()){
+				return false;
+			}*/
+
+			//weight to same neuron; check value
 			if(Math.abs(w1.getProba()-w2.getProba())>Constants.w_error){
-				//mlog.say("wrong out value");
 				return false;
 			};
 		}

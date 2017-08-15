@@ -975,5 +975,15 @@ public class INeuron extends Neuron {
 			}
 		}
 	}
+
+
+	/** remove all links to this neurons from other neurons*/
+	public void removeAllInWeights() {
+
+		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = inWeights.entrySet().iterator(); iterator.hasNext();) {
+			Entry<INeuron, ProbaWeight> pair = iterator.next();
+			pair.getKey().removeOutWeight(this);
+		}		
+	}
 	
 }
