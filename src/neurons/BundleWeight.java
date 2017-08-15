@@ -29,7 +29,7 @@ public class BundleWeight extends ProbaWeight {
 	 */
 	public BundleWeight(int type) {
 		super(type);
-		mlog.setName("BWeight");
+		//mlog.setName("BWeight");
 	}
 	
 	/**
@@ -40,7 +40,7 @@ public class BundleWeight extends ProbaWeight {
 	public BundleWeight(Vector<INeuron> from, INeuron to) {		
 		//create age and value
 		super(Constants.defaultConnection);
-		mlog.setName("BWeight");
+		//mlog.setName("BWeight");
 		
 		//create bundle
 		for (Iterator<INeuron> iterator = from.iterator(); iterator.hasNext();) {
@@ -139,7 +139,7 @@ public class BundleWeight extends ProbaWeight {
 
 	public ProbaWeight removeStrand(INeuron key) {
 		if(bundle.isEmpty()){
-			mlog.say("********** empty");
+			//mlog.say("********** empty");
 		}
 		return bundle.remove(key);
 	}

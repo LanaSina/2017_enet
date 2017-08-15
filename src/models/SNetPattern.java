@@ -798,7 +798,7 @@ public class SNetPattern implements ControllableThread {
 		Vector<INeuron> newn = new Vector<INeuron>();
 		
 		//in case we made a pattern neuron
-		INeuron the_pattern = null;
+		//INeuron the_pattern = null;
 	
 		if(STM.size()==0){
 			mlog.say("just woke up");
@@ -937,9 +937,9 @@ public class SNetPattern implements ControllableThread {
 						if(true){//!hasMaxLayer(STM)
 							Vector<INeuron> vn = Utils.patternExists3D(shuffled_stm, n);
 							if(vn.size()>0){
-								if(the_pattern==null){
+								//if(the_pattern==null){
 									if(vn.size()>1){
-										//INeuron 
+										INeuron 
 										the_pattern = new INeuron(vn,n,n_id);
 										n_id++;
 										newn.addElement(the_pattern);
@@ -949,7 +949,7 @@ public class SNetPattern implements ControllableThread {
 									}
 									nw++;
 									didChange = true;
-								} else{
+								/*} else{
 									ProbaWeight p = n.addInWeight(Constants.defaultConnection, the_pattern);
 									if(the_pattern.addOutWeight(n, p)){
 										nw++;
@@ -957,7 +957,7 @@ public class SNetPattern implements ControllableThread {
 										p.setActivation(1, null);
 										mlog.say("******** added pattern weight to " + n.getId());
 									}
-								}
+								}*/
 							}
 						}
 					}//*/
@@ -1071,7 +1071,7 @@ public class SNetPattern implements ControllableThread {
 	 * */
 	private void snap() {
 		//cleanAll();
-		allINeurons = Utils.snap(allINeurons);
+		//allINeurons = Utils.snap(allINeurons);
 		if(draw_net){
 			netGraph.setHiddenLayer(allINeurons);
 		}//*/
@@ -1141,7 +1141,7 @@ public class SNetPattern implements ControllableThread {
 			    			long runtime = System.currentTimeMillis()-before;
 			    			//save
 			    			if(save){
-			    				writeWeights();
+			    				//writeWeights();
 			    				writeParameters();
 			    			}
 			    			//calculate snap time

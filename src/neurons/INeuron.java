@@ -22,7 +22,6 @@ import communication.Utils;
  *
  */
 public class INeuron extends Neuron {
-	MyLog mlog = new MyLog("INeuron", true);
 
 	//weigths
 	/** probabilistic input weights*/
@@ -81,7 +80,6 @@ public class INeuron extends Neuron {
 	 */
 	public INeuron(Vector<INeuron> from, INeuron to, int id) {//TODO make "to" as a vector
 		super(id);
-		mlog.setName("Pattern Neuron");
 		
 		addDirectInWeight(from);
 		

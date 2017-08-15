@@ -13,8 +13,6 @@ import communication.MyLog;
  *
  */
 public class ProbaWeight {
-	/** log */
-	MyLog mlog = new MyLog("PWeight",true);
 	
 	/** age of this weight*/
 	int age = 1;

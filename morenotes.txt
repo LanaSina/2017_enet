@@ -61,6 +61,12 @@ why so much time to learn simple time series
 
 1:48
 
+今そのprojectを実際にやってるか
+いいえー＞なぜ（お客様がいない/手法が大変すぎてあきらめた）
+はいー＞具体的に、なに魚をどこで（どういう川、ながれ、深さが知りたい）
+
+一般なprojectの長さとステップ
+
 
 ffmpeg -i Oswald_the_Lucky_Rabbit.mp4 -ss 01:47 -r 5/1 walk/$filename%03d.bmp
 

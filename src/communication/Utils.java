@@ -247,7 +247,14 @@ public class Utils {
 			
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
-			//mlog.say("n is "+n.getId());
+			
+			removeYoungWeights(n);
+			//remove pattern neurons that have no function
+			//might need unsnapping later...
+			if(n.getOutWeights().size()==0){
+				it.remove();
+				continue;
+			}
 			
 			boolean doit = true;
 			boolean dosnap = true;
@@ -650,6 +657,12 @@ public class Utils {
 		}
 	}//*/
 	
+	
+	/**
+	 * @param a
+	 * @param b
+	 * @return
+	 */
 	private static boolean sameWeights(HashMap<INeuron,ProbaWeight> a, HashMap<INeuron,ProbaWeight> b) {
 		boolean same = true;
 		
@@ -681,11 +694,31 @@ public class Utils {
 				//mlog.say("wrong out value");
 				return false;
 			};
-			
 		}
 		
-		
 		return same;
+	}
+	
+	/**
+	 * also remove age == 1 weights,
+	 */
+	private static void removeYoungWeights(INeuron n) {
+		boolean same = true;
+		HashMap<INeuron, ProbaWeight> a = n.getOutWeights();
+		
+		//remove age=1 weights
+		Iterator<Entry<INeuron, ProbaWeight>> ai = a.entrySet().iterator();
+		while(ai.hasNext()){
+			Map.Entry<INeuron, ProbaWeight> pair = ai.next();
+			ProbaWeight w2 = pair.getValue();
+			
+			if(w2.getAge()==1){
+				n.removeOutWeight(pair.getKey());
+				pair.getKey().removeInWeight(n);
+			} else if (w2.canLearn()) {
+				same = false;
+			}
+		}
 	}
 
 
