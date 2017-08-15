@@ -3,7 +3,7 @@
 library(igraph)
 
 netName = "~/Development/SNET_data/hires_accordeon"
-netName = "~/Development/SNET_data/2017_08_15_18_28"
+netName = "~/Development/SNET_data/2017_08_15_18_49"
 
 #parameters
 fileName = paste(netName,"net_parameters.csv",sep="/")
@@ -12,12 +12,13 @@ param = read.csv(fileName)
 
 color = "black"
 plot(param$iteration,param$neurons,type="l",col=color,xlab = "Timestep", ylab = "Number of neurons", main=netName
-     #,xlim= c(0,50),ylim= c(9300,9400)
+     #,xlim= c(200,1000)#ylim= c(9300,9400)
      )
 plot(param$iteration,param$connections/1000,type="l",col=color, xlab = "Timestep", ylab = "Connections/1000",
+     #xlim= c(0,100),#ylim= c(9300,9400)、
      main=netName)
 
-points(param$iteration,param$neurons,type="l",col="green")
+points(param$iteration,param$neurons,type="l",col="red")
 points(param$iteration,param$connections/1000,type="l",col="green")
 
 plot_neurons(param1)

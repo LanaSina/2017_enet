@@ -324,9 +324,9 @@ public class Utils {
 						Set<INeuron> i2 = in2.keySet();
 						
 						//avoid direct recurrent connections
-						if(n.directInWeightsContains(n2) || n2.directInWeightsContains(n)
+						if(//this should be ok n.directInWeightsContains(n2) || n2.directInWeightsContains(n) ||
 								//avoid different sets ofinweights
-								 || !i1.equals(i2)
+								  !i1.equals(i2)
 								 ){ 
 							//mlog.say("too different");
 							dosnap = false;
