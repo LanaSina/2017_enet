@@ -703,7 +703,6 @@ public class Utils {
 	 * also remove age == 1 weights,
 	 */
 	private static void removeYoungWeights(INeuron n) {
-		boolean same = true;
 		HashMap<INeuron, ProbaWeight> a = n.getOutWeights();
 		
 		//remove age=1 weights
@@ -711,13 +710,10 @@ public class Utils {
 		while(ai.hasNext()){
 			Map.Entry<INeuron, ProbaWeight> pair = ai.next();
 			ProbaWeight w2 = pair.getValue();
-			
 			if(w2.getAge()==1){
-				n.removeOutWeight(pair.getKey());
+				ai.remove();
 				pair.getKey().removeInWeight(n);
-			} else if (w2.canLearn()) {
-				same = false;
-			}
+			} 
 		}
 	}
 
