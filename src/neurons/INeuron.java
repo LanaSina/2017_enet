@@ -748,7 +748,7 @@ public class INeuron extends Neuron {
 			} else{
 				//make it
 				wn = new ProbaWeight(Constants.defaultConnection);
-				wn.setAge(Constants.weight_max_age);
+				wn.setAge(w.getAge());
 				//value will be set later
 				n.addInWeight(pair.getKey(),wn);
 				pair.getKey().addOutWeight(n, wn);
@@ -768,7 +768,7 @@ public class INeuron extends Neuron {
 			}
 			
 			//mlog.say("proba " + proba);
-			wn.setValue((int)(proba*Constants.weight_max_age));
+			wn.setValue((int)(proba*wn.getAge()));
 			//mlog.say("value " + wn.getValue());
 			
 			//w = n.getInWeights().get(pair.getKey());

@@ -318,7 +318,7 @@ public class Utils {
 						HashMap<INeuron,ProbaWeight> out2 = n2.getOutWeights();
 
 						//inweights
-						HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
+						/*HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
 						HashMap<INeuron,ProbaWeight> in2 = n2.getInWeights();
 						Set<INeuron> i1 = in1.keySet();
 						Set<INeuron> i2 = in2.keySet();
@@ -331,7 +331,7 @@ public class Utils {
 							//mlog.say("too different");
 							dosnap = false;
 							continue;
-						} 
+						} */
 							
 						dosnap = sameWeights(out1, out2);
 						if(!dosnap){
@@ -386,7 +386,7 @@ public class Utils {
 						
 						
 						//no learning inweights either
-						Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
+						/*Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
 						while (in1it.hasNext()) {
 							Entry<INeuron, ProbaWeight> pa = in1it.next();
 							if(pa.getValue().canLearn()){
