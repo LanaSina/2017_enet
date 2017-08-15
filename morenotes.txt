@@ -1,11 +1,20 @@
-$ 
+
+LSA -> noise and signla differenciation, noise helps learning
+compression DL : noise complexity?
+SNet: complexity in the epsilon sense, not the noise sense
+
+
+Priority: implement "time pattern" 
+calculate activation takes all time -> optimize recurrence? use supercomp?
+updateCoactivation also slow -> standardise instant prediction? don't delete them each time
+writeWeights: no coactivation, and slow->
+no pattern neurons soon enough -> start with pattern neurons...
+too many hashmap nodes (despite not that many neurons) -> use matrices?
+
 
 
 need a conscious and unconscious stm
 
-the pattern neuron outweight must learn too
----
-not both neurons should have justsnapped=true
 ---
 bug when reading long memory
 --

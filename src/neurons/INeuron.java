@@ -536,7 +536,6 @@ public class INeuron extends Neuron {
 					setIllusion(true);
 				}
 				
-				
 				if(neuron.getPredictedActivation()>act){
 					act = neuron.getPredictedActivation();
 				}

@@ -185,11 +185,11 @@ public class INeuronTest {
 		p2.setAge(3);
 		p2.setActivation(1, null);
 		assertEquals(true,p2.isActivated());
-		assertEquals(false,bundleWeight.isActivated());
+		assertEquals(false,bundleWeight.bundleIsActivated());
 		
 		p1.setActivation(1, null);
 		assertEquals(true,p1.isActivated());
-		assertEquals(true,bundleWeight.isActivated());
+		assertEquals(true,bundleWeight.bundleIsActivated());
 	}
 	
 	

@@ -2,8 +2,8 @@
 #
 library(igraph)
 
-netName = "~/Development/SNET_data/hires_accordeon"
-netName = "~/Development/SNET_data/2017_08_15_18_49"
+netName = "~/Development/SNET_data/ECAL_kitti"
+netName = "~/Development/SNET_data/2017_08_15_20_41"
 
 #parameters
 fileName = paste(netName,"net_parameters.csv",sep="/")
@@ -19,7 +19,7 @@ plot(param$iteration,param$connections/1000,type="l",col=color, xlab = "Timestep
      main=netName)
 
 points(param$iteration,param$neurons,type="l",col="red")
-points(param$iteration,param$connections/1000,type="l",col="green")
+points(param$iteration,param$connections/1000,type="l",col="red")
 
 plot_neurons(param1)
 legend(2000,1200, c("With noise","No noise"),
@@ -53,7 +53,7 @@ plot(perf$iteration,perf$error,type="l",xlab = "Timestep", ylab = "Error", col=c
 plot(perf$iteration,perf$surprise,type="l",xlab = "Timestep", ylab = "Surprise", col=color,
      main=netName, xlim = c(0,800), ylim = c(0,1))
 plot(perf$iteration,perf$illusion,type="l",xlab = "Timestep", ylab = "Illusion", col=color,
-     main=netName, xlim = c(0,800), ylim = c(0,3))
+     main=netName, xlim = c(0,800))#, ylim = c(0,3))
 
 plot_surprise(perf)
 

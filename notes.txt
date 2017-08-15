@@ -30,14 +30,6 @@ start everything as pattern?
 add action neurons into pool too? maybe rather after we introduce reward
 (and 2 level actions: reflexes and chosen actions)
 
-
-bundle weights minimization (take the smaller?bigger? of two sets if one is included in the other?)
-dream
-noise (continuous values?)
-
-
-with attention we can avoid trying to predict each neuron...
-
 We don’t actually need instantaneous weights — complete parallelism is more important than instant reaction times
 
 
