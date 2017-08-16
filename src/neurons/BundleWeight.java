@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import communication.Constants;
+import communication.Utils;
 
 /**
  * This is a weight made of a bundle of FixedWeights (weight with fixed values).
@@ -40,7 +41,6 @@ public class BundleWeight extends ProbaWeight {
 	public BundleWeight(Vector<INeuron> from, INeuron to) {		
 		//create age and value
 		super(Constants.defaultConnection);
-		//mlog.setName("BWeight");
 		
 		//create bundle
 		for (Iterator<INeuron> iterator = from.iterator(); iterator.hasNext();) {
@@ -50,13 +50,41 @@ public class BundleWeight extends ProbaWeight {
 			bundle.put(n, p);
 			n.addDirectOutWeight(to, this);
 		}
+		
+		recalculatePosition();
 	}
 	
 	/**
 	 * @param p on direct inweights: mean(x), mean (y), var(x), var(y))
 	 */
-	public void setPosition(double[] p) {
+	private void setPosition(double[] p) {
 		position = p;
+	}
+	
+	public void recalculatePosition() {
+		//recalculate postion
+		double[] p = {0,0,0,0};
+		
+			
+		Vector<INeuron> in = new Vector<INeuron>(getInNeurons());
+		double is = in.size();
+		double[] partial = Utils.patternPosition(in);
+		p[0] += partial[0];
+		p[1] += partial[1];
+		
+		p[0] = p[0]/is;
+		p[1] = p[1]/is;
+		
+		for (Iterator iterator = in.iterator(); iterator.hasNext();) {
+			INeuron iNeuron = (INeuron) iterator.next();
+			p[2] += Math.pow(p[0]-partial[0], 2);
+			p[3] += Math.pow(p[1]-partial[1], 2);
+		}
+		
+		p[2] = p[2]/is;
+		p[3] = p[3]/is;
+		
+		setPosition(p);
 	}
 	
 	public double[] getPosition() {
@@ -106,6 +134,10 @@ public class BundleWeight extends ProbaWeight {
 			n.removeDirectInWeight(this);
 		}
 		
+		if(remove.size()>0){
+			
+		}
+		
 		return b;
 	}
 	
@@ -116,13 +148,6 @@ public class BundleWeight extends ProbaWeight {
 	@Override
 	public boolean sameBundle(Set<INeuron> neurons) {
 		boolean b = true;
-		//are the 2 sets completely equivalent
-		/*if(!neurons.containsAll(bundle.keySet())){
-			b = false;
-		}else if(!bundle.keySet().containsAll(neurons)){
-			b = false;
-		}*/
-		
 		if(!neurons.equals(bundle.keySet())){
 			b = false;
 		}

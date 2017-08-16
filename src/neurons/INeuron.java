@@ -182,8 +182,8 @@ public class INeuron extends Neuron {
 		}else{
 			for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
 				BundleWeight bundle = iterator.next();
-				Vector<INeuron> in = new Vector<INeuron>(bundle.getInNeurons());
-				double[] partial = Utils.patternPosition(in);
+				//Vector<INeuron> in = new Vector<INeuron>(bundle.getInNeurons());
+				double[] partial = bundle.getPosition(); //Utils.patternPosition(in);
 				p[0] += partial[0];
 				p[1] += partial[1];
 			}
@@ -193,8 +193,8 @@ public class INeuron extends Neuron {
 			//once more for the variance
 			for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
 				BundleWeight bundle = iterator.next();
-				Vector<INeuron> in = new Vector<INeuron>(bundle.getInNeurons());
-				double[] partial = Utils.patternPosition(in);
+				///Vector<INeuron> in = new Vector<INeuron>(bundle.getInNeurons());
+				double[] partial = bundle.getPosition();//Utils.patternPosition(in);
 				p[2] += Math.pow(p[0]-partial[0], 2);
 				p[3] += Math.pow(p[1]-partial[1], 2);
 			}
@@ -670,14 +670,22 @@ public class INeuron extends Neuron {
 	 * @return true if we possess a similar bundleweight
 	 */
 	private boolean sameDirectInWeight(BundleWeight bw) {
-		boolean b = false;
-		for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
+		boolean b = true;
+		double[] p2 = bw.getPosition();
+		if(position[0] != p2[0] ||
+		   position[1] != p2[1] ||
+		   position[2] != p2[2] ||
+		   position[3] != p2[3]){
+			b = false;
+		}
+		
+		/*for (Iterator<BundleWeight> iterator = directInWeights.iterator(); iterator.hasNext();) {
 			BundleWeight ownbw = iterator.next();
 			if(ownbw.sameBundle(bw.getInNeurons())){
 				b = true;
 				break;
 			}
-		}
+		}*/
 		return b;
 	}
 	
