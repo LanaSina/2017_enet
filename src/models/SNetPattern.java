@@ -94,11 +94,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/cue/";//Oswald/full/small/file_"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Oswald/full/small/file_"; 
 	/** leading zeros*/
-	String name_format = "%02d";
+	String name_format = "%05d";
 	/** number of images*/
-	int n_images = 6;//
+	int n_images = 334;//
 	
 	//sensors 
 	/** image sensor*/
@@ -836,6 +836,10 @@ public class SNetPattern implements ControllableThread {
 		
 		
 		if(add_weights){
+
+			//random
+			Vector<INeuron> shuffled_stm =  new Vector<INeuron>(STM);
+			
 			while(it.hasNext()){
 				INeuron n = it.next();
 				
@@ -851,11 +855,8 @@ public class SNetPattern implements ControllableThread {
 					boolean didChange = false;
 					
 					//go through STM 
-					//random
-					Vector<INeuron> shuffled_stm =  new Vector<INeuron>(STM);
 					for (Iterator<INeuron> iterator = shuffled_stm.iterator(); iterator.hasNext();) {
 						INeuron preneuron = iterator.next();
-						
 						
 						if((cpu_limitations && nw>max_new_connections)) break;
 						
@@ -904,7 +905,9 @@ public class SNetPattern implements ControllableThread {
 						for (Iterator<INeuron> iterator = shuffled_stm.iterator(); iterator.hasNext();) {
 							INeuron preneuron = iterator.next();
 							HashMap<INeuron, ProbaWeight> inw = n.getInWeights();
-							if(inw.containsKey(preneuron) && inw.get(preneuron).getProba()>Constants.confidence_threshold){
+							if(inw.containsKey(preneuron) 
+									&& inw.get(preneuron).getProba()>Constants.confidence_threshold
+									&& inw.get(preneuron).getAge()>2){
 								//look at those that were activated (ie in STM)
 								Vector<BundleWeight> pr = preneuron.getDirectInWeights();
 								for (Iterator<BundleWeight> iterator2 = pr.iterator(); iterator2.hasNext();) {
@@ -967,6 +970,8 @@ public class SNetPattern implements ControllableThread {
 						//n.setSurprised(true);
 					}
 				}
+				
+				shuffled_stm.remove(n);
 			}
 		}else{
 			mlog.say("network too big");
