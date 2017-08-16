@@ -79,6 +79,7 @@ public class BundleWeight extends ProbaWeight {
 		}//*/
 		
 		boolean b = true;
+		Vector<INeuron> remove = new Vector<INeuron>();
 		//>90% of 0.9 weights must be activated
 		//>70% of 0.7 weights etc
 		//int activated = 0;
@@ -90,11 +91,19 @@ public class BundleWeight extends ProbaWeight {
 				//activated++;
 				if(pw.getProba()>(1.0/20)){
 					sum+=pw.getProba();
+				}else {
+					remove.addElement(pair.getKey());
 				}
 				if(sum>=1){
 					return false;
 				}
 			}
+		}
+		
+		for (Iterator iterator = remove.iterator(); iterator.hasNext();) {
+			INeuron n = (INeuron) iterator.next();
+			removeStrand(n);
+			n.removeDirectInWeight(this);
 		}
 		
 		return b;

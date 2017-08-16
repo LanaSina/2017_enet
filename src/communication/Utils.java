@@ -431,6 +431,8 @@ public class Utils {
 					}
 				}
 			}
+			
+			it.remove();
 		}
 		
 		//count removed weights (only out weights)

@@ -969,9 +969,7 @@ public class SNetPattern implements ControllableThread {
 						n.calculateActivation();
 						//n.setSurprised(true);
 					}
-				}
-				
-				shuffled_stm.remove(n);
+				}				
 			}
 		}else{
 			mlog.say("network too big");

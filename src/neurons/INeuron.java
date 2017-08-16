@@ -1024,5 +1024,9 @@ public class INeuron extends Neuron {
 			pair.getKey().removeOutWeight(this);
 		}		
 	}
+
+	public void removeDirectInWeight(BundleWeight bundleWeight) {
+		directInWeights.remove(bundleWeight);
+	}
 	
 }
