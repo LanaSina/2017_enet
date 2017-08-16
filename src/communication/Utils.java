@@ -63,7 +63,6 @@ public class Utils {
 	 */
 	public static Vector<INeuron> patternExists3D(Vector<INeuron> neurons, INeuron to_n) {
 		Vector<INeuron> valid_neurons = new Vector<INeuron>();
-		//valid_neurons.addAll(neurons);
 		double[] this_p = to_n.getPosition();
 
 		//0: check if some of these neurons are equivalent
@@ -266,7 +265,7 @@ public class Utils {
 			
 			if(!n.justSnapped && doit){ 
 				//avoid co-weigths that still can learn
-				/*HashMap<INeuron,ProbaWeight> co_w = n.getCoWeights();
+				HashMap<INeuron,ProbaWeight> co_w = n.getCoWeights();
 				Iterator<Entry<INeuron, ProbaWeight>> co_it = co_w.entrySet().iterator();
 				while (co_it.hasNext()) {
 					Entry<INeuron, ProbaWeight> pair3 = co_it.next();
@@ -275,7 +274,7 @@ public class Utils {
 						dosnap = false;
 						break;
 					}
-				}*/
+				}//*/
 				
 				if(!dosnap){
 					//no need to consider it for future comparisons
@@ -295,7 +294,7 @@ public class Utils {
 					INeuron n2 = pair2.getValue();
 					
 					//avoid co-weigths that still can learn
-					/*HashMap<INeuron,ProbaWeight> co_w2 = n2.getCoWeights();
+					HashMap<INeuron,ProbaWeight> co_w2 = n2.getCoWeights();
 					Iterator<Entry<INeuron, ProbaWeight>> co_it2 = co_w2.entrySet().iterator();
 					while (co_it2.hasNext()) {
 						Entry<INeuron, ProbaWeight> pair3 = co_it2.next();
@@ -311,7 +310,6 @@ public class Utils {
 					}
 										
 					if((n.getId() != n2.getId()) && !n2.justSnapped && doit){
-						
 
 						//compare all out weights
 						HashMap<INeuron,ProbaWeight> out1 = n.getOutWeights();
@@ -355,35 +353,6 @@ public class Utils {
 						if(!dosnap){
 							continue;
 						}*/
-				
-						
-						//check that there are no learning co inweights
-						/*HashMap<INeuron,ProbaWeight> di1 = n.getCoWeights();
-						Iterator<Entry<INeuron, ProbaWeight>> di1it = di1.entrySet().iterator();
-						while (di1it.hasNext()) {
-							Entry<INeuron, ProbaWeight> pa = di1it.next();
-							if(pa.getValue().canLearn()){
-								dosnap = false;
-								break;
-							}
-						}
-						if(!dosnap){
-							continue;
-						}
-						
-						HashMap<INeuron,ProbaWeight> di2 = n.getCoWeights();
-						Iterator<Entry<INeuron, ProbaWeight>> di2it = di2.entrySet().iterator();
-						while (di2it.hasNext()) {
-							Entry<INeuron, ProbaWeight> pa = di2it.next();
-							if(pa.getValue().canLearn()){
-								dosnap = false;
-								break;
-							}
-						}
-						if(!dosnap){
-							continue;
-						}//*/
-						
 						
 						//no learning inweights either
 						/*Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
@@ -434,8 +403,6 @@ public class Utils {
 								//a bit sad about this but causes strong illusions
 							}
 						}//*/
-						
-						
 						
 						if(dosnap){
 							//n.justSnapped = true;

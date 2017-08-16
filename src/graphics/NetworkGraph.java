@@ -457,8 +457,8 @@ public class NetworkGraph {
 				int size = eye_interface[k][2];//size of the zone for this sensor
 				int nid = n_interface[grayscale][k];
 				NeuronVertex v = vertices.get(nid);
-				float x = sensor_i+size/2;
-				float y = sensor_j+size/2;
+				float x = sensor_j+size/2;
+				float y = sensor_i+size/2;
 				v.setPosition(x, y);
 				layout.setLocation(v, new Point2D.Float(x*factor,y*factor));
 		    	layout.lock(v, true);

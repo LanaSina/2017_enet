@@ -12,9 +12,15 @@ no pattern neurons soon enough -> start with pattern neurons...
 too many hashmap nodes (despite not that many neurons) -> use matrices?
 
 
+adding patterns when unnecessary
 
+bad predictions too: "surprised" when actually no surprise -> bad performance calculation?
+grey predictions -> prediction map is bad?
+far too many neurons left
+drawing map is inverted
+
+---
 need a conscious and unconscious stm
-
 ---
 bug when reading long memory
 --
