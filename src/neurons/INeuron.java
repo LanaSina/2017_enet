@@ -585,15 +585,12 @@ public class INeuron extends Neuron {
 			for (Iterator<BundleWeight> iterator = pair.getValue().iterator(); iterator.hasNext();) {
 				BundleWeight bundleWeight = iterator.next();
 				bundleWeight.setActivation(1, this);
-				
 			}
 			
 			//do the same for all successive neurons
 			//as long as we find ones that were activated by us
 			if(!n.isActivated()){//wasn't activated
-				//mlog.say("not activated yet "+ n.id);
 				n.makeDirectActivation();
-				
 				if(n.isActivated()){//but now is activated
 					n.activateDirectOutWeights();
 				}			
@@ -900,6 +897,7 @@ public class INeuron extends Neuron {
 				addDirectOutWeight(to, bundleWeight);
 				iterator.remove();
 			}
+			directOutWeights.remove(from);
 		}
 	}
 

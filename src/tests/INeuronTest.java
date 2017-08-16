@@ -42,6 +42,42 @@ public class INeuronTest {
 		assertEquals(" ", false, n.addDirectInWeight(n2.getDirectInWeights().get(0)));
 	}
 	
+	@Test
+	public void reportDirectInWeights(){
+		Vector<INeuron> vn = new Vector<INeuron>();
+		
+		//from
+		INeuron n1 = new INeuron(0);
+		INeuron n2 = new INeuron(1);
+		vn.addElement(n1);
+		vn.addElement(n2);
+		
+		//to
+		INeuron n3 = new INeuron(2);
+		INeuron the_pattern = new INeuron(vn,n3,3);
+		
+		//report to 
+		int id = 3;
+		INeuron n4 = new INeuron(id);
+		id++;
+		the_pattern.reportDirectInWeights(n4);
+		
+		assertEquals(true,n4.getDirectInWeights().size()==1);
+		mlog.say("size "+ n1.getDirectOutWeights().size());
+		assertEquals(true,n1.getDirectOutWeights().size()==1);
+		assertEquals(false,n1.getDirectOutWeights().get(n4)==null);
+		
+		//activate it
+		n1.increaseActivation(1);
+		n2.increaseActivation(1);
+		n1.calculateActivation();
+		n2.calculateActivation();
+		n1.activateDirectOutWeights();
+		n2.activateDirectOutWeights();
+		n4.calculateActivation();
+		assertEquals(true,n4.isActivated());
+	}
+	
 	/*@Test
 	public void reportInWeights(){
 		int id = 0;
