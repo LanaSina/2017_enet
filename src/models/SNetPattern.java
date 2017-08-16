@@ -783,8 +783,6 @@ public class SNetPattern implements ControllableThread {
 		    	//co-activation
 				Utils.updateCoactivation(n,allINeurons);
 			}
-			
-			
 		}
 	}
 
@@ -820,7 +818,7 @@ public class SNetPattern implements ControllableThread {
 						ProbaWeight w = new ProbaWeight(Constants.defaultConnection);
 						w.setValue(1);
 						n.getCoWeights().put(n2, w);
-						n2.getInCoWeights().put(n, w);
+						n2.getCoWeights().put(n, w);
 					}
 				}//*/
 			}

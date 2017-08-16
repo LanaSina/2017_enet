@@ -416,6 +416,7 @@ public class Utils {
 							
 							//remove co-activation weights
 							n2.removeCoWeights();
+							//n2.reportCoWeights(n);
 							changed.add(n);
 							
 							//do the same for direct inweights
@@ -614,11 +615,14 @@ public class Utils {
 			ProbaWeight w = pair.getValue();
 			if(w.canLearn()){
 				w.increaseAge();
+				if(pair.getKey().isActivated()){
+					w.addValue();
+				}
 			}
 		}
 		
 		//increase values of input co-weights
-		HashMap<INeuron,ProbaWeight> in_co_w = n.getInCoWeights();
+		/*HashMap<INeuron,ProbaWeight> in_co_w = n.getInCoWeights();
 		Iterator<Entry<INeuron, ProbaWeight>> i_co_it = in_co_w.entrySet().iterator();
 		while (i_co_it.hasNext()) {
 			Entry<INeuron, ProbaWeight> pair = i_co_it.next();
@@ -626,7 +630,7 @@ public class Utils {
 			if(w.canLearn()){
 				w.addValue();
 			}
-		}
+		}*/
 	}//*/
 	
 	

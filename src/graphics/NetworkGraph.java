@@ -610,11 +610,11 @@ public class NetworkGraph {
 		vv.repaint();
 	}
 	
-	public void rebuildGraph(){
+	/*public void rebuildGraph(){
 		emptyGraph();
 		populateGraph(displayed_neurons);
 		vv.repaint();
-	}
+	}*/
 	
 	public JPanel getPanel() {
 		return panel;
