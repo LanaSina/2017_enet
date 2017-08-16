@@ -777,18 +777,22 @@ public class INeuron extends Neuron {
 	 * go to n. In addition, also modifies the mapping in the input neurons.
 	 * @param n
 	 */
-	/*public void reportCoWeights(INeuron n) {
-		HashMap<INeuron, ProbaWeight> n_coWeights = n.getInWeights();
-		a
-		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = inWeights.entrySet().iterator(); iterator.hasNext();) {
+	public void reportCoWeights(INeuron n) {
+		HashMap<INeuron, ProbaWeight> n_coWeights = n.getCoWeights();
+		//remove the weight between the 2
+		ProbaWeight p = n_coWeights.remove(this);
+		coWeights.remove(n);
+
+		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = coWeights.entrySet().iterator(); iterator.hasNext();) {
 			Entry<INeuron, ProbaWeight> pair = iterator.next();
 			ProbaWeight w = pair.getValue();
-			pair.getKey().removeOutWeight(this);
+			//remove weight to this
+			pair.getKey().getCoWeights().remove(this);
 			
 			//calculate new probability depending on co-activation rate
 			double a = w.getProba();
 			double b = 0;
-			ProbaWeight wn =  n_inWeights.get(pair.getKey());
+			ProbaWeight wn =  n_coWeights.get(pair.getKey());
 			if(wn!=null){
 				b = wn.getProba();
 			} else{
@@ -796,8 +800,8 @@ public class INeuron extends Neuron {
 				wn = new ProbaWeight(Constants.defaultConnection);
 				wn.setAge(w.getAge());
 				//value will be set later
-				n.addInWeight(pair.getKey(),wn);
-				pair.getKey().addOutWeight(n, wn);
+				n_coWeights.put(pair.getKey(), wn);
+				pair.getKey().getCoWeights().put(n, wn);
 			}
 			
 			double c = 0;
@@ -815,12 +819,8 @@ public class INeuron extends Neuron {
 			
 			//mlog.say("proba " + proba);
 			wn.setValue((int)(proba*wn.getAge()));
-			//mlog.say("value " + wn.getValue());
-			
-			//w = n.getInWeights().get(pair.getKey());
-			//mlog.say("proba " + w.getProba());
 		}
-	}*/
+	}//*/
 
 
 	/**

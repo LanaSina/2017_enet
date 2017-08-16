@@ -415,13 +415,12 @@ public class Utils {
 							//maybe instead of updating we could rebuild them from dreams...
 							
 							//remove co-activation weights
-							n2.removeCoWeights();
-							//n2.reportCoWeights(n);
+							//n2.removeCoWeights();
+							n2.reportCoWeights(n);
 							changed.add(n);
 							
 							//do the same for direct inweights
 							n2.reportDirectInWeights(n);
-							n.recalculatePosition();
 							//now report direct outweights and remaps too
 							n2.reportDirectOutWeights(n);
 							
@@ -443,7 +442,7 @@ public class Utils {
 		
 		for(int i=0; i<changed.size();i++){	
 			INeuron n = changed.get(i);
-			n.removeCoWeights();
+			n.recalculatePosition();
 		}//*/
 		
 
