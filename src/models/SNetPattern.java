@@ -866,14 +866,14 @@ public class SNetPattern implements ControllableThread {
 						
 						/*if(!allINeurons.containsKey(preneuron.getId())){
 							//throw new Error("not in collection "+preneuron.getId()); ok for now
-						}else{
+						}else{*/
 							ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
 							if(preneuron.addOutWeight(n,probaWeight)){
 								probaWeight.setActivation(1,null);
 								nw++;
 								didChange = true;
 							}
-						}*/
+						//}*/
 						
 						//check for oversnapping in sensory neurons
 						//todo: generalize to normal neurons and pattern neurons
@@ -903,7 +903,7 @@ public class SNetPattern implements ControllableThread {
 					}	
 					
 					//no change, try pruning spatial patterns
-					if(!true){
+					if(!didChange){
 						//look at input neuron's bundles vs STM
 						for (Iterator<INeuron> iterator = shuffled_stm.iterator(); iterator.hasNext();) {
 							INeuron preneuron = iterator.next();

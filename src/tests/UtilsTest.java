@@ -2,6 +2,7 @@ package tests;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -19,6 +20,81 @@ import neurons.ProbaWeight;
 
 public class UtilsTest {
 	MyLog mlog = new MyLog("UtilsTest", true);
+	
+	@Test
+	public void snap(){
+		int id = 0;
+		HashMap<Integer, INeuron> neurons = new HashMap<Integer, INeuron> ();
+		double[] po = {1,0,0,0};
+		
+		INeuron n1 = new INeuron(id);
+		id++;
+		INeuron n2 = new INeuron(id);
+		id++;
+		INeuron to = new INeuron(id);
+		id++;
+		INeuron f1 = new INeuron(id);
+		f1.setPosition(po);
+		id++;
+		INeuron f2 = new INeuron(id);
+		po[0] = 2;
+		f2.setPosition(po);
+		id++;
+		
+		n1.justSnapped = false;
+		n2.justSnapped = false;
+		to.justSnapped = false;
+		f1.justSnapped = false;
+		f2.justSnapped = false;
+		
+		Vector<INeuron> ve = new Vector<INeuron>();
+		ve.addElement(f1);
+		n1.addDirectInWeight(ve);
+		
+		ve = new Vector<INeuron>();
+		ve.addElement(f2);
+		n2.addDirectInWeight(ve);
+		
+		//random direct inweight
+		BundleWeight b = new BundleWeight(Constants.fixedConnection);
+		ArrayList<BundleWeight> v = new ArrayList<BundleWeight>();
+		v.add(b);
+		to.getDirectOutWeights().put(new INeuron(-1), v);
+		
+		ProbaWeight p = new ProbaWeight(Constants.defaultConnection);
+		p.setAge(10);
+		p.setValue(8);
+		n1.addOutWeight(to, p);
+		to.addInWeight(n1, p);
+		
+		p = new ProbaWeight(Constants.defaultConnection);
+		p.setAge(10);
+		p.setValue(8);
+		n2.addOutWeight(to, p);
+		to.addInWeight(n2, p);
+		
+		neurons.put(n1.getId(), n1);
+		neurons.put(n2.getId(), n2);
+		neurons.put(to.getId(), to);
+		mlog.say("snap size a " +  n1.getOutWeights().size());
+
+		assertEquals(true,neurons.size()==3);
+		
+		neurons = Utils.snap(neurons);
+		assertEquals("size ", true, neurons.size()==2);
+		INeuron n = neurons.get(n1.getId());
+		mlog.say("snap size " +  n.getOutWeights().size());
+		assertEquals(true, n.getOutWeights().size()==1);
+		assertEquals(true, n.getOutWeights().get(to).getAge()==10);
+		assertEquals(true, n.getOutWeights().get(to).getValue()==8);
+		
+		assertEquals(true, to.getInWeights().size()==1);
+		assertEquals(true, to.getInWeights().get(n1)!=null);
+		
+		assertEquals(true, n.getDirectInWeights().size()==2);
+		assertEquals(true, f1.getDirectOutWeights().get(n)!=null);
+		assertEquals(true, f2.getDirectOutWeights().get(n)!=null);
+	}
 	
 	@Test
 	public void snap_pattern(){

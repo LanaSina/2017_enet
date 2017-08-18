@@ -264,7 +264,7 @@ public class Utils {
 				continue;
 			}
 			
-			boolean doit = false;
+			boolean doit = true;
 			boolean dosnap = true;
 			
 			if(!n.justSnapped && doit){ 
@@ -296,7 +296,7 @@ public class Utils {
 					
 					Map.Entry<Integer, INeuron> pair2 = it2.next();
 					INeuron n2 = pair2.getValue();
-					
+
 					//avoid co-weigths that still can learn
 					HashMap<INeuron,ProbaWeight> co_w2 = n2.getCoWeights();
 					Iterator<Entry<INeuron, ProbaWeight>> co_it2 = co_w2.entrySet().iterator();
@@ -313,6 +313,7 @@ public class Utils {
 						continue;
 					}
 										
+
 					if((n.getId() != n2.getId()) && !n2.justSnapped && doit){
 
 						//compare all out weights
@@ -336,6 +337,7 @@ public class Utils {
 						} */
 							
 						dosnap = sameWeights(out1, out2);
+
 						if(!dosnap){
 							continue;
 						}
@@ -411,9 +413,10 @@ public class Utils {
 							//now report direct outweights and remaps too
 							n2.reportDirectOutWeights(n);
 							
+							
 							//notifies output neurons too
 							n2.removeAllOutWeights();
-							n2.clearDirectInWeights();									
+							n2.clearDirectInWeights();		
 						}
 					}
 				}
@@ -684,7 +687,7 @@ public class Utils {
 
 
 	public static void say(String string) {
-		//mlog.say("FromOut - "+   string);
+		mlog.say("FromOut - "+   string);
 	}
 
 

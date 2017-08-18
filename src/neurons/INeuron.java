@@ -327,7 +327,6 @@ public class INeuron extends Neuron {
 			setSurprised(true);
 		}	
 		if(activation==0 && old_pro_activation>0){
-			Utils.say("illusion predicted activation "+ pro_activation);
 			setIllusion(true);
 		}//*/
 	}
@@ -646,6 +645,9 @@ public class INeuron extends Neuron {
 	private boolean sameDirectInWeight(BundleWeight bw) {
 		boolean b = true;
 		double[] p2 = bw.getPosition();
+		if(p2[0]==0 && p2[1]== 0 && p2[2]== 0 && p2[3]==0){
+			throw new Error("No position");
+		}
 		if(position[0] != p2[0] ||
 		   position[1] != p2[1] ||
 		   position[2] != p2[2] ||
@@ -714,6 +716,10 @@ public class INeuron extends Neuron {
 		
 		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = inWeights.entrySet().iterator(); iterator.hasNext();) {
 			Entry<INeuron, ProbaWeight> pair = iterator.next();
+			if(pair.getKey() == this){
+				//we deal with outweights already
+				continue;
+			}
 			ProbaWeight w = pair.getValue();
 			pair.getKey().removeOutWeight(this);
 			
@@ -738,19 +744,16 @@ public class INeuron extends Neuron {
 				c = wc.getProba();
 			}
 			
-			//mlog.say("b c a "+ b + " " +c + " " + a);
+			
 			double proba = b + (1-c)*a;
 			
-			if(proba>1){
-				proba=1;
+			wn.setValue((int)(proba*wn.getAge()));//*/
+			if(wn.getProba()>1 && wn.getAge()==Constants.weight_max_age){
+				wn.setValue(wn.getAge());
 			}
-			
-			//mlog.say("proba " + proba);
-			wn.setValue((int)(proba*wn.getAge()));
-			//mlog.say("value " + wn.getValue());
-			
-			//w = n.getInWeights().get(pair.getKey());
-			//mlog.say("proba " + w.getProba());
+			/*if(b!=proba){
+				Utils.say( "initial " + b + " other " + a + " final " + proba + " value " + wn.getProba());
+			}*/
 		}
 	}
 	
@@ -828,14 +831,10 @@ public class INeuron extends Neuron {
 				//remap
 				n.addOrReplaceOutWeight(n, w);*/
 			} else{
-				//add the inweight to n
-				//n.addInWeight(from,w);
 				//remove the inweight from this
 				iterator.remove();
 				//clean up
 				from.removeOutWeight(this);
-				//remap
-				//from.addOrReplaceOutWeight(n, w);
 			}
 		}
 	}
