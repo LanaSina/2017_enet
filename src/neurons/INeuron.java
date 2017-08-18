@@ -344,9 +344,9 @@ public class INeuron extends Neuron {
 			double w  = pw.getProba();
 			if(w>confidence & pw.isActivated()){
 				pa+=1;
-				if(activation==0){
+				/*if(activation==0){ actually this is current prediction vs current activation: can't debug like this
 					Utils.say("illusion age "+ pw.age + " value " + pw.value);
-				}
+				}*/
 			}
 		}	
 		
@@ -504,55 +504,12 @@ public class INeuron extends Neuron {
 	public Vector<BundleWeight> getDirectInWeights() {		
 		return  directInWeights;
 	}
-
-
-	/**
-	 * used to build the prediction map (called by eye sensors on eye neurons)
-	 * the "upper neuron" is the neuron which has the same receptive field, or a snapped neuron
-	 * @return the activation of the 1st neuron in the list of directOutWeights
-	 */
-	public double getUpperPredictedActivation() {
-		/*if(directOutWeights.size()>1){
-			throw new Error("=========ERROR");
-		}*/
-		//should never be null	
+	
+	public INeuron getUpperNeuron() {
 		Iterator<Entry<INeuron, ArrayList<BundleWeight>>> it = directOutWeights.entrySet().iterator();
-		double act = 0;
-		setIllusion(false);
-		setSurprised(true);
-		
-		while (it.hasNext()) {
-			Entry<INeuron, ArrayList<BundleWeight>> pair = it.next();
-			INeuron neuron = pair.getKey();
-			if(pair.getValue().size()==1){
-				
-				/*setIllusion(false);
-				setSurprised(false);
-	
-				if(neuron.getActivation()==0 && neuron.getPredictedActivation()>0){
-					setIllusion(true);
-				}
-				if(neuron.getActivation()>0 && neuron.getPredictedActivation()==0){
-					setSurprised(true);
-				}*/
-				
-				
-				if(!neuron.isSurprised()){
-					setSurprised(false);
-				}
-				if(neuron.isIllusion()){
-					setIllusion(true);
-				}
-				
-				if(neuron.getPredictedActivation()>act){
-					act = neuron.getPredictedActivation();
-				}
-			}
-		}
-		
-		return act;
+		Entry<INeuron, ArrayList<BundleWeight>> pair = it.next();
+		return pair.getKey();
 	}
-	
 	
 	/**
 	 * @param n key: output neuron

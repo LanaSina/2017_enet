@@ -239,6 +239,10 @@ public class Utils {
 		ArrayList<INeuron> remove = new ArrayList<INeuron>();
 		ArrayList<INeuron> changed = new ArrayList<INeuron>();
 
+		int snapped = 0;
+		int removed_young_w = 0;
+		int deleted  = 0;
+		
 		//go through net
 		Iterator<Entry<Integer, INeuron>> it = neurons.entrySet().iterator();
 		while(it.hasNext()){
@@ -246,10 +250,11 @@ public class Utils {
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			
-			removeYoungWeights(n);
+			removed_young_w+=removeYoungWeights(n);
 			//remove pattern neurons that have no function
 			//might need unsnapping later...
-			if(n.getOutWeights().size()==0){
+			if(n.getOutWeights().size()==0 && n.getDirectOutWeights().size()==0){
+				deleted++;
 				it.remove();
 				remove.add(n);
 				//notifies output neurons too
@@ -334,19 +339,6 @@ public class Utils {
 						if(!dosnap){
 							continue;
 						}
-						//check weight to self
-						ProbaWeight weight = n.getOutWeights().get(n);
-						ProbaWeight weight2 = n2.getOutWeights().get(n2);
-						if(weight!=null){
-							if(weight2==null){
-								dosnap = false;
-							} else {
-								double d = Math.abs(weight.getProba()-weight2.getProba());
-								if(d>Constants.w_error){
-									dosnap = false;
-								}
-							}
-						}
 						
 						/*dosnap = sameWeights(in1, in2);
 						if(!dosnap){
@@ -404,6 +396,7 @@ public class Utils {
 						}//*/
 						
 						if(dosnap){
+							snapped++;
 							//n.justSnapped = true;
 							n2.justSnapped = true;
 							remove.add(n2);
@@ -428,7 +421,7 @@ public class Utils {
 			
 			it.remove();
 		}
-		
+		mlog.say("removed " + removed_young_w + " youngs; snapped "+ snapped + " deleted " + deleted);
 		//count removed weights (only out weights)
 		for(int i=0; i<remove.size();i++){	
 			int id = remove.get(i).getId();
@@ -670,8 +663,9 @@ public class Utils {
 	/**
 	 * also remove age == 1 weights,
 	 */
-	private static void removeYoungWeights(INeuron n) {
+	private static int removeYoungWeights(INeuron n) {
 		HashMap<INeuron, ProbaWeight> a = n.getOutWeights();
+		int sum = 0;
 		
 		//remove age=1 weights
 		Iterator<Entry<INeuron, ProbaWeight>> ai = a.entrySet().iterator();
@@ -679,15 +673,18 @@ public class Utils {
 			Map.Entry<INeuron, ProbaWeight> pair = ai.next();
 			ProbaWeight w2 = pair.getValue();
 			if(w2.getAge()==1){
+				sum++;
 				ai.remove();
 				pair.getKey().removeInWeight(n);
 			} 
 		}
+		
+		return sum;
 	}
 
 
 	public static void say(String string) {
-		mlog.say("FromOut - "+   string);
+		//mlog.say("FromOut - "+   string);
 	}
 
 

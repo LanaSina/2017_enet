@@ -94,11 +94,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Oswald/full/small/file_"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/simple/";//Oswald/full/small/file_"; 
 	/** leading zeros*/
-	String name_format = "%05d";
+	String name_format = "%02d";
 	/** number of images*/
-	int n_images = 334;//
+	int n_images = 3;//
 	
 	//sensors 
 	/** image sensor*/
@@ -722,10 +722,11 @@ public class SNetPattern implements ControllableThread {
 			for (Iterator<Entry<Integer, INeuron>> iterator = l.entrySet().iterator(); iterator.hasNext();) {
 				Entry<Integer, INeuron> pair = iterator.next();
 				INeuron eyen = pair.getValue();
-				if(eyen.isSurprised() && !eyen.isMute()){
+				INeuron up = eyen.getUpperNeuron();
+				if(up.isSurprised() && !up.isMute()){
 					n_surprised++;
 				}
-				if(eyen.isIllusion()){
+				if(up.isIllusion()){
 					n_illusion++;
 				}
 			}
@@ -862,8 +863,7 @@ public class SNetPattern implements ControllableThread {
 						
 						if((cpu_limitations && nw>max_new_connections)) break;
 						
-						//doubloons weights will not be added
-						if(!allINeurons.containsKey(preneuron.getId())){
+						/*if(!allINeurons.containsKey(preneuron.getId())){
 							//throw new Error("not in collection "+preneuron.getId()); ok for now
 						}else{
 							ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
@@ -872,7 +872,7 @@ public class SNetPattern implements ControllableThread {
 								nw++;
 								didChange = true;
 							}
-						}
+						}*/
 						
 						//check for oversnapping in sensory neurons
 						//todo: generalize to normal neurons and pattern neurons
@@ -1045,9 +1045,9 @@ public class SNetPattern implements ControllableThread {
 			for (int j = 0; j < sensor_layer_count; j++) {//j = position in image
 				int n_id = n_interface[i][j];
 				INeuron neuron = eye_neurons[i].get(n_id);
-				//if the neuron is not muted, get its prediction
-				//never muted: these are eye neurons
-				if(neuron.getUpperPredictedActivation()>0){//
+				INeuron up = neuron.getUpperNeuron();
+				//if(neuron.getUpperPredictedActivation()>0){//
+				if(up.getPredictedActivation()>0){
 					sum[j]=sum[j]+1;
 					//if white, dont't add anything
 					// gray

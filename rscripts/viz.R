@@ -3,7 +3,7 @@
 library(igraph)
 
 netName = "~/Development/SNET_data/ECAL_kitti"
-netName = "~/Development/SNET_data/2017_08_16_22_52"
+netName = "~/Development/SNET_data/2017_08_18_19_49"
 
 #parameters
 fileName = paste(netName,"net_parameters.csv",sep="/")
@@ -49,7 +49,9 @@ perf = read.csv(fileName)
 
 color = "black"
 plot(perf$iteration,perf$error,type="l",xlab = "Timestep", ylab = "Error", col=color,
-     main=netName, xlim = c(0,800), ylim = c(0,2))
+     main=netName
+    # , xlim = c(0,800), ylim = c(0,2)
+     )
 plot(perf$iteration,perf$surprise,type="l",xlab = "Timestep", ylab = "Surprise", col=color,
      main=netName, xlim = c(0,800), ylim = c(0,1))
 plot(perf$iteration,perf$illusion,type="l",xlab = "Timestep", ylab = "Illusion", col=color,
@@ -58,8 +60,8 @@ plot(perf$iteration,perf$illusion,type="l",xlab = "Timestep", ylab = "Illusion",
 plot_surprise(perf)
 
 points(perf$iteration,perf$error,type="l", col="red")
-points(perf$iteration,perf$surprise,type="l", col="blue")
-points(perf$iteration,perf$illusion,type="l", col="blue")
+points(perf$iteration,perf$surprise,type="l", col="red")
+points(perf$iteration,perf$illusion,type="l", col="red")
 legend(350,400, c("Simple video","Complex video"),lty = 1, bty = "n",lwd=c(2.5,2.5),col=c("blue","red")) 
 abline(v=40)
 
