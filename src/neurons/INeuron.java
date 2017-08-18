@@ -507,8 +507,16 @@ public class INeuron extends Neuron {
 	
 	public INeuron getUpperNeuron() {
 		Iterator<Entry<INeuron, ArrayList<BundleWeight>>> it = directOutWeights.entrySet().iterator();
-		Entry<INeuron, ArrayList<BundleWeight>> pair = it.next();
-		return pair.getKey();
+		INeuron r = null;
+		//while(it.hasNext()){
+			Entry<INeuron, ArrayList<BundleWeight>> pair = it.next();
+			if(!pair.getKey().isMute()){
+				r = pair.getKey();
+			} else {
+				r = pair.getKey().getUpperNeuron();
+			}
+		//}
+		return r;
 	}
 	
 	/**
