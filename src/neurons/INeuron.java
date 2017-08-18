@@ -40,11 +40,13 @@ public class INeuron extends Neuron {
 	
 	/** activation of this neuron (real or vitual)*/
 	double activation;
-	/** predicted activation (positive) */
+	/** predicted activation for next step*/
 	double pro_activation;
+	/** predicted activation for this step, calcuated at previous step*/
+	double old_pro_activation = 0;
 	
 	/** has activation been calculated since the last reset or not*/
-	public boolean activationCalculated = false;
+	private boolean activationCalculated = false;
 	/** predicted activation */
 	int predictedActivation;
 	/** has activation been calculated since the last reset or not*/
@@ -308,36 +310,47 @@ public class INeuron extends Neuron {
 	 * we don't count this as surprised if an upper pattern is activated 
 	 * 
 	 * */
-	//TODO surprise: no input is not same as 0 input
-	public void calculateActivation() { //TODO change name to calculateProbaActivation
+	public void calculatePredictedActivation() { //TODO change name to calculateProbaActivation
 		if(!activationCalculated){
-			setSurprised(false);
-			setIllusion(false);
-
-			//calculate predicted positive activation
-			double pa = 0;
-			double confidence = Constants.confidence_threshold;
-			
-			Iterator<Entry<INeuron, ProbaWeight>> it = inWeights.entrySet().iterator();
-			while(it.hasNext()){
-				Map.Entry<INeuron, ProbaWeight> pair = it.next();
-				ProbaWeight pw = pair.getValue();
-				double w  = pw.getProba();
-				if(w>confidence & pw.isActivated()){
-					pa+=1;
-				}
-			}	
-			
-			if(pro_activation==0 && activation>0){
-				setSurprised(true);
-			}	
-			if(activation==0 && pro_activation>0){
-				setIllusion(true);
-			}//*/
-			
-			pro_activation = pa;
+			calculateSurprise();
+			pro_activation = reCalculatePredictedActivation();
 			activationCalculated = true;
 		}
+	}
+	
+	private void calculateSurprise(){
+		setSurprised(false);
+		setIllusion(false);
+		old_pro_activation = pro_activation;
+		
+		if(old_pro_activation==0 && activation>0){
+			setSurprised(true);
+		}	
+		if(activation==0 && old_pro_activation>0){
+			Utils.say("illusion predicted activation "+ pro_activation);
+			setIllusion(true);
+		}//*/
+	}
+	
+	private double reCalculatePredictedActivation() {
+		//calculate predicted positive activation
+		double pa = 0;
+		double confidence = Constants.confidence_threshold;
+		
+		Iterator<Entry<INeuron, ProbaWeight>> it = inWeights.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<INeuron, ProbaWeight> pair = it.next();
+			ProbaWeight pw = pair.getValue();
+			double w  = pw.getProba();
+			if(w>confidence & pw.isActivated()){
+				pa+=1;
+				if(activation==0){
+					Utils.say("illusion age "+ pw.age + " value " + pw.value);
+				}
+			}
+		}	
+		
+		return pa;
 	}
 	
 	/** activated diect outweights if this neuron is activated */
@@ -413,7 +426,6 @@ public class INeuron extends Neuron {
 		}
 	}
 
-
 	/**
 	 * call this before integrating predictions!
 	 */
@@ -428,10 +440,6 @@ public class INeuron extends Neuron {
 	
 	public boolean isIllusion() {
 		return illusion;
-	}
-
-	public double getActivation() {
-		return activation;
 	}
 
 	/**
@@ -573,7 +581,7 @@ public class INeuron extends Neuron {
 	}
 
 	/**
-	 * recursively activate all direct out weight and 
+	 * recursively activate all direct out weights and 
 	 * neurons that have all direct in weights activated
 	 */
 	public void activateDirectOutWeights() {
@@ -591,6 +599,7 @@ public class INeuron extends Neuron {
 			//as long as we find ones that were activated by us
 			if(!n.isActivated()){//wasn't activated
 				n.makeDirectActivation();
+				
 				if(n.isActivated()){//but now is activated
 					n.activateDirectOutWeights();
 				}			
@@ -1035,6 +1044,10 @@ public class INeuron extends Neuron {
 
 	public void removeDirectInWeight(BundleWeight bundleWeight) {
 		directInWeights.remove(bundleWeight);
+	}
+
+	public void resetActivationCalculated() {
+		activationCalculated = false;		
 	}
 	
 }

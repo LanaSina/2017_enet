@@ -585,7 +585,7 @@ public class SNetPattern implements ControllableThread {
 			for(int i=0; i<total; i++){
 				int l =  (int) Constants.uniformDouble(0,max);
 				((INeuron) neurons[l]).increaseActivation(1);
-				((INeuron) neurons[l]).calculateActivation();
+				//((INeuron) neurons[l]).calculateActivation();
 			}
 			
 			integrateActivation();	
@@ -633,7 +633,7 @@ public class SNetPattern implements ControllableThread {
 		int t = 0;
 		for (Iterator<INeuron> iterator = allINeurons.values().iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
-			n.calculateActivation();
+			//n.calculateActivation();
 			if(n.isActivated()){
 				t++;
 			}
@@ -650,6 +650,7 @@ public class SNetPattern implements ControllableThread {
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
+			n.calculatePredictedActivation();
 			n.integrateActivation();
 		}
 	}
@@ -688,8 +689,9 @@ public class SNetPattern implements ControllableThread {
 		//for ineurons
 		Utils.activateOutWeights(allINeurons);	
 		//muting happens here
-		//predicted activation for next step calculated here
 		Utils.calculateAndPropagateActivation(allINeurons);
+		//calculate surprise
+		Utils.calculatePredictedActivation(allINeurons);
 		
 
 		//create new weights based on surprise
@@ -720,7 +722,7 @@ public class SNetPattern implements ControllableThread {
 			for (Iterator<Entry<Integer, INeuron>> iterator = l.entrySet().iterator(); iterator.hasNext();) {
 				Entry<Integer, INeuron> pair = iterator.next();
 				INeuron eyen = pair.getValue();
-				if(eyen.isSurprised()){
+				if(eyen.isSurprised() && !eyen.isMute()){
 					n_surprised++;
 				}
 				if(eyen.isIllusion()){
@@ -849,7 +851,7 @@ public class SNetPattern implements ControllableThread {
 					continue;
 				}*/
 				
-				if(n.isSurprised()){// && !n.isMute() must predict activation of small ones too
+				if(n.isSurprised() && !n.isMute() ){// && !n.isMute() must predict activation of small ones too
 					
 					//did we improve future prediction chances?
 					boolean didChange = false;
@@ -965,8 +967,8 @@ public class SNetPattern implements ControllableThread {
 					
 					//if it changed, it is good to recalculate predicted activation
 					if(didChange){
-						n.activationCalculated = false;
-						n.calculateActivation();
+						n.resetActivationCalculated();
+						//n.calculateActivation();
 						//n.setSurprised(true);
 					}
 				}				

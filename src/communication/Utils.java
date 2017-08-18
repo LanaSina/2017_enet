@@ -192,7 +192,7 @@ public class Utils {
 		Iterator<INeuron> it = layer.values().iterator();
 		while(it.hasNext()){
 			INeuron n =  it.next();
-			if(n.getActivation()>0){
+			if(n.isActivated()){
 				n.ageOutWeights();
 			}
 		}
@@ -200,13 +200,12 @@ public class Utils {
 	
 
 	/**
-	 * calculates surprise and activate direct outweights
+	 * activate direct outweights recursively
 	 * @param neurons
 	 */
 	public static void calculateAndPropagateActivation(HashMap<Integer, INeuron> neurons) {
 		for (Iterator<INeuron> iterator = neurons.values().iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
-			n.calculateActivation();
 			n.propagateActivation();
 		}
 	}
@@ -219,7 +218,7 @@ public class Utils {
 		while(it.hasNext()){
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
-			if(n.getActivation()>0){
+			if(n.isActivated()){
 				n.increaseInWeights();
 			}
 		}
@@ -260,7 +259,7 @@ public class Utils {
 				continue;
 			}
 			
-			boolean doit = true;
+			boolean doit = false;
 			boolean dosnap = true;
 			
 			if(!n.justSnapped && doit){ 
@@ -274,7 +273,7 @@ public class Utils {
 						dosnap = false;
 						break;
 					}
-				}//*/
+				}
 				
 				if(!dosnap){
 					//no need to consider it for future comparisons
@@ -488,7 +487,7 @@ public class Utils {
 	public static void propagateInstantaneousActivation(Collection<INeuron> collection) {
 		for (Iterator<INeuron> iterator = collection.iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
-			if(n.getActivation()>0){
+			if(n.isActivated()){
 				n.activateDirectOutWeights();
 			}
 		}
@@ -683,6 +682,21 @@ public class Utils {
 				ai.remove();
 				pair.getKey().removeInWeight(n);
 			} 
+		}
+	}
+
+
+	public static void say(String string) {
+		mlog.say("FromOut - "+   string);
+	}
+
+
+	public static void calculatePredictedActivation(HashMap<Integer, INeuron> layer) {
+		Iterator<Entry<Integer, INeuron>> it = layer.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry<Integer, INeuron> pair = it.next();
+			INeuron ne = pair.getValue();
+			ne.calculatePredictedActivation();
 		}
 	}
 

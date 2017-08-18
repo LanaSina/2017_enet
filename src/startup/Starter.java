@@ -1,8 +1,6 @@
 package startup;
 
-import models.CharSNet;
 import models.SNetPattern;
-import models.SNetText;
 
 public class Starter {	
 

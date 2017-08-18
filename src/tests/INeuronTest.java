@@ -70,11 +70,11 @@ public class INeuronTest {
 		//activate it
 		n1.increaseActivation(1);
 		n2.increaseActivation(1);
-		n1.calculateActivation();
-		n2.calculateActivation();
+		//n1.calculateActivation();
+		//n2.calculateActivation();
 		n1.activateDirectOutWeights();
 		n2.activateDirectOutWeights();
-		n4.calculateActivation();
+		//n4.calculateActivation();
 		assertEquals(true,n4.isActivated());
 	}
 	
