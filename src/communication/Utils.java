@@ -170,6 +170,8 @@ public class Utils {
 	}
 	
 	
+	
+	
 	/**
 	 * resets neurons activation to 0
 	 * also unmutes them.
@@ -262,7 +264,7 @@ public class Utils {
 			removed_young_w+=removeYoungWeights(n);
 			//remove pattern neurons that have no function
 			//might need unsnapping later...
-			if(n.getOutWeights().size()==0 && n.getDirectOutWeights().size()==0){
+			/*if(n.getOutWeights().size()==0 && n.getDirectOutWeights().size()==0){
 				deleted++;
 				remove.add(n);
 				
@@ -270,7 +272,7 @@ public class Utils {
 				n.removeAllInWeights();
 				n.clearDirectInWeights();									
 				continue;
-			}
+			}*/
 		}
 		
 		it = neurons.entrySet().iterator();
@@ -693,7 +695,7 @@ public class Utils {
 		int sum = 0;
 		
 		//remove age=1 out weights
-		Iterator<Entry<INeuron, ProbaWeight>> ai = a.entrySet().iterator();
+		/*Iterator<Entry<INeuron, ProbaWeight>> ai = a.entrySet().iterator();
 		while(ai.hasNext()){
 			Map.Entry<INeuron, ProbaWeight> pair = ai.next();
 			ProbaWeight w2 = pair.getValue();
@@ -701,13 +703,10 @@ public class Utils {
 				sum++;
 				ai.remove();
 				pair.getKey().removeInWeight(n);
-				if(n.getId()==7431 &&  pair.getKey().getId()==7123){
-					mlog.say("removed 7431 -> 7123");
-				}
 			} 
-		}
+		}*/
 		
-		//remove age=1 direct out weights
+		//remove value=1 direct out weights
 		Map<INeuron, ArrayList<BundleWeight>> b = n.getDirectOutWeights();
 		Iterator<Entry<INeuron, ArrayList<BundleWeight>>> bi = b.entrySet().iterator();
 		while (bi.hasNext()) {

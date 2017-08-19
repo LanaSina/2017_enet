@@ -674,7 +674,7 @@ public class SNetPattern implements ControllableThread {
 	 */
 	public void updateSNet() {			
 
-		if(!readingMemory){
+		if(!readingMemory && !dreaming){
 			//update prediction probabilities		
 			Utils.ageOutWeights(allINeurons);
 			Utils.increaseInWeights(allINeurons);
@@ -699,7 +699,7 @@ public class SNetPattern implements ControllableThread {
 		buildPredictionMap();
 		
 		//create new weights based on surprise
-		if(!readingMemory){
+		if(!readingMemory && !dreaming){
 			makeWeights();
 		}
 		
@@ -852,7 +852,7 @@ public class SNetPattern implements ControllableThread {
 					continue;
 				}*/
 				
-				if(n.isSurprised() && !n.isMute() ){// && !n.isMute() must predict activation of small ones too
+				if(n.isSurprised()){// && !n.isMute() must predict activation of small ones too
 					check++;
 					//did we improve future prediction chances?
 					boolean didChange = false;

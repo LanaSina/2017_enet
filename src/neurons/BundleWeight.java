@@ -238,12 +238,16 @@ public class BundleWeight extends ProbaWeight {
 		bundle.get(n).setActivation(1, n);
 	}
 	
-	@Override
-	public void resetActivation() {
-		for (Iterator<ProbaWeight> iterator = bundle.values().iterator(); iterator.hasNext();) {
+	//@Override
+	/**
+	 * reset the strand coming from n
+	 */
+	public void resetActivation(INeuron n) {
+		bundle.get(n).resetActivation();
+		/*for (Iterator<ProbaWeight> iterator = bundle.values().iterator(); iterator.hasNext();) {
 			ProbaWeight p = iterator.next();
 			p.resetActivation();
-		}		
+		}*/		
 	}
 
 	public boolean contains(INeuron n2) {
@@ -306,7 +310,7 @@ public class BundleWeight extends ProbaWeight {
 		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = bundle.entrySet().iterator(); iterator.hasNext();) {
 			Entry<INeuron, ProbaWeight> pair = iterator.next();
 			ProbaWeight p = pair.getValue();
-			if(p.getValue()==1){
+			if(p.getValue()==1 && !p.canLearn()){
 				//v.addElement(p);
 				iterator.remove();
 				if(pair.getKey()==from){

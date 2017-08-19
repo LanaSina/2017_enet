@@ -510,7 +510,7 @@ public class INeuron extends Neuron {
 				//unmute self just in case we had a recurrent connection
 				this.setMute(false);
 				//age++, value ++ for activated neurons
-				b.increaseActivated();
+				//b.increaseActivated();
 			}
 		}
 	}
@@ -615,7 +615,7 @@ public class INeuron extends Neuron {
 			ArrayList<BundleWeight> a = iterator.next();
 			for (Iterator<BundleWeight> iterator2 = a.iterator(); iterator2.hasNext();) {
 				BundleWeight bundleWeight = iterator2.next();
-				bundleWeight.resetActivation();
+				bundleWeight.resetActivation(this);
 			}
 		}	
 	}
