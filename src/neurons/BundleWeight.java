@@ -294,14 +294,23 @@ public class BundleWeight extends ProbaWeight {
 	 * @param to
 	 */
 	public void removeYoungWeigths(INeuron to) {
+		boolean changed = false;
+		
 		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = bundle.entrySet().iterator(); iterator.hasNext();) {
 			Entry<INeuron, ProbaWeight> pair = iterator.next();
 			ProbaWeight p = pair.getValue();
 			if(p.getValue()==1){
 				iterator.remove();
 				pair.getKey().removeDirectOutWeight(to);
+				changed = true;
 			}
 		}
+		
+		if(changed){
+			recalculatePosition();
+			to.recalculatePosition();
+		}
+		
 	}
 
 }
