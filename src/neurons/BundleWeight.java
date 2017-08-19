@@ -1,5 +1,6 @@
 package neurons;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -298,16 +299,22 @@ public class BundleWeight extends ProbaWeight {
 	 * removes useless weights (value = 1)
 	 * @param to
 	 */
-	public void removeYoungWeigths(INeuron to) {
+	public void removeYoungWeigths(INeuron to, INeuron from, Iterator<Entry<INeuron, ArrayList<BundleWeight>>>  it) {
 		boolean changed = false;
+		//Vector<ProbaWeight> v = new Vector<ProbaWeight>();
 		
 		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = bundle.entrySet().iterator(); iterator.hasNext();) {
 			Entry<INeuron, ProbaWeight> pair = iterator.next();
 			ProbaWeight p = pair.getValue();
 			if(p.getValue()==1){
+				//v.addElement(p);
 				iterator.remove();
-				pair.getKey().removeDirectOutWeight(to);
-				changed = true;
+				if(pair.getKey()==from){
+					it.remove();
+				} else {
+					pair.getKey().removeDirectOutWeight(to);
+					changed = true;
+				}
 			}
 		}
 		
@@ -315,6 +322,8 @@ public class BundleWeight extends ProbaWeight {
 			recalculatePosition();
 			to.recalculatePosition();
 		}
+		
+		//return v;
 		
 	}
 

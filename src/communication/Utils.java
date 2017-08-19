@@ -262,17 +262,35 @@ public class Utils {
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
 			
+			if(remove.contains(n)){
+				continue;
+			}
+
+			
 			removed_young_w+=removeYoungWeights(n);
 			//remove pattern neurons that have no function
 			//might need unsnapping later...
 			if(n.getOutWeights().size()==0 && n.getDirectOutWeights().size()==0){
 				deleted++;
-				it.remove();
 				remove.add(n);
 				//notifies output neurons too
+				if(n.getId()== 7431 || n.getId()== 7123 ){
+					mlog.say("####### removed " + n.getId());
+				}
 				n.removeAllOutWeights();
 				n.removeAllInWeights();
 				n.clearDirectInWeights();									
+				continue;
+			}
+		}
+		
+		it = neurons.entrySet().iterator();
+		while(it.hasNext()){
+			
+			Map.Entry<Integer, INeuron> pair = it.next();
+			INeuron n = pair.getValue();
+			
+			if(remove.contains(n)){
 				continue;
 			}
 			
@@ -707,7 +725,7 @@ public class Utils {
 			Entry<INeuron, ArrayList<BundleWeight>> pair = bi.next();
 			for (Iterator<BundleWeight> iterator = pair.getValue().iterator(); iterator.hasNext();) {
 				BundleWeight bundleWeight = iterator.next();
-				bundleWeight.removeYoungWeigths(pair.getKey());
+				bundleWeight.removeYoungWeigths(pair.getKey(), n, bi);
 				if(bundleWeight.getBundle().size()==0){
 					pair.getKey().removeDirectInWeight(bundleWeight);
 				}
