@@ -29,7 +29,7 @@ public class ProbaWeight {
 	public ProbaWeight(int type){
 		switch (type) {
 		case Constants.fixedConnection:{
-			value = 1;
+			value = Constants.weight_max_age;
 			age = Constants.weight_max_age;//to prevent learning
 			break;
 		}

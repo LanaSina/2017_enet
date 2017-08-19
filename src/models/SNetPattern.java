@@ -94,11 +94,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/cue/";//Oswald/full/small/file_"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Oswald/full/small/file_"; 
 	/** leading zeros*/
-	String name_format = "%02d";
+	String name_format = "%05d";
 	/** number of images*/
-	int n_images = 6;//
+	int n_images = 334;//
 	
 	//sensors 
 	/** image sensor*/
@@ -388,7 +388,7 @@ public class SNetPattern implements ControllableThread {
 				//add direct in weight
 				Vector<INeuron> v = new Vector<INeuron>();
 				v.addElement(n);
-				BundleWeight b = n2.addDirectInWeight(v);
+				BundleWeight b = n2.addDirectInWeight(v, true);
 				n.addDirectOutWeight(n2,b);
 				allINeurons.put(n_id, n2);
 				//mlog.say("created+ " + n_id);
@@ -722,10 +722,6 @@ public class SNetPattern implements ControllableThread {
 				Entry<Integer, INeuron> pair = iterator.next();
 				INeuron eyen = pair.getValue();
 				INeuron up = eyen.getUpperNeuron();
-				if(eyen.getId()==898){
-					mlog.say("cp 898 surprised " + up.isSurprised() + " predicted " + up.old_pro_activation);
-					mlog.say("up "+up.getId());
-				}
 				if(up.isSurprised()){
 					n_surprised++;
 				}
@@ -867,16 +863,16 @@ public class SNetPattern implements ControllableThread {
 						
 						if((cpu_limitations && nw>max_new_connections)) break;
 						
-						/*if(!allINeurons.containsKey(preneuron.getId())){
+						if(!allINeurons.containsKey(preneuron.getId())){
 							//throw new Error("not in collection "+preneuron.getId()); ok for now
-						}else{*/
+						}else{
 							ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
 							if(preneuron.addOutWeight(n,probaWeight)){
 								probaWeight.setActivation(1,null);
 								nw++;
 								didChange = true;
 							}
-						//}*/
+						}//*/
 						
 						//check for oversnapping in sensory neurons
 						//todo: generalize to normal neurons and pattern neurons
@@ -1054,11 +1050,6 @@ public class SNetPattern implements ControllableThread {
 				int n_id = n_interface[i][j];
 				INeuron neuron = eye_neurons[i].get(n_id);
 				//cannotuse this as "upper neurons" are not muted yet
-				/*INeuron up = neuron.getUpperNeuron();
-				if(neuron.getId()==898){
-					mlog.say("bpm 898 predicted " + up.getPredictedActivation());
-					mlog.say("up "+up.getId());
-				}*/
 				if(neuron.getUpperPrediction()>0){
 					sum[j]=sum[j]+1;
 					//if white, dont't add anything
@@ -1342,7 +1333,7 @@ public class SNetPattern implements ControllableThread {
 	        	INeuron s = sensors.get(Integer.valueOf(info[0]));
 				Vector<INeuron> v = new Vector<INeuron>();
 				v.addElement(s);
-				BundleWeight b = n.addDirectInWeight(v);
+				BundleWeight b = n.addDirectInWeight(v, true);
 				s.addDirectOutWeight(n, b);
 	        }
 	        br.close();

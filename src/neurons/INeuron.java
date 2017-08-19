@@ -83,7 +83,7 @@ public class INeuron extends Neuron {
 	public INeuron(Vector<INeuron> from, INeuron to, int id) {//TODO make "to" as a vector
 		super(id);
 		
-		addDirectInWeight(from);
+		addDirectInWeight(from, false);
 		
 		for (Iterator<INeuron> iterator = from.iterator(); iterator.hasNext();) {
 			INeuron iNeuron = iterator.next();
@@ -122,13 +122,15 @@ public class INeuron extends Neuron {
 
 
 	/**
-	 * adds new weight if it did not exist
+	 * adds new weight, replace it if it existed
 	 * @param n
 	 * @param p
 	 */
 	public void addInWeight(INeuron n, ProbaWeight p) {
-		//if(!inWeights.containsKey(n)){
-			inWeights.put(n, p);
+		if(inWeights.containsKey(n)){
+			n.getOutWeights().put(this, p);
+		}
+		inWeights.put(n, p);
 	}
 
 	/**
@@ -159,12 +161,12 @@ public class INeuron extends Neuron {
 	 * @param vn vector of in neuron
 	 * @return
 	 */
-	public BundleWeight addDirectInWeight(Vector<INeuron> v) {	
+	public BundleWeight addDirectInWeight(Vector<INeuron> v, boolean fixed) {	
 		//check that this does not already exist
 		BundleWeight b = lookForWeight(v);
 		
 		if(b==null){
-			b = new BundleWeight(v, this);
+			b = new BundleWeight(v, this, fixed);
 		}
 		
 		directInWeights.addElement(b);
@@ -282,9 +284,13 @@ public class INeuron extends Neuron {
 			//value is increased if this weight was previously activated
 			if(w.canLearn() & w.isActivated()){
 				w.addValue();
+				if(id== 7123 && pair.getKey().getId()==7431){
+					Utils.say("increase value  7431->7123");
+				}
 				if(w.getValue()>Constants.weight_max_age+1){
 					throw new java.lang.Error("Value "  + w.getValue() + " is more than max age. Current age: " + w.getAge() +
-							". ID " +id+ " from " + pair.getKey().getId());
+							". ID " +id+ " from " + pair.getKey().getId()+
+							" is in out n " + pair.getKey().getOutWeights().containsKey(this));
 				}
 			}
 		}
@@ -424,9 +430,12 @@ public class INeuron extends Neuron {
 
 
 	public void ageOutWeights() {
-		for (Iterator<ProbaWeight> iterator = outWeights.values().iterator(); iterator.hasNext();) {
-			ProbaWeight p = iterator.next();
-			p.increaseAge();
+		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = outWeights.entrySet().iterator(); iterator.hasNext();) {
+			Entry<INeuron, ProbaWeight> pair = iterator.next();
+			pair.getValue().increaseAge();
+			
+			if(id == 7431 && pair.getKey().getId() == 7123)
+			Utils.say("age out weight 7431 -> 7123");
 		}
 	}
 
@@ -1015,7 +1024,7 @@ public class INeuron extends Neuron {
 				Entry<INeuron, ProbaWeight> pair = it2.next();
 				ProbaWeight w = pair.getValue();
 				//value is increased if this weight was previously activated
-				if(w.canLearn() & w.isActivated()){
+				if(w.canLearn() && w.isActivated()){
 					w.addValue();
 					if(w.getValue()>Constants.weight_max_age+1){
 						throw new java.lang.Error("Value "  + w.getValue() + " is more than max ag. Current age: " + w.getAge() +

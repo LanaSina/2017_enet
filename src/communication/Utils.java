@@ -190,11 +190,23 @@ public class Utils {
 	 */
 	public static void ageOutWeights(HashMap<Integer, INeuron> layer) {
 		Iterator<INeuron> it = layer.values().iterator();
+		if(layer.containsKey(7431)){
+			mlog.say("************ contains ");
+		} else {
+			mlog.say("------------ not contains ");
+		}
 		while(it.hasNext()){
 			INeuron n =  it.next();
+			if(n.getId()==7431){
+				mlog.say("out weights of 7431");
+			}
 			if(n.isActivated()){
 				n.ageOutWeights();
+				if(n.getId()==7431){
+					mlog.say("age out weights of 7431");
+				}
 			}
+			
 		}
 	}
 	
@@ -403,6 +415,9 @@ public class Utils {
 							n2.justSnapped = true;
 							remove.add(n2);
 							
+							if(n.getId()==7431 ||  n.getId()==7123 || n2.getId()==7431 ||  n2.getId()==7123){
+								mlog.say("snapping " + n.getId() + " " + n2.getId());
+							}
 							//report n2 inputs to n if they did not exist
 							n2.reportInWeights(n);
 							n2.reportCoWeights(n);
@@ -679,6 +694,9 @@ public class Utils {
 				sum++;
 				ai.remove();
 				pair.getKey().removeInWeight(n);
+				if(n.getId()==7431 &&  pair.getKey().getId()==7123){
+					mlog.say("removed 7431 -> 7123");
+				}
 			} 
 		}
 		

@@ -38,15 +38,20 @@ public class BundleWeight extends ProbaWeight {
 	 * @param from
 	 * @param to not actually used
 	 */
-	public BundleWeight(Vector<INeuron> from, INeuron to) {		
+	public BundleWeight(Vector<INeuron> from, INeuron to, boolean fixed) {		
 		//create age and value
 		super(Constants.defaultConnection);
 		
 		//create bundle
 		for (Iterator<INeuron> iterator = from.iterator(); iterator.hasNext();) {
 			INeuron n = iterator.next();
-			ProbaWeight p = new ProbaWeight(Constants.defaultConnection);
-			p.setValue(1);
+			ProbaWeight p;
+			if(!fixed){
+				p = new ProbaWeight(Constants.defaultConnection);
+				p.setValue(1);
+			}else {
+				p = new ProbaWeight(Constants.fixedConnection);
+			}
 			bundle.put(n, p);
 			n.addDirectOutWeight(to, this);
 		}
