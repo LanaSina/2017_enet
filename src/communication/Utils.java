@@ -190,21 +190,13 @@ public class Utils {
 	 */
 	public static void ageOutWeights(HashMap<Integer, INeuron> layer) {
 		Iterator<INeuron> it = layer.values().iterator();
-		if(layer.containsKey(7431)){
-			mlog.say("************ contains ");
-		} else {
-			mlog.say("------------ not contains ");
-		}
+		
 		while(it.hasNext()){
 			INeuron n =  it.next();
-			if(n.getId()==7431){
-				mlog.say("out weights of 7431");
-			}
+			
 			if(n.isActivated()){
 				n.ageOutWeights();
-				if(n.getId()==7431){
-					mlog.say("age out weights of 7431");
-				}
+				
 			}
 			
 		}
@@ -273,10 +265,7 @@ public class Utils {
 			if(n.getOutWeights().size()==0 && n.getDirectOutWeights().size()==0){
 				deleted++;
 				remove.add(n);
-				//notifies output neurons too
-				if(n.getId()== 7431 || n.getId()== 7123 ){
-					mlog.say("####### removed " + n.getId());
-				}
+				
 				n.removeAllOutWeights();
 				n.removeAllInWeights();
 				n.clearDirectInWeights();									

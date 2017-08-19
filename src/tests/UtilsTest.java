@@ -49,11 +49,11 @@ public class UtilsTest {
 		
 		Vector<INeuron> ve = new Vector<INeuron>();
 		ve.addElement(f1);
-		n1.addDirectInWeight(ve);
+		n1.addDirectInWeight(ve,false);
 		
 		ve = new Vector<INeuron>();
 		ve.addElement(f2);
-		n2.addDirectInWeight(ve);
+		n2.addDirectInWeight(ve, false);
 		
 		//random direct inweight
 		BundleWeight b = new BundleWeight(Constants.fixedConnection);
@@ -195,7 +195,7 @@ public class UtilsTest {
 		//add direct in weight
 		Vector<INeuron> ve = new Vector<INeuron>();
 		ve.addElement(n3);
-		BundleWeight b = n2.addDirectInWeight(ve);
+		BundleWeight b = n2.addDirectInWeight(ve, false);
 		n3.addDirectOutWeight(n2,b);
 
 		neurons.put(n.getId(), n);//3
@@ -399,11 +399,11 @@ public class UtilsTest {
 		
 		Vector<INeuron> v = new Vector<INeuron>();
 		v.addElement(i1);
-		BundleWeight b = f1.addDirectInWeight(v);
+		BundleWeight b = f1.addDirectInWeight(v, false);
 		i1.addDirectOutWeight(f1, b);
 		v = new Vector<INeuron>();
 		v.addElement(i2);
-		b = f2.addDirectInWeight(v);
+		b = f2.addDirectInWeight(v, false);
 		i2.addDirectOutWeight(f2, b);
 		
 		//assertEquals("create ", false, Utils.patternExists(from, to, neurons.values()));

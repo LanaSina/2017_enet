@@ -40,7 +40,7 @@ public class Constants {
 
 	
 	/** snap every x timesteps*/
-	public static final int snap_freq = 20;
+	public static final int snap_freq = 50;
 
 
 	//weight types
