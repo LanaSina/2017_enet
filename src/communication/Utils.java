@@ -261,7 +261,7 @@ public class Utils {
 			}
 
 			
-			removed_young_w+=removeYoungWeights(n);
+			//removed_young_w+=removeYoungWeights(n);
 			//remove pattern neurons that have no function
 			//might need unsnapping later...
 			/*if(n.getOutWeights().size()==0 && n.getDirectOutWeights().size()==0){
