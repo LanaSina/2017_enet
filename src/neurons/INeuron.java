@@ -43,7 +43,7 @@ public class INeuron extends Neuron {
 	/** predicted activation for next step*/
 	double pro_activation;
 	/** predicted activation for this step, calcuated at previous step*/
-	double old_pro_activation = 0;
+	public double old_pro_activation = 0;
 	
 	/** has activation been calculated since the last reset or not*/
 	private boolean activationCalculated = false;
@@ -331,7 +331,7 @@ public class INeuron extends Neuron {
 		}//*/
 	}
 	
-	private double reCalculatePredictedActivation() {
+	public double reCalculatePredictedActivation() {
 		//calculate predicted positive activation
 		double pa = 0;
 		double confidence = Constants.confidence_threshold;
@@ -343,12 +343,17 @@ public class INeuron extends Neuron {
 			double w  = pw.getProba();
 			if(w>confidence & pw.isActivated()){
 				pa+=1;
-				/*if(activation==0){ actually this is current prediction vs current activation: can't debug like this
-					Utils.say("illusion age "+ pw.age + " value " + pw.value);
-				}*/
 			}
 		}	
 		
+		/*if(pa>0){
+			//trickle down to neurons in patterns?
+			Iterator<BundleWeight> it2 = directInWeights.iterator();
+			while (it2.hasNext()) {
+				BundleWeight b = it2.next();
+				b.setPredictedActivation
+			}
+		}*/
 		return pa;
 	}
 	
@@ -516,6 +521,28 @@ public class INeuron extends Neuron {
 			}
 		//}
 		return r;
+	}
+	
+	/**
+	 * tricke down would be more efficient but this is just to show prediction map
+	 * @return
+	 */
+	public double getUpperPrediction() {
+		Iterator<Entry<INeuron, ArrayList<BundleWeight>>> it = directOutWeights.entrySet().iterator();
+		double p = 0;
+		while(it.hasNext()){
+			Entry<INeuron, ArrayList<BundleWeight>> pair = it.next();
+			if(pair.getKey().getPredictedActivation()>p){
+				p = pair.getKey().getPredictedActivation();
+				break;
+			} else{
+				double p2 = pair.getKey().getUpperPrediction();
+				if(p2>p){
+					p = p2;
+				}
+			}
+		}
+		return p;
 	}
 	
 	/**
@@ -720,6 +747,7 @@ public class INeuron extends Neuron {
 				//we deal with outweights already
 				continue;
 			}
+			
 			ProbaWeight w = pair.getValue();
 			pair.getKey().removeOutWeight(this);
 			

@@ -94,11 +94,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/simple/";//Oswald/full/small/file_"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/cue/";//Oswald/full/small/file_"; 
 	/** leading zeros*/
 	String name_format = "%02d";
 	/** number of images*/
-	int n_images = 3;//
+	int n_images = 6;//
 	
 	//sensors 
 	/** image sensor*/
@@ -694,16 +694,15 @@ public class SNetPattern implements ControllableThread {
 		Utils.calculatePredictedActivation(allINeurons);
 		
 		calculatePerf();
-
+		
+		//look at predictions
+		buildPredictionMap();
+		
 		//create new weights based on surprise
 		if(!readingMemory){
 			makeWeights();
 		}
 		
-		//look at predictions
-		buildPredictionMap();
-		
-				
 		//update short term memory
 		updateSTM();
 		
@@ -723,6 +722,10 @@ public class SNetPattern implements ControllableThread {
 				Entry<Integer, INeuron> pair = iterator.next();
 				INeuron eyen = pair.getValue();
 				INeuron up = eyen.getUpperNeuron();
+				if(eyen.getId()==898){
+					mlog.say("cp 898 surprised " + up.isSurprised() + " predicted " + up.old_pro_activation);
+					mlog.say("up "+up.getId());
+				}
 				if(up.isSurprised()){
 					n_surprised++;
 				}
@@ -903,7 +906,7 @@ public class SNetPattern implements ControllableThread {
 					}	
 					
 					//no change, try pruning spatial patterns
-					if(!didChange){
+					/*if(!didChange){
 						//look at input neuron's bundles vs STM
 						for (Iterator<INeuron> iterator = shuffled_stm.iterator(); iterator.hasNext();) {
 							INeuron preneuron = iterator.next();
@@ -927,6 +930,7 @@ public class SNetPattern implements ControllableThread {
 									if (newBundle.size()>=2) {
 										bundleWeight.decreaseAllBut(newBundle);
 										didChange = true;
+										
 										//mlog.say("Degreasing bundle from "+preneuron.getId() + " to " + n.getId());
 									}
 								}
@@ -947,8 +951,8 @@ public class SNetPattern implements ControllableThread {
 										the_pattern = new INeuron(vn,n,n_id);
 										n_id++;
 										newn.addElement(the_pattern);
-										//ProbaWeight weight = the_pattern.getOutWeights().get(n);
-										//weight.setActivation(1, null);
+										ProbaWeight weight = the_pattern.getOutWeights().get(n);
+										weight.setActivation(1, null);
 										pn++;
 									}
 									nw++;
@@ -969,6 +973,7 @@ public class SNetPattern implements ControllableThread {
 					//if it changed, it is good to recalculate predicted activation
 					if(didChange){
 						check--;
+						n.reCalculatePredictedActivation();
 						//n.resetActivationCalculated();
 						//n.calculateActivation();
 						//n.setSurprised(true);
@@ -1050,8 +1055,13 @@ public class SNetPattern implements ControllableThread {
 			for (int j = 0; j < sensor_layer_count; j++) {//j = position in image
 				int n_id = n_interface[i][j];
 				INeuron neuron = eye_neurons[i].get(n_id);
-				INeuron up = neuron.getUpperNeuron();
-				if(up.getPredictedActivation()>0){
+				//cannotuse this as "upper neurons" are not muted yet
+				/*INeuron up = neuron.getUpperNeuron();
+				if(neuron.getId()==898){
+					mlog.say("bpm 898 predicted " + up.getPredictedActivation());
+					mlog.say("up "+up.getId());
+				}*/
+				if(neuron.getUpperPrediction()>0){
 					sum[j]=sum[j]+1;
 					//if white, dont't add anything
 					// gray

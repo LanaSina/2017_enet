@@ -321,13 +321,13 @@ public class Utils {
 						HashMap<INeuron,ProbaWeight> out2 = n2.getOutWeights();
 
 						//inweights
-						/*HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
+						HashMap<INeuron,ProbaWeight> in1 = n.getInWeights();
 						HashMap<INeuron,ProbaWeight> in2 = n2.getInWeights();
 						Set<INeuron> i1 = in1.keySet();
 						Set<INeuron> i2 = in2.keySet();
 						
 						//avoid direct recurrent connections
-						if(//this should be ok n.directInWeightsContains(n2) || n2.directInWeightsContains(n) ||
+						/*if(//this should be ok n.directInWeightsContains(n2) || n2.directInWeightsContains(n) ||
 								//avoid different sets ofinweights
 								  !i1.equals(i2)
 								 ){ 
@@ -348,7 +348,7 @@ public class Utils {
 						}*/
 						
 						//no learning inweights either
-						/*Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
+						Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
 						while (in1it.hasNext()) {
 							Entry<INeuron, ProbaWeight> pa = in1it.next();
 							if(pa.getValue().canLearn()){
