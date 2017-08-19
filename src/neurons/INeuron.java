@@ -500,6 +500,8 @@ public class INeuron extends Neuron {
 				b.muteInputNeurons();
 				//unmute self just in case we had a recurrent connection
 				this.setMute(false);
+				//age++, value ++ for activated neurons
+				b.increaseActivated();
 			}
 		}
 	}

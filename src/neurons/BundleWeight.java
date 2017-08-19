@@ -276,4 +276,32 @@ public class BundleWeight extends ProbaWeight {
 		//mlog.say("------- ");
 	}
 
+	public void increaseActivated() {
+		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = bundle.entrySet().iterator(); iterator.hasNext();) {
+			Entry<INeuron, ProbaWeight> pair = iterator.next();
+			ProbaWeight p = pair.getValue();
+			if(p.canLearn()){
+				p.increaseAge();
+				p.addValue();
+			}
+		}
+		
+	}
+
+	/**
+	 * also remove the mapping of the from neuron
+	 * removes useless weights (value = 1)
+	 * @param to
+	 */
+	public void removeYoungWeigths(INeuron to) {
+		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = bundle.entrySet().iterator(); iterator.hasNext();) {
+			Entry<INeuron, ProbaWeight> pair = iterator.next();
+			ProbaWeight p = pair.getValue();
+			if(p.getValue()==1){
+				iterator.remove();
+				pair.getKey().removeDirectOutWeight(to);
+			}
+		}
+	}
+
 }

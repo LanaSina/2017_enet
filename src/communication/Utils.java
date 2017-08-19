@@ -670,7 +670,7 @@ public class Utils {
 		HashMap<INeuron, ProbaWeight> a = n.getOutWeights();
 		int sum = 0;
 		
-		//remove age=1 weights
+		//remove age=1 out weights
 		Iterator<Entry<INeuron, ProbaWeight>> ai = a.entrySet().iterator();
 		while(ai.hasNext()){
 			Map.Entry<INeuron, ProbaWeight> pair = ai.next();
@@ -680,6 +680,20 @@ public class Utils {
 				ai.remove();
 				pair.getKey().removeInWeight(n);
 			} 
+		}
+		
+		//remove age=1 direct out weights
+		Map<INeuron, ArrayList<BundleWeight>> b = n.getDirectOutWeights();
+		Iterator<Entry<INeuron, ArrayList<BundleWeight>>> bi = b.entrySet().iterator();
+		while (bi.hasNext()) {
+			Entry<INeuron, ArrayList<BundleWeight>> pair = bi.next();
+			for (Iterator<BundleWeight> iterator = pair.getValue().iterator(); iterator.hasNext();) {
+				BundleWeight bundleWeight = iterator.next();
+				bundleWeight.removeYoungWeigths(pair.getKey());
+				if(bundleWeight.getBundle().size()==0){
+					pair.getKey().removeDirectInWeight(bundleWeight);
+				}
+			}
 		}
 		
 		return sum;
