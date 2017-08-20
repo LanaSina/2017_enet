@@ -902,7 +902,7 @@ public class SNetPattern implements ControllableThread {
 					}	
 					
 					//no change, try pruning spatial patterns
-					/*if(!didChange){
+					if(!didChange){
 						//look at input neuron's bundles vs STM
 						for (Iterator<INeuron> iterator = shuffled_stm.iterator(); iterator.hasNext();) {
 							INeuron preneuron = iterator.next();
@@ -934,7 +934,7 @@ public class SNetPattern implements ControllableThread {
 					
 					
 					//no change happened, try building a spatial pattern
-					//if(!didChange){// && !dreaming){	//  
+					if(!didChange){// && !dreaming){	//  
 						if(cpu_limitations && nw>max_new_connections) break;
 						if(true){//!hasMaxLayer(STM)
 							Vector<INeuron> vn = Utils.patternExists3D(shuffled_stm, n);
@@ -962,7 +962,7 @@ public class SNetPattern implements ControllableThread {
 								}*/
 							}
 						}
-					//}//*/
+					}//*/
 					
 					//if it changed, it is good to recalculate predicted activation
 					if(didChange){

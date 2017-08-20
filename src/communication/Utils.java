@@ -261,7 +261,7 @@ public class Utils {
 			}
 
 			
-			//removed_young_w+=removeYoungWeights(n);
+			removed_young_w+=removeYoungWeights(n);
 			//remove pattern neurons that have no function
 			//might need unsnapping later...
 			/*if(n.getOutWeights().size()==0 && n.getDirectOutWeights().size()==0){
@@ -290,7 +290,7 @@ public class Utils {
 			
 			if(!n.justSnapped && doit){ 
 				//avoid co-weigths that still can learn
-				HashMap<INeuron,ProbaWeight> co_w = n.getCoWeights();
+				/*HashMap<INeuron,ProbaWeight> co_w = n.getCoWeights();
 				Iterator<Entry<INeuron, ProbaWeight>> co_it = co_w.entrySet().iterator();
 				while (co_it.hasNext()) {
 					Entry<INeuron, ProbaWeight> pair3 = co_it.next();
@@ -369,7 +369,7 @@ public class Utils {
 						}*/
 						
 						//no learning inweights either
-						Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
+						/*Iterator<Entry<INeuron, ProbaWeight>> in1it = in1.entrySet().iterator();
 						while (in1it.hasNext()) {
 							Entry<INeuron, ProbaWeight> pa = in1it.next();
 							if(pa.getValue().canLearn()){
@@ -424,9 +424,6 @@ public class Utils {
 							n2.justSnapped = true;
 							remove.add(n2);
 							
-							if(n.getId()==7431 ||  n.getId()==7123 || n2.getId()==7431 ||  n2.getId()==7123){
-								mlog.say("snapping " + n.getId() + " " + n2.getId());
-							}
 							//report n2 inputs to n if they did not exist
 							n2.reportInWeights(n);
 							n2.reportCoWeights(n);
@@ -695,7 +692,7 @@ public class Utils {
 		int sum = 0;
 		
 		//remove age=1 out weights
-		/*Iterator<Entry<INeuron, ProbaWeight>> ai = a.entrySet().iterator();
+		Iterator<Entry<INeuron, ProbaWeight>> ai = a.entrySet().iterator();
 		while(ai.hasNext()){
 			Map.Entry<INeuron, ProbaWeight> pair = ai.next();
 			ProbaWeight w2 = pair.getValue();
@@ -704,7 +701,7 @@ public class Utils {
 				ai.remove();
 				pair.getKey().removeInWeight(n);
 			} 
-		}*/
+		}//*/
 		
 		//remove value=1 direct out weights
 		Map<INeuron, ArrayList<BundleWeight>> b = n.getDirectOutWeights();

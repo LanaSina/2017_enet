@@ -3,7 +3,7 @@
 library(igraph)
 
 netName = "~/Development/SNET_data/ECAL_kitti"
-netName = "~/Development/SNET_data/2017_08_19_20_22"
+netName = "~/Development/SNET_data/2017_08_20_01_05"
 
 #parameters
 fileName = paste(netName,"net_parameters.csv",sep="/")
@@ -19,7 +19,7 @@ plot(param$iteration,param$connections/1000,type="l",col=color, xlab = "Timestep
      main=netName)
 
 points(param$iteration,param$neurons,type="l",col="red")
-points(param$iteration,param$connections/1000,type="l",col="red")
+points(param$iteration,param$connections/1000,type="l",col="blue")
 
 plot_neurons(param1)
 legend(2000,1200, c("With noise","No noise"),
@@ -42,7 +42,9 @@ plot_weights = function(parameters){
 }
 
 #performance
-netName = "~/Development/SNET_data/2017_08_19_23_28"
+netName = "~/Development/SNET_data/2017_08_20_01_16"
+netName = "~/Development/SNET_data/2017_08_20_01_27"
+
 fileName = paste(netName,"performance.csv",sep="/")
 print(fileName)
 perf = read.csv(fileName)
@@ -59,9 +61,10 @@ plot(perf$iteration,perf$illusion,type="l",xlab = "Timestep", ylab = "Illusion",
 
 plot_surprise(perf)
 
-points(perf$iteration,perf$error,type="l", col="red")
-points(perf$iteration,perf$surprise,type="l", col="red")
-points(perf$iteration,perf$illusion,type="l", col="red")
+color = "blue"
+points(perf$iteration,perf$error,type="l", col=color)
+points(perf$iteration,perf$surprise,type="l", col=color)
+points(perf$iteration,perf$illusion,type="l", col=color)
 legend(350,400, c("Simple video","Complex video"),lty = 1, bty = "n",lwd=c(2.5,2.5),col=c("blue","red")) 
 abline(v=40)
 

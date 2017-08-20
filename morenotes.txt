@@ -19,6 +19,9 @@ grey predictions -> prediction map is bad?
 far too many neurons left
 drawing map is inverted
 
+1. snap learning in and co
+2. 1+ remove young weights but not neurons
+
 ---
 need a conscious and unconscious stm
 ---

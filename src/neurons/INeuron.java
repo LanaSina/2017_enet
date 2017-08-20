@@ -319,6 +319,7 @@ public class INeuron extends Neuron {
 	public void calculatePredictedActivation() { //TODO change name to calculateProbaActivation
 		if(!activationCalculated){
 			calculateSurprise();
+			old_pro_activation = pro_activation;
 			pro_activation = reCalculatePredictedActivation();
 			activationCalculated = true;
 		}
@@ -327,14 +328,14 @@ public class INeuron extends Neuron {
 	private void calculateSurprise(){
 		setSurprised(false);
 		setIllusion(false);
-		old_pro_activation = pro_activation;
 		
-		if(old_pro_activation==0 && activation>0){
+		if(pro_activation==0 && activation>0){
 			setSurprised(true);
 		}	
-		if(activation==0 && old_pro_activation>0){
+		if(activation==0 && pro_activation>0){
 			setIllusion(true);
 		}//*/
+		
 	}
 	
 	public double reCalculatePredictedActivation() {
@@ -787,9 +788,12 @@ public class INeuron extends Neuron {
 			double proba = b + (1-c)*a;
 			
 			wn.setValue((int)(proba*wn.getAge()));//*/
-			if(wn.getProba()>1 && wn.getAge()==Constants.weight_max_age){
-				wn.setValue(wn.getAge());
+			if(wn.getProba()>1){
+				wn.setValue(wn.getAge()+1);
 			}
+			/*if(wn.getProba()>1 && wn.getAge()==Constants.weight_max_age){
+				wn.setValue(wn.getAge());
+			}*/
 			/*if(b!=proba){
 				Utils.say( "initial " + b + " other " + a + " final " + proba + " value " + wn.getProba());
 			}*/
