@@ -3,7 +3,7 @@
 library(igraph)
 
 netName = "~/Development/SNET_data/ECAL_kitti"
-netName = "~/Development/SNET_data/2017_08_20_01_05"
+netName = "~/Development/SNET_data/2017_08_20_02_55"
 
 #parameters
 fileName = paste(netName,"net_parameters.csv",sep="/")
@@ -18,8 +18,9 @@ plot(param$iteration,param$connections/1000,type="l",col=color, xlab = "Timestep
      #xlim= c(0,100),#ylim= c(9300,9400)、
      main=netName)
 
-points(param$iteration,param$neurons,type="l",col="red")
-points(param$iteration,param$connections/1000,type="l",col="blue")
+color = "blue"
+points(param$iteration,param$neurons,type="l",col=color)
+points(param$iteration,param$connections/1000,type="l",col=color)
 
 plot_neurons(param1)
 legend(2000,1200, c("With noise","No noise"),
@@ -42,8 +43,8 @@ plot_weights = function(parameters){
 }
 
 #performance
-netName = "~/Development/SNET_data/2017_08_20_01_16"
-netName = "~/Development/SNET_data/2017_08_20_01_27"
+netName = "~/Development/SNET_data/2017_08_20_21_45"
+netName = "~/Development/SNET_data/ref_remove_young_w"
 
 fileName = paste(netName,"performance.csv",sep="/")
 print(fileName)
