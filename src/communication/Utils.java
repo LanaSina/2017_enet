@@ -264,7 +264,7 @@ public class Utils {
 			removed_young_w+=removeYoungWeights(n);
 			//remove pattern neurons that have no function
 			//might need unsnapping later...
-			/*if(n.getOutWeights().size()==0 && n.getDirectOutWeights().size()==0){
+			if(n.getOutWeights().size()==0 && n.getDirectInWeights().size()==0){
 				deleted++;
 				remove.add(n);
 				
@@ -272,7 +272,7 @@ public class Utils {
 				n.removeAllInWeights();
 				n.clearDirectInWeights();									
 				continue;
-			}*/
+			}//*/
 		}
 		
 		it = neurons.entrySet().iterator();

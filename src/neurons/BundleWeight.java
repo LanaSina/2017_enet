@@ -267,7 +267,7 @@ public class BundleWeight extends ProbaWeight {
 	}
 
 	/**
-	 * decrease probabilities all neurons that are not in newBundle
+	 * decrease probabilities all neurons that are not in newBundle and calculates activation.
 	 * @param newBundle
 	 */
 	public void decreaseAllBut(Vector<INeuron> newBundle) {

@@ -907,9 +907,10 @@ public class SNetPattern implements ControllableThread {
 						for (Iterator<INeuron> iterator = shuffled_stm.iterator(); iterator.hasNext();) {
 							INeuron preneuron = iterator.next();
 							HashMap<INeuron, ProbaWeight> inw = n.getInWeights();
-							if(inw.containsKey(preneuron) 
-									&& inw.get(preneuron).getProba()>Constants.confidence_threshold
-									&& inw.get(preneuron).getAge()>2){
+							ProbaWeight inweight = inw.get(preneuron);
+							if(inweight!=null
+									&& inweight.getProba()>Constants.confidence_threshold
+									&& inweight.getAge()>2){
 								//look at those that were activated (ie in STM)
 								Vector<BundleWeight> pr = preneuron.getDirectInWeights();
 								for (Iterator<BundleWeight> iterator2 = pr.iterator(); iterator2.hasNext();) {
@@ -926,6 +927,10 @@ public class SNetPattern implements ControllableThread {
 									if (newBundle.size()>=2) {
 										bundleWeight.decreaseAllBut(newBundle);
 										didChange = true;
+										//just in case, up this weight as if it had been useful
+										//want to avoid accidentally deleting it
+										/*inweight.addValue();
+										inweight.increaseAge();*/
 									}
 								}
 							}
