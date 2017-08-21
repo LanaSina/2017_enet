@@ -1,9 +1,4 @@
 
-LSA -> noise and signla differenciation, noise helps learning
-compression DL : noise complexity?
-SNet: complexity in the epsilon sense, not the noise sense
-
-
 Priority: implement "time pattern" 
 calculate activation takes all time -> optimize recurrence? use supercomp?
 updateCoactivation also slow -> standardise instant prediction? don't delete them each time

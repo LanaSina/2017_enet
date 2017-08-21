@@ -713,10 +713,24 @@ public class SNetPattern implements ControllableThread {
 
 		int n_surprised = 0;
 		//number of sensory activated
-		int n_activated = eye.getN();
+		int n_activated = allINeurons.size(); //eye.getN();
 		//predicted, not activated
 		int n_illusion = 0;//*/
-		for (int i = 0; i<eye_neurons.length; i++) {
+		
+		for (Iterator<Entry<Integer, INeuron>> iterator = allINeurons.entrySet().iterator(); iterator.hasNext();) {
+			Entry<Integer, INeuron> pair = iterator.next();
+			INeuron n = pair.getValue();
+			if(!n.isMute()){
+				if(n.isIllusion()){
+					n_illusion++;
+				} else if (n.isSurprised()) {
+					n_surprised++;
+				}
+			}
+			
+		}
+		
+		/*for (int i = 0; i<eye_neurons.length; i++) {
 			HashMap<Integer, INeuron> l = eye_neurons[i];
 			for (Iterator<Entry<Integer, INeuron>> iterator = l.entrySet().iterator(); iterator.hasNext();) {
 				Entry<Integer, INeuron> pair = iterator.next();
@@ -730,7 +744,7 @@ public class SNetPattern implements ControllableThread {
 				}
 			}
 			
-		}
+		}*/
 		
 		if(save){	
 			double error, surprise, illusion;
@@ -852,7 +866,7 @@ public class SNetPattern implements ControllableThread {
 					continue;
 				}*/
 				
-				if(n.isSurprised()){// && !n.isMute() must predict activation of small ones too
+				if(n.isSurprised() && !n.isMute()){// && !n.isMute() must predict activation of small ones too
 					check++;
 					//did we improve future prediction chances?
 					boolean didChange = false;
