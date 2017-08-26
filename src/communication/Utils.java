@@ -73,7 +73,7 @@ public class Utils {
 			INeuron n = iterator.next();
 			
 			boolean add = true;
-			for (Iterator<INeuron> iterator2 = valid_neurons.iterator(); iterator2.hasNext();) {
+			for (Iterator<INeuron> iterator2 = neurons.iterator(); iterator2.hasNext();) {
 				INeuron n2 = iterator2.next();
 				if(n.getId() != n2.getId()){
 					double[] p1 = n.getPosition();
@@ -251,7 +251,7 @@ public class Utils {
 		
 		//go through net
 		Iterator<Entry<Integer, INeuron>> it = neurons.entrySet().iterator();
-		while(it.hasNext()){
+		/*while(it.hasNext()){
 			
 			Map.Entry<Integer, INeuron> pair = it.next();
 			INeuron n = pair.getValue();
@@ -272,10 +272,10 @@ public class Utils {
 				n.removeAllInWeights();
 				n.clearDirectInWeights();									
 				continue;
-			}//*/
+			}
 		}
 		
-		it = neurons.entrySet().iterator();
+		it = neurons.entrySet().iterator();*/
 		while(it.hasNext()){
 			
 			Map.Entry<Integer, INeuron> pair = it.next();

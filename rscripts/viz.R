@@ -43,8 +43,8 @@ plot_weights = function(parameters){
 }
 
 #performance
-netName = "~/Development/SNET_data/2017_08_20_21_45"
-netName = "~/Development/SNET_data/ref_remove_young_w"
+netName = "~/Development/SNET_data/2017_08_21_21_30"
+netName = "~/Development/SNET_data/2017_08_21_21_05"
 
 fileName = paste(netName,"performance.csv",sep="/")
 print(fileName)
@@ -58,11 +58,11 @@ plot(perf$iteration,perf$error,type="l",xlab = "Timestep", ylab = "Error", col=c
 plot(perf$iteration,perf$surprise,type="l",xlab = "Timestep", ylab = "Surprise", col=color,
      main=netName, xlim = c(0,800), ylim = c(0,1))
 plot(perf$iteration,perf$illusion,type="l",xlab = "Timestep", ylab = "Illusion", col=color,
-     main=netName, xlim = c(0,800))#, ylim = c(0,3))
+     main=netName, xlim = c(0,800), ylim = c(0,1))
 
 plot_surprise(perf)
 
-color = "blue"
+color = "red"
 points(perf$iteration,perf$error,type="l", col=color)
 points(perf$iteration,perf$surprise,type="l", col=color)
 points(perf$iteration,perf$illusion,type="l", col=color)

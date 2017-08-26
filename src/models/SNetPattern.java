@@ -953,34 +953,26 @@ public class SNetPattern implements ControllableThread {
 					
 					
 					//no change happened, try building a spatial pattern
-					if(!didChange){// && !dreaming){	//  
+					//if(!didChange){// && !dreaming){	//  
 						if(cpu_limitations && nw>max_new_connections) break;
 						if(true){//!hasMaxLayer(STM)
 							Vector<INeuron> vn = Utils.patternExists3D(shuffled_stm, n);
 							if(vn.size()>0){
-								//if(the_pattern==null){
-									if(vn.size()>1){
-										INeuron 
-										the_pattern = new INeuron(vn,n,n_id);
-										n_id++;
-										newn.addElement(the_pattern);
-										ProbaWeight weight = the_pattern.getOutWeights().get(n);
-										weight.setActivation(1, null);
-										pn++;
-									}
-									nw++;
-									didChange = true;
-								/*} else{
-									ProbaWeight p = n.addInWeight(Constants.defaultConnection, the_pattern);
-									if(the_pattern.addOutWeight(n, p)){
-										nw++;
-										didChange = true;
-										p.setActivation(1, null);
-										mlog.say("******** added pattern weight to " + n.getId());
-									}
-								}*/
+								//even if there has been a change, create a pattern if many new connections
+								if( //(vn.size()>(shuffled_stm.size()/2))
+								   (!didChange && (vn.size()>1)) ){
+
+									INeuron the_pattern = new INeuron(vn,n,n_id);
+									n_id++;
+									newn.addElement(the_pattern);
+									ProbaWeight weight = the_pattern.getOutWeights().get(n);
+									weight.setActivation(1, null);
+									pn++;
+								}
+								nw++;
+								didChange = true;
 							}
-						}
+						//}
 					}//*/
 					
 					//if it changed, it is good to recalculate predicted activation
