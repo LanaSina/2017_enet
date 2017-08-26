@@ -959,7 +959,7 @@ public class SNetPattern implements ControllableThread {
 							Vector<INeuron> vn = Utils.patternExists3D(shuffled_stm, n);
 							if(vn.size()>0){
 								//even if there has been a change, create a pattern if many new connections
-								if( //(vn.size()>(shuffled_stm.size()/2))
+								if( (vn.size()>(shuffled_stm.size()/2)) ||
 								   (!didChange && (vn.size()>1)) ){
 
 									INeuron the_pattern = new INeuron(vn,n,n_id);

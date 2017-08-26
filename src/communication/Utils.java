@@ -73,7 +73,7 @@ public class Utils {
 			INeuron n = iterator.next();
 			
 			boolean add = true;
-			for (Iterator<INeuron> iterator2 = neurons.iterator(); iterator2.hasNext();) {
+			for (Iterator<INeuron> iterator2 = valid_neurons.iterator(); iterator2.hasNext();) {
 				INeuron n2 = iterator2.next();
 				if(n.getId() != n2.getId()){
 					double[] p1 = n.getPosition();

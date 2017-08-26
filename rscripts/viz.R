@@ -3,7 +3,7 @@
 library(igraph)
 
 netName = "~/Development/SNET_data/ECAL_kitti"
-netName = "~/Development/SNET_data/2017_08_20_02_55"
+netName = "~/Development/SNET_data/2017_08_24_16_01"
 
 #parameters
 fileName = paste(netName,"net_parameters.csv",sep="/")
@@ -22,24 +22,24 @@ color = "blue"
 points(param$iteration,param$neurons,type="l",col=color)
 points(param$iteration,param$connections/1000,type="l",col=color)
 
-plot_neurons(param1)
+plot_neurons(param)
 legend(2000,1200, c("With noise","No noise"),
        lty = 1, bty = "n",
        lwd=c(2.5,2.5),col=c("black","red")) 
 
-plot_weights(param1)
+plot_weights(param)
 legend(1200,130,  c("With noise","No noise"),
        lty = 1, bty = "n",
        lwd=c(2.5,2.5),col=c("black","red")) 
 
 plot_neurons = function(parameters){
   plot(parameters$iteration,parameters$neurons,type="l",col="red",xlab = "Timestep", ylab = "Number of neurons",
-       xlim= c(0,3000), ylim= c(0,1500), cex.lab=1.5, cex.axis=1.5)
+       xlim= c(0,550), ylim= c(0,10000), cex.lab=1.5, cex.axis=1.5)
 }
 
 plot_weights = function(parameters){
   plot(parameters$iteration,parameters$connections/1000,type="l",col="red",xlab = "Timestep", ylab = "Number of weights / 1,000",
-       xlim= c(0,3000), ylim= c(0,200), cex.lab=1.5, cex.axis=1.5)
+       xlim= c(0,550), ylim= c(0,3000), cex.lab=1.5, cex.axis=1.5)
 }
 
 #performance
@@ -56,13 +56,13 @@ plot(perf$iteration,perf$error,type="l",xlab = "Timestep", ylab = "Error", col=c
     # , xlim = c(0,800), ylim = c(0,2)
      )
 plot(perf$iteration,perf$surprise,type="l",xlab = "Timestep", ylab = "Surprise", col=color,
-     main=netName, xlim = c(0,800), ylim = c(0,1))
+     main=netName, xlim = c(0,800), ylim = c(0,0.1))
 plot(perf$iteration,perf$illusion,type="l",xlab = "Timestep", ylab = "Illusion", col=color,
      main=netName, xlim = c(0,800), ylim = c(0,1))
 
 plot_surprise(perf)
 
-color = "red"
+color = "blue"
 points(perf$iteration,perf$error,type="l", col=color)
 points(perf$iteration,perf$surprise,type="l", col=color)
 points(perf$iteration,perf$illusion,type="l", col=color)
