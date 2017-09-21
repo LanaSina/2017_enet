@@ -965,7 +965,7 @@ public class SNetPattern implements ControllableThread {
 					
 					
 					//no change happened, try building a spatial pattern
-					if(!didChange || (new_in/625.0>0.5)){// && !dreaming){	//TODO how to decide this number  
+					if(!didChange || (surprised/625.0>0.5)){// && !dreaming){	//TODO how to decide this number  
 						if(cpu_limitations && nw>max_new_connections) break;
 						if(true){//!hasMaxLayer(STM)
 							Vector<INeuron> vn = Utils.patternExists3D(shuffled_stm, n);
