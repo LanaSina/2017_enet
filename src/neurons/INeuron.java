@@ -338,6 +338,10 @@ public class INeuron extends Neuron {
 		
 	}
 	
+	/*public void recalculateOldPrediction() {
+		old_pro_activation = reCalculatePredictedActivation();
+	}*/
+	
 	public double reCalculatePredictedActivation() {
 		//calculate predicted positive activation
 		double pa = 0;
@@ -364,7 +368,7 @@ public class INeuron extends Neuron {
 		return pa;
 	}
 	
-	/** activated diect outweights if this neuron is activated */
+	/** activated direct outweights if this neuron is activated */
 	public void propagateActivation(){
 		if(isActivated()){
 			//activate direct out weights

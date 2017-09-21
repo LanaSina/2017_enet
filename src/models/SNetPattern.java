@@ -852,6 +852,7 @@ public class SNetPattern implements ControllableThread {
 		
 		int pn = 0;
 		int check = 0;
+		int surprised = 0;
 
 		if(add_weights){
 
@@ -868,6 +869,7 @@ public class SNetPattern implements ControllableThread {
 				
 				if(n.isSurprised()){ // && !n.isMute() must predict activation of small ones too
 					check++;
+					surprised++;
 					//did we improve future prediction chances?
 					boolean didChange = false;
 					
@@ -882,9 +884,13 @@ public class SNetPattern implements ControllableThread {
 						}else{
 							ProbaWeight probaWeight = n.addInWeight(Constants.defaultConnection, preneuron);
 							if(preneuron.addOutWeight(n,probaWeight)){
-								probaWeight.setActivation(1,null);
 								nw++;
 								didChange = true;
+								if(preneuron.isActivated()){
+									probaWeight.setActivation(1, null);
+									n.resetActivationCalculated();
+									n.calculatePredictedActivation();
+								}
 							}
 						}//*/
 						
@@ -916,7 +922,7 @@ public class SNetPattern implements ControllableThread {
 					}	
 					
 					//no change, try pruning spatial patterns
-					if(!didChange){
+					/*if(!didChange){
 						//look at input neuron's bundles vs STM
 						for (Iterator<INeuron> iterator = shuffled_stm.iterator(); iterator.hasNext();) {
 							INeuron preneuron = iterator.next();
@@ -941,19 +947,15 @@ public class SNetPattern implements ControllableThread {
 									if (newBundle.size()>=2) {
 										bundleWeight.decreaseAllBut(newBundle);
 										didChange = true;
-										//just in case, up this weight as if it had been useful
-										//want to avoid accidentally deleting it
-										/*inweight.addValue();
-										inweight.increaseAge();*/
 									}
 								}
 							}
 						}
-					}//*/
+					}
 					
 					
 					//no change happened, try building a spatial pattern
-					//if(!didChange){// && !dreaming){	//  
+					if(!didChange){// && !dreaming){	//  
 						if(cpu_limitations && nw>max_new_connections) break;
 						if(true){//!hasMaxLayer(STM)
 							Vector<INeuron> vn = Utils.patternExists3D(shuffled_stm, n);
@@ -962,23 +964,23 @@ public class SNetPattern implements ControllableThread {
 								if( (vn.size()>(shuffled_stm.size()/2)) ||
 								   (!didChange && (vn.size()>1)) ){
 
-									INeuron the_pattern = new INeuron(vn,n,n_id);
+									INeuron the_pattern = new INeuron(vn,n,n_id);									
 									n_id++;
 									newn.addElement(the_pattern);
-									ProbaWeight weight = the_pattern.getOutWeights().get(n);
-									weight.setActivation(1, null);
+									//ProbaWeight weight = the_pattern.getOutWeights().get(n);
+									//weight.setActivation(1, null);
 									pn++;
 								}
 								nw++;
 								didChange = true;
 							}
-						//}
+						}
 					}//*/
 					
 					//if it changed, it is good to recalculate predicted activation
 					if(didChange){
 						check--;
-						n.reCalculatePredictedActivation();
+						//n.reCalculatePredictedActivation();
 						//n.resetActivationCalculated();
 						//n.calculateActivation();
 						//n.setSurprised(true);
@@ -1001,6 +1003,7 @@ public class SNetPattern implements ControllableThread {
 			}
 		}
 		
+		mlog.say("### surprised "+surprised);
 		
 		for (Iterator<INeuron> iterator = newn.iterator(); iterator.hasNext();) {
 			INeuron neuron = iterator.next();
