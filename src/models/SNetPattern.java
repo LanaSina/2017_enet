@@ -94,11 +94,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/Oswald/bike/small/"; 
+	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/";//Oswald/bike/small/"; 
 	/** leading zeros*/
 	String name_format = "%02d";
 	/** number of images*/
-	int n_images = 40;//
+	int n_images = 1;//
 	
 	//sensors 
 	/** image sensor*/
@@ -717,7 +717,7 @@ public class SNetPattern implements ControllableThread {
 		//predicted, not activated
 		int n_illusion = 0;//*/
 		
-		for (Iterator<Entry<Integer, INeuron>> iterator = allINeurons.entrySet().iterator(); iterator.hasNext();) {
+		/*for (Iterator<Entry<Integer, INeuron>> iterator = allINeurons.entrySet().iterator(); iterator.hasNext();) {
 			Entry<Integer, INeuron> pair = iterator.next();
 			INeuron n = pair.getValue();
 			if(!n.isMute()){
@@ -728,9 +728,9 @@ public class SNetPattern implements ControllableThread {
 				}
 			}
 			
-		}
+		}*/
 		
-		/*for (int i = 0; i<eye_neurons.length; i++) {
+		for (int i = 0; i<eye_neurons.length; i++) {
 			HashMap<Integer, INeuron> l = eye_neurons[i];
 			for (Iterator<Entry<Integer, INeuron>> iterator = l.entrySet().iterator(); iterator.hasNext();) {
 				Entry<Integer, INeuron> pair = iterator.next();
@@ -744,7 +744,7 @@ public class SNetPattern implements ControllableThread {
 				}
 			}
 			
-		}*/
+		}//*/
 		
 		if(save){	
 			double error, surprise, illusion;
@@ -866,7 +866,7 @@ public class SNetPattern implements ControllableThread {
 					continue;
 				}*/
 				
-				if(n.isSurprised() && !n.isMute()){// && !n.isMute() must predict activation of small ones too
+				if(n.isSurprised()){ // && !n.isMute() must predict activation of small ones too
 					check++;
 					//did we improve future prediction chances?
 					boolean didChange = false;
