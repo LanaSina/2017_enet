@@ -101,16 +101,7 @@ public class BundleWeight extends ProbaWeight {
 	/**
 	 * @return true if all weights in bundle are activated, false otherwise
 	 */
-	//@Override
 	public boolean bundleIsActivated() {
-		/*boolean b = true;
-		for (Iterator<INeuron> iterator = bundle.keySet().iterator(); iterator.hasNext();) {
-			INeuron n = iterator.next();
-			if(!n.isActivated()){
-				b = false;
-				break;
-			}
-		}//*/
 		
 		boolean b = true;
 		Vector<INeuron> remove = new Vector<INeuron>();
@@ -329,6 +320,43 @@ public class BundleWeight extends ProbaWeight {
 		
 		//return v;
 		
+	}
+
+	/**
+	 * 
+	 * @param sTM
+	 * @return true is this combination can activate this bundle
+	 */
+	public boolean bundleIsActivated(Vector<INeuron> sTM) {
+		boolean b = true;
+		Vector<INeuron> remove = new Vector<INeuron>();
+		//>90% of 0.9 weights must be activated
+		//>70% of 0.7 weights etc
+		//int activated = 0;
+		double sum = 0; 
+		for (Iterator<Entry<INeuron, ProbaWeight>> iterator = bundle.entrySet().iterator(); iterator.hasNext();) {
+			Entry<INeuron, ProbaWeight> pair = iterator.next();
+			INeuron n = pair.getKey();
+			if(!sTM.contains(n)){
+				ProbaWeight pw = pair.getValue();
+				if(pw.getProba()>(1.0/20)){
+					sum+=pw.getProba();
+				}else {
+					remove.addElement(pair.getKey());
+				}
+				if(sum>=1){
+					return false;
+				}
+			}
+		}
+		
+		for (Iterator iterator = remove.iterator(); iterator.hasNext();) {
+			INeuron n = (INeuron) iterator.next();
+			removeStrand(n);
+			n.removeDirectInWeight(this);
+		}
+			
+		return b;
 	}
 
 }

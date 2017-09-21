@@ -853,7 +853,9 @@ public class SNetPattern implements ControllableThread {
 		int pn = 0;
 		int check = 0;
 		int surprised = 0;
-
+		//many new inweights == totally unexpected event: build pattern neurons to save time
+		int new_in = 0;
+		
 		if(add_weights){
 
 			//random
@@ -891,6 +893,7 @@ public class SNetPattern implements ControllableThread {
 									n.resetActivationCalculated();
 									n.calculatePredictedActivation();
 								}
+								new_in++;
 							}
 						}//*/
 						
@@ -922,7 +925,7 @@ public class SNetPattern implements ControllableThread {
 					}	
 					
 					//no change, try pruning spatial patterns
-					/*if(!didChange){
+					if(!didChange){
 						//look at input neuron's bundles vs STM
 						for (Iterator<INeuron> iterator = shuffled_stm.iterator(); iterator.hasNext();) {
 							INeuron preneuron = iterator.next();
@@ -947,6 +950,13 @@ public class SNetPattern implements ControllableThread {
 									if (newBundle.size()>=2) {
 										bundleWeight.decreaseAllBut(newBundle);
 										didChange = true;
+										//if the pattern can be activated by stm, recalculate the predictions
+										if(bundleWeight.bundleIsActivated(STM)){
+											inweight.setActivation(1, null);
+											n.resetActivationCalculated();
+											n.calculatePredictedActivation();
+											mlog.say("--- pruning did activate bw");
+										}
 									}
 								}
 							}
@@ -955,7 +965,7 @@ public class SNetPattern implements ControllableThread {
 					
 					
 					//no change happened, try building a spatial pattern
-					if(!didChange){// && !dreaming){	//  
+					if(!didChange || (new_in/625.0>0.5)){// && !dreaming){	//TODO how to decide this number  
 						if(cpu_limitations && nw>max_new_connections) break;
 						if(true){//!hasMaxLayer(STM)
 							Vector<INeuron> vn = Utils.patternExists3D(shuffled_stm, n);
@@ -967,8 +977,10 @@ public class SNetPattern implements ControllableThread {
 									INeuron the_pattern = new INeuron(vn,n,n_id);									
 									n_id++;
 									newn.addElement(the_pattern);
-									//ProbaWeight weight = the_pattern.getOutWeights().get(n);
-									//weight.setActivation(1, null);
+									ProbaWeight weight = the_pattern.getOutWeights().get(n);
+									weight.setActivation(1, null);
+									n.resetActivationCalculated();
+									n.calculatePredictedActivation();
 									pn++;
 								}
 								nw++;
