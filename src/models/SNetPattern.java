@@ -94,11 +94,11 @@ public class SNetPattern implements ControllableThread {
 
 	//environment
 	/**images files*/
-	String imagesPath = "/Users/lana/Desktop/prgm/SNet/images/ball/";//Oswald/bike/small/"; 
+	String images_path = Constants.images_path;
 	/** leading zeros*/
-	String name_format = "%02d";
+	String name_format = Constants.name_format;
 	/** number of images*/
-	int n_images = 1;//
+	int n_images = Constants.n_images;
 	
 	//sensors 
 	/** image sensor*/
@@ -151,7 +151,7 @@ public class SNetPattern implements ControllableThread {
     	panel.addControllable(this);  
     	
     	//sensor init
-    	eye = new Eye(imagesPath, panel);
+    	eye = new Eye(images_path, panel);
     	//leading zeros
 		String iname =  String.format(name_format, img_id); //images[img_id];//"%010d"
     	eye.readImage(iname);

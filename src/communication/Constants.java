@@ -12,7 +12,14 @@ public class Constants {
 	/** controls output of all loggers. Set true for verbose mode, false for dry mode.*/
 	public static final boolean shouldLog = true;
 
-	public static final String image_format = ".png";//".bmp";
+	//environment
+	/**images files*/
+	public static final	String images_path = "/Users/lana/Desktop/prgm/SNet/images/Oswald/full/small/file_"; 
+	/** leading zeros*/
+	public static final	String name_format = "%05d";
+	/** number of images*/
+	public static final	int n_images = 333;//
+	public static final String image_format = ".bmp";//".bmp";
 
 	/** age at which probabilistic connections stop learning */
 	public static final int weight_max_age = 20;//20
@@ -25,8 +32,8 @@ public class Constants {
 	public static final int eres_f = 2;
 	public static final int eres_nf = 5;
 	/**size of focused area*/
-	public static final int ef_w = 50;//20;
-	public static final int ef_h = 50;//20;
+	public static final int ef_w = 58;//20;
+	public static final int ef_h = 43;//20;
 	/** size of visual field */
 	public static final int vf_w = ef_w;//50;
 	public static final int vf_h = ef_h;//50;
